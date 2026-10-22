@@ -1,0 +1,6 @@
+# generated during local verification - regenerate with cat/cat-check as needed
+check.js
+defs.js
+run-tests.js
+dbg*.js
+__pycache__/

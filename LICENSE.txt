@@ -1,0 +1,49 @@
+GIFTED SCHOLARS — Classroom points & virtual gifts
+Copyright (c) 2026 Mohammed Shehzad Khan ("Teacher Mo"). All rights reserved.
+
+WHAT THIS IS
+This website was created by Mohammed Shehzad Khan and donated as a FREE
+gift to ZhongFangYuan Bilingual School. It will always be free to use:
+no fees, no ads, no tracking, and nothing for sale. All "prices" inside
+the app are play-money stars students earn through classroom kindness —
+never real money.
+
+OWNERSHIP (IMPORTANT)
+1. The site — its code, design, artwork, and writing — remains the sole
+   property of Mohammed Shehzad Khan. Copyright is NOT transferred to
+   the school, and this ownership does not change or expire, even if the
+   author leaves, graduates, or stops maintaining the site.
+2. The school receives a perpetual, free, non-commercial, non-exclusive
+   license to use the site for its educational mission. "Perpetual"
+   means the school may keep using it forever, including after the
+   author moves on.
+3. The author keeps every other right: to update the site, to share it
+   with other schools, to build on it, and to license it elsewhere.
+
+RULES OF USE
+The school and its staff MAY:
+- use the site in class, on classroom screens, and share the student
+  room links with students and parents;
+- keep copies for classroom backup;
+- request changes from the author.
+
+The school and anyone else may NOT:
+- sell, rent, charge for, or bundle this work into anything paid;
+- relicense, resell, or claim authorship of it;
+- remove, hide, or edit the credit line ("© 2026 Mohammed Shehzad Khan")
+  or this license notice.
+
+ENDS ON BREACH
+This license ends automatically if its terms are broken (for example,
+if the credit is removed or anyone charges money for the site). After a
+breach, any further use requires written permission from the author.
+
+CREDITS
+- Design & motion system adapted from the Sprig reference kit
+  (checkpoint b9635744); gaze smoothing math ported from its lib/gaze.ts.
+- Fonts: Epilogue and DM Sans (SIL Open Font License 1.1) — see /fonts/.
+- Brand character artwork, wordmark, and all Gifted Scholars content:
+  original work of Mohammed Shehzad Khan.
+
+This is a plain-language notice written by the author, not legal advice.
+For anything formal, have a lawyer review it.

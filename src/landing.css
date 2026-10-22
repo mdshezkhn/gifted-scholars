@@ -1,0 +1,150 @@
+/* ======================================================================
+   Gifted Scholars — landing scene (Sprig motion system, namespaced gs-)
+   Faithful adaptation of the supplied reference sprig.css (checkpoint
+   b9635744). Necessary changes for this site: class names prefixed gs-
+   (single file also contains the app UI), video/poster replaced by an
+   original inline-SVG character with cursor-tracking pupils, wordmark is
+   this brand's own mark. Geometry, tokens, curves, timings and breakpoints
+   match the reference values.
+   ====================================================================== */
+:root{
+  --gs-bg:#F4F1E8; --gs-ink:#15251C; --gs-pill:#FFFCF5; --gs-pill-hover:#E6EDDC;
+  --gs-hover-green:#537342; --gs-leaf:#78956A; --gs-sparkle:#B39D71;
+  --gs-burst-a:#718E60; --gs-burst-b:#AC9468;
+  --gs-ease:cubic-bezier(.25,1,.4,1); --gs-spring:cubic-bezier(.22,1,.36,1);
+  font-synthesis:none; color-scheme:light;
+}
+.gs-page{position:relative;min-height:100svh;padding-top:6.5vw;isolation:isolate;overflow:hidden;background:var(--gs-bg);color:var(--gs-ink)}
+.gs-left{position:relative;margin-left:8.5vw;width:25vw;z-index:1}
+.gs-pill{display:inline-flex;align-items:center;border-radius:100px;background:var(--gs-pill);padding:.39vw .72vw;min-height:1.9vw;font-size:clamp(12px,.88vw,17px);line-height:1.2;white-space:nowrap}
+.gs-headline{font-family:"Epilogue",sans-serif;font-weight:900;font-size:clamp(20px,1.66vw,34px);line-height:1.2;letter-spacing:-.025em;margin:1.45vw 0 0}
+.gs-topics{display:flex;flex-direction:column;align-items:flex-start;gap:.93vw;margin-top:1.3vw;font-size:clamp(14px,1.075vw,20px);line-height:1.35}
+.gs-topics>a,.gs-topics>button{background:none;border:0;padding:0;color:inherit;font:inherit;line-height:inherit;cursor:pointer;text-align:left}
+.gs-brand{position:absolute;top:6.6vw;left:50%;transform:translateX(-50%);width:30vw;z-index:1}
+.gs-brand svg{width:100%;height:auto;display:block;overflow:visible}
+.gs-right{position:absolute;right:6vw;top:6.5vw;width:21vw;z-index:1}
+.gs-note{margin:1.05vw 0 0;font-size:clamp(11px,.78vw,15px);line-height:1.5;max-width:34ch}
+.gs-socials{display:flex;align-items:center;gap:1.3vw;margin-top:1.45vw}
+.gs-socials>span{display:flex;align-items:center;justify-content:center;width:clamp(22px,1.71vw,34px);height:clamp(22px,1.71vw,34px)}
+.gs-socials svg{display:block;width:100%;height:100%}
+.gs-scene{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:var(--gs-bg)}
+.gs-char{position:absolute;bottom:-1vw;left:50%;transform:translateX(-50%);width:min(46vw,720px);max-height:88vh}
+.gs-credit{position:absolute;left:8.5vw;bottom:1.6vw;z-index:2;margin:0;max-width:20vw;font-size:clamp(10px,.75vw,14px);line-height:1.5;color:var(--gs-ink);opacity:.75}
+.gs-credit a{color:inherit}
+.gs-credit a:hover{color:var(--gs-hover-green)}
+
+/* tablet (701-1000px) — reference overrides */
+@media (min-width:701px) and (max-width:1000px){
+  .gs-left{margin-left:6vw;width:28vw}
+  .gs-right{right:4vw;width:28vw}
+  .gs-brand{width:33vw}
+  .gs-pill{padding:6px 9px;font-size:11px}
+  .gs-headline{font-size:19px;margin-top:16px}
+  .gs-topics{margin-top:17px;gap:11px}
+  .gs-note{margin-top:13px;font-size:11px}
+  .gs-socials{margin-top:17px;gap:15px}
+  .gs-char{width:min(58vw,520px)}
+}
+
+/* mobile (<=700px) — normal flow: wordmark, left, right, character */
+@media (max-width:700px){
+  .gs-page{display:flex;flex-direction:column;gap:36px;min-height:100svh;padding:40px 24px 0}
+  .gs-brand{position:static;order:0;transform:none;width:300px;max-width:78%;align-self:flex-start;margin:0 0 4px}
+  .gs-left{order:1;margin:0;width:100%}
+  .gs-pill{height:30px;min-height:30px;padding:6px 11px;font-size:14px}
+  .gs-headline{font-size:clamp(22px,6.3vw,30px);line-height:1.25;margin-top:19px}
+  .gs-topics{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0;font-size:17px;line-height:1.4;margin-top:20px}
+  .gs-topics>a,.gs-topics>button{display:flex;align-items:center;min-height:44px}
+  .gs-right{position:static;order:2;width:100%}
+  .gs-note{max-width:34ch;margin-top:16px;font-size:14px;line-height:1.5}
+  .gs-socials{margin-top:20px;gap:18px}
+  .gs-socials>span{width:44px;height:44px}
+  .gs-socials svg{width:30px;height:30px}
+  .gs-socials>span:first-child{margin-left:-7px}
+  .gs-scene{position:relative;inset:auto;z-index:auto;order:3;flex:none;align-self:center;width:calc(100% + 48px);aspect-ratio:4/3;margin-top:-16px}
+  .gs-char{bottom:0;width:min(100%,420px);max-height:none}
+  .gs-credit{position:static;order:4;margin:0 0 18px;opacity:.8;font-size:12px}
+}
+
+/* entrance choreography (values per reference spec) */
+.gs-line{display:block;overflow:hidden;padding-bottom:.055em;margin-bottom:-.055em}
+.gs-line>span{display:block}
+.gs-brand-reveal{transform-origin:50% 70%}
+.gs-brand svg{transform-origin:50% 70%;transition:transform 280ms var(--gs-spring)}
+.gs-brand svg .gs-brand-leaf{transform-box:fill-box;transform-origin:50% 100%}
+.gs-pill{transition:transform 260ms var(--gs-spring),background-color 220ms ease}
+.gs-topics>a>span,.gs-topics>button>span{display:inline-block;transition:transform 280ms var(--gs-spring),color 180ms ease}
+.gs-socials svg{transition:transform 280ms var(--gs-spring)}
+.gs-scene{transition:opacity 240ms var(--gs-ease)}
+
+/* ambient botanical accents (supplied reference artwork paths) */
+.gs-accents{position:absolute;inset:0;pointer-events:none}
+.gs-bot{position:absolute;display:block;color:var(--gs-leaf);opacity:.52}
+.gs-bot svg{display:block;width:100%;height:auto}
+.gs-bot-a{width:30px;left:17%;top:64%}
+.gs-bot-b{width:19px;left:26%;top:81%;color:var(--gs-sparkle)}
+.gs-bot-c{width:35px;right:17%;top:54%}
+.gs-bot-d{width:17px;right:24%;top:83%;color:var(--gs-sparkle)}
+
+/* click / tap leaf bursts */
+.gs-bursts{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.gs-bloom{position:absolute;width:0;height:0}
+.gs-petal{position:absolute;left:-8px;top:-8px;width:17px;height:17px;color:var(--gs-burst-a);opacity:0}
+.gs-petal:nth-child(even){color:var(--gs-burst-b);width:12px;height:12px}
+.gs-petal svg{display:block;width:100%;height:100%}
+
+@media (prefers-reduced-motion:no-preference){
+  .gs-brand-reveal{animation:gs-brand-arrive 760ms var(--gs-spring) 100ms both}
+  .gs-brand svg .gs-brand-leaf{animation:gs-leaf-wave 8s ease-in-out 1.1s infinite}
+  .gs-left>.gs-pill{animation:gs-soft-arrive 560ms var(--gs-ease) 80ms backwards}
+  .gs-right>.gs-pill{animation:gs-soft-arrive 560ms var(--gs-ease) 180ms backwards}
+  .gs-line>span{animation:gs-line-arrive 680ms var(--gs-ease) 170ms both}
+  .gs-line:nth-child(2)>span{animation-delay:250ms}
+  .gs-right .gs-line>span{animation-delay:290ms}
+  .gs-right .gs-line:nth-child(2)>span{animation-delay:370ms}
+  .gs-topics>a,.gs-topics>button{animation:gs-soft-arrive 520ms var(--gs-ease) 360ms both}
+  .gs-topics>:nth-child(2){animation-delay:430ms}
+  .gs-topics>:nth-child(3){animation-delay:500ms}
+  .gs-topics>:nth-child(4){animation-delay:570ms}
+  .gs-note{animation:gs-soft-arrive 560ms var(--gs-ease) 490ms both}
+  .gs-socials>span{animation:gs-icon-arrive 500ms var(--gs-spring) 570ms both}
+  .gs-socials>span:nth-child(2){animation-delay:640ms}
+  .gs-socials>span:nth-child(3){animation-delay:710ms}
+  .gs-scene{animation:gs-scene-arrive 900ms ease-out both}
+  .gs-bot-a{animation:gs-drift 9s ease-in-out infinite}
+  .gs-bot-b{animation:gs-twinkle 7s ease-in-out 700ms infinite}
+  .gs-bot-c{animation:gs-drift 10s ease-in-out -3s infinite reverse}
+  .gs-bot-d{animation:gs-twinkle 8s ease-in-out -2s infinite}
+  .gs-petal{animation:gs-petal-burst 950ms cubic-bezier(.2,.65,.3,1) var(--petal-delay) both}
+}
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .gs-brand:hover svg{transform:rotate(-2deg) scale(1.025)}
+  .gs-pill:hover{transform:translateY(-2px) rotate(-1.2deg);background-color:var(--gs-pill-hover)}
+  .gs-right .gs-pill:hover{transform:translateY(-2px) rotate(1.2deg)}
+  .gs-topics>a:hover>span,.gs-topics>button:hover>span{transform:translateX(4px);color:var(--gs-hover-green)}
+  .gs-socials>span:hover svg{transform:translateY(-3px) rotate(-5deg) scale(1.04)}
+  .gs-socials>span:nth-child(2):hover svg{transform:translateY(-3px) rotate(5deg) scale(1.04)}
+}
+@media (max-width:700px){
+  .gs-bot-a{width:24px;left:9%;top:39%}
+  .gs-bot-b{width:13px;left:20%;top:82%}
+  .gs-bot-c{width:23px;right:9%;top:20%}
+  .gs-bot-d{width:14px;right:15%;top:76%}
+}
+@media (prefers-reduced-motion:reduce){
+  .gs-brand-reveal,.gs-brand svg,.gs-brand svg .gs-brand-leaf,.gs-pill,
+  .gs-line>span,.gs-topics>a,.gs-topics>button,.gs-topics>a>span,.gs-topics>button>span,
+  .gs-note,.gs-socials>span,.gs-socials svg,.gs-scene,.gs-char{
+    animation:none!important;transition:none!important;
+  }
+  .gs-accents,.gs-bursts{display:none}
+}
+@keyframes gs-soft-arrive{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes gs-line-arrive{from{opacity:0;transform:translateY(80%)}to{opacity:1;transform:translateY(0)}}
+@keyframes gs-brand-arrive{from{opacity:0;transform:translateY(8px) rotate(-2deg) scale(.96)}to{opacity:1;transform:translateY(0) rotate(0) scale(1)}}
+@keyframes gs-icon-arrive{from{opacity:0;transform:translateY(7px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes gs-scene-arrive{from{opacity:.45}to{opacity:1}}
+@keyframes gs-leaf-wave{0%,50%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+@keyframes gs-drift{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-8px) rotate(6deg)}}
+@keyframes gs-twinkle{0%,100%{opacity:.4;transform:rotate(0) scale(.95)}50%{opacity:.6;transform:rotate(10deg) scale(1.04)}}
+@keyframes gs-petal-burst{0%{opacity:0;transform:translate(0,0) rotate(0) scale(.9)}15%{opacity:.85}70%{opacity:.4}100%{opacity:0;transform:translate(var(--petal-x),var(--petal-y)) rotate(var(--petal-turn)) scale(.55)}}
