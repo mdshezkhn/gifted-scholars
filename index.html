@@ -300,37 +300,35 @@ label{font-weight:700;font-size:14px}
 .gs-petal:nth-child(even){color:var(--gs-burst-b);width:12px;height:12px}
 .gs-petal svg{display:block;width:100%;height:100%}
 
-@media (prefers-reduced-motion:no-preference){
-  .gs-brand-reveal{animation:gs-brand-arrive 760ms var(--gs-spring) 100ms both}
-  .gs-brand svg .gs-brand-leaf{animation:gs-leaf-wave 8s ease-in-out 1.1s infinite}
-  .gs-left>.gs-pill{animation:gs-soft-arrive 560ms var(--gs-ease) 80ms backwards}
-  .gs-right>.gs-pill{animation:gs-soft-arrive 560ms var(--gs-ease) 180ms backwards}
-  .gs-line>span{animation:gs-line-arrive 680ms var(--gs-ease) 170ms both}
-  .gs-line:nth-child(2)>span{animation-delay:250ms}
-  .gs-right .gs-line>span{animation-delay:290ms}
-  .gs-right .gs-line:nth-child(2)>span{animation-delay:370ms}
-  .gs-topics>a,.gs-topics>button{animation:gs-soft-arrive 520ms var(--gs-ease) 360ms both}
-  .gs-topics>:nth-child(2){animation-delay:430ms}
-  .gs-topics>:nth-child(3){animation-delay:500ms}
-  .gs-topics>:nth-child(4){animation-delay:570ms}
-  .gs-note{animation:gs-soft-arrive 560ms var(--gs-ease) 490ms both}
-  .gs-socials>span{animation:gs-icon-arrive 500ms var(--gs-spring) 570ms both}
-  .gs-socials>span:nth-child(2){animation-delay:640ms}
-  .gs-socials>span:nth-child(3){animation-delay:710ms}
-  .gs-scene{animation:gs-scene-arrive 900ms ease-out both}
-  .gs-bot-a{animation:gs-drift 9s ease-in-out infinite}
-  .gs-bot-b{animation:gs-twinkle 7s ease-in-out 700ms infinite}
-  .gs-bot-c{animation:gs-drift 10s ease-in-out -3s infinite reverse}
-  .gs-bot-d{animation:gs-twinkle 8s ease-in-out -2s infinite}
-  .gs-petal{animation:gs-petal-burst 950ms cubic-bezier(.2,.65,.3,1) var(--petal-delay) both}
-}
-@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
-  .gs-brand:hover svg{transform:rotate(-2deg) scale(1.025)}
-  .gs-pill:hover{transform:translateY(-2px) rotate(-1.2deg);background-color:var(--gs-pill-hover)}
-  .gs-right .gs-pill:hover{transform:translateY(-2px) rotate(1.2deg)}
-  .gs-topics>a:hover>span,.gs-topics>button:hover>span{transform:translateX(4px);color:var(--gs-hover-green)}
-  .gs-socials>span:hover svg{transform:translateY(-3px) rotate(-5deg) scale(1.04)}
-  .gs-socials>span:nth-child(2):hover svg{transform:translateY(-3px) rotate(5deg) scale(1.04)}
+  .gs-motion .gs-brand-reveal{animation:gs-brand-arrive 760ms var(--gs-spring) 100ms both}
+  .gs-motion .gs-brand svg .gs-brand-leaf{animation:gs-leaf-wave 8s ease-in-out 1.1s infinite}
+  .gs-motion .gs-left>.gs-pill{animation:gs-soft-arrive 560ms var(--gs-ease) 80ms backwards}
+  .gs-motion .gs-right>.gs-pill{animation:gs-soft-arrive 560ms var(--gs-ease) 180ms backwards}
+  .gs-motion .gs-line>span{animation:gs-line-arrive 680ms var(--gs-ease) 170ms both}
+  .gs-motion .gs-line:nth-child(2)>span{animation-delay:250ms}
+  .gs-motion .gs-right .gs-line>span{animation-delay:290ms}
+  .gs-motion .gs-right .gs-line:nth-child(2)>span{animation-delay:370ms}
+  .gs-motion .gs-topics>a,.gs-topics>button{animation:gs-soft-arrive 520ms var(--gs-ease) 360ms both}
+  .gs-motion .gs-topics>:nth-child(2){animation-delay:430ms}
+  .gs-motion .gs-topics>:nth-child(3){animation-delay:500ms}
+  .gs-motion .gs-topics>:nth-child(4){animation-delay:570ms}
+  .gs-motion .gs-note{animation:gs-soft-arrive 560ms var(--gs-ease) 490ms both}
+  .gs-motion .gs-socials>span{animation:gs-icon-arrive 500ms var(--gs-spring) 570ms both}
+  .gs-motion .gs-socials>span:nth-child(2){animation-delay:640ms}
+  .gs-motion .gs-socials>span:nth-child(3){animation-delay:710ms}
+  .gs-motion .gs-scene{animation:gs-scene-arrive 900ms ease-out both}
+  .gs-motion .gs-bot-a{animation:gs-drift 9s ease-in-out infinite}
+  .gs-motion .gs-bot-b{animation:gs-twinkle 7s ease-in-out 700ms infinite}
+  .gs-motion .gs-bot-c{animation:gs-drift 10s ease-in-out -3s infinite reverse}
+  .gs-motion .gs-bot-d{animation:gs-twinkle 8s ease-in-out -2s infinite}
+  .gs-motion .gs-petal{animation:gs-petal-burst 950ms cubic-bezier(.2,.65,.3,1) var(--petal-delay) both}
+@media (hover:hover) and (pointer:fine){
+  .gs-motion .gs-brand:hover svg{transform:rotate(-2deg) scale(1.025)}
+  .gs-motion .gs-pill:hover{transform:translateY(-2px) rotate(-1.2deg);background-color:var(--gs-pill-hover)}
+  .gs-motion .gs-right .gs-pill:hover{transform:translateY(-2px) rotate(1.2deg)}
+  .gs-motion .gs-topics>a:hover>span,.gs-topics>button:hover>span{transform:translateX(4px);color:var(--gs-hover-green)}
+  .gs-motion .gs-socials>span:hover svg{transform:translateY(-3px) rotate(-5deg) scale(1.04)}
+  .gs-motion .gs-socials>span:nth-child(2):hover svg{transform:translateY(-3px) rotate(5deg) scale(1.04)}
 }
 @media (max-width:700px){
   .gs-bot-a{width:24px;left:9%;top:39%}
@@ -456,7 +454,7 @@ function seed(){
   // deterministic demo history so leaderboards and shelves have shape
   let rngState=42;const rng=()=>{rngState=(rngState*1103515245+12345)%2147483648;return rngState/2147483648;};
   S={version:1,
-    settings:{className:"Class 4B",schoolName:"Maple Grove Primary",teacher:"Ms. Rivera"},
+    settings:{className:"Class 4B",schoolName:"Maple Grove Primary",teacher:"Ms. Rivera",motion:"auto"},
     rules:DEFAULT_RULES.map(r=>({...r})),
     gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};
@@ -544,6 +542,16 @@ function toast(msg){
   setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";},1900);
   setTimeout(()=>t.remove(),2300);
 }
+function applyMotion(){
+  const m=(S.settings&&S.settings.motion)||"auto";
+  const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.documentElement.classList.toggle("gs-motion", m==="on"||(m==="auto"&&!rm));
+}
+function saveMotion(v){S.settings.motion=v;save();applyMotion();}
+window.addEventListener("error",function(e){
+  if(window.__gsErrShown)return; window.__gsErrShown=true;
+  try{toast("Something went wrong, but your data is safe. (Details in browser console.)");}catch(_){}
+});
 function closeOverlays(){$("#modals").innerHTML="";$$(".burst,.lvlup").forEach(e=>e.remove());}
 function modal(html){
   $("#modals").innerHTML='<div class="overlay" role="dialog" aria-modal="true">'+html+'</div>';
@@ -576,6 +584,8 @@ function giftBurst(won,after){
 
 /* ============ landing: see landing.js (renderLanding) ============ */
 
+function logoSVG(){return '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><rect x="3" y="10" width="18" height="11" rx="2.5" fill="#F3E7D0"/><rect x="10.6" y="10" width="2.8" height="11" fill="#D9A64E"/><rect x="1.5" y="6" width="21" height="5" rx="2.5" fill="#EFE0C2"/><circle cx="12" cy="4.5" r="2.6" fill="#D9A64E"/></svg>';}
+const TABS=[{id:"classroom",label:"Classroom",icon:"\uD83C\uDF93"},{id:"records",label:"Records",icon:"\uD83D\uDCDC"},{id:"shop",label:"Shop",icon:"\uD83C\uDF81"},{id:"leaderboard",label:"Leaderboard",icon:"\uD83C\uDFC6"},{id:"settings",label:"Settings",icon:"\u2699\uFE0F"}];
 function renderShell(tab){
   document.title="Gifted Scholars · "+ (TABS.find(t=>t.id===tab)||{}).label;
   $("#view").innerHTML=`
@@ -809,6 +819,7 @@ function viewSettings(){
     <div class="stk" style="padding:18px;display:grid;gap:12px;max-width:560px">
       <div><label for="clsName">Class name</label><input id="clsName" type="text" value="${esc(S.settings.className)}" onchange="saveCls()"></div>
       <div><label for="schName">School name</label><input id="schName" type="text" value="${esc(S.settings.schoolName)}" onchange="saveCls()"></div>
+      <div><label for="motionSel">Motion effects</label><select id="motionSel" onchange="saveMotion(this.value)"><option value="auto"${(S.settings.motion||"auto")==="auto"?" selected":""}>Auto (follow device)</option><option value="on"${S.settings.motion==="on"?" selected":""}>Always on</option><option value="off"${S.settings.motion==="off"?" selected":""}>Reduced</option></select><small>Festive animations, gaze eyes and tap bursts.</small></div>
       <div><label for="tchName">Teacher</label><input id="tchName" type="text" value="${esc(S.settings.teacher)}" onchange="saveCls()"></div>
     </div>
   </section>
@@ -904,6 +915,7 @@ function confirmModal(title,body,onYes){
 
 /* ============ student gift room ============ */
 function renderRoom(id){
+  document.title="Gifted Scholars · "+(byId(id)?(byId(id).name+"'s gift room"):"Gift room");
   if(!id||!byId(id)){$("#view").innerHTML='<div class="room"><a class="btn" href="#/app/classroom">← Back to class</a><div class="empty stk" style="margin-top:20px"><span class="big">🤷</span>That student does not exist. They may have been removed.</div></div>';return;}
   const st=byId(id),g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   const col=collectionOf(st);
@@ -1147,6 +1159,7 @@ const GS_REST=-Math.PI/2;            // a gentle upward glance at rest
 const GS_PUPIL_RX=13,GS_PUPIL_RY=10; // travel inside the sculpted sockets
 
 function initGaze(){
+  if(!document.documentElement.classList.contains("gs-motion"))return;
   const char=$("#gs-char");if(!char)return;
   const pupils=[char.querySelector("#gs-pupil-l"),char.querySelector("#gs-pupil-r")];
   const narrow=matchMedia("(max-width: 700px)");
@@ -1192,7 +1205,8 @@ function initGaze(){
   window.addEventListener("scroll",onGeometry,{passive:true});
   document.addEventListener("visibilitychange",onVisibility);
   narrow.addEventListener("change",applyMode);reduced.addEventListener("change",applyMode);fine.addEventListener("change",applyMode);
-  const observer=new ResizeObserver(onGeometry);observer.observe(char);
+  let observer=null;
+  try{if(typeof ResizeObserver!=="undefined"){observer=new ResizeObserver(onGeometry);observer.observe(char);}}catch(_){}
   applyMode();
   window._gsGazeCleanup=()=>{
     disposed=true;cancelAnimationFrame(raf);raf=0;observer.disconnect();
@@ -1204,6 +1218,7 @@ function initGaze(){
 
 /* ---------- click / tap leaf bursts (ported from GardenPlay) ---------- */
 function initBursts(){
+  if(!document.documentElement.classList.contains("gs-motion"))return;
   const page=$(".gs-page"),layer=$(".gs-bursts");if(!page||!layer)return;
   const reduced=matchMedia("(prefers-reduced-motion: reduce)");
   let down=null,sequence=0;
@@ -1253,6 +1268,8 @@ function initBursts(){
 /* ============ init (must run last) ============ */
 if(!load())seed();
 save();
+applyMotion();
+try{matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change",applyMotion);}catch(_){}
 route();
 
 </script>
