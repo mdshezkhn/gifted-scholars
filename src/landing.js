@@ -1,14 +1,9 @@
 /* ======================================================================
-   Gifted Scholars — landing scene controller
-   Gaze math and burst engine are faithful ports of the supplied reference
-   (lib/gaze.ts + GardenPlay.tsx, checkpoint b9635744): same dead zone,
-   damping constants, settle threshold, burst geometry and limits. The
-   reference drives video seeks; here the same smoothed angle drives the
-   character's inset pupils (necessary adaptation: this brand's character
-   is an original SVG, not the reference video).
+   Gifted Scholars — studio landing (warm editorial system)
+   Seven sections: nav / split-wordmark hero / to-scale drawing /
+   computed pinned study / practice rows / work table / cropped close.
+   Every figure is computed from the app's own data (LEVELS, seed counts).
    ====================================================================== */
-const GS_LEAF = '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M7 24C2 12 11 5 26 5C28 20 19 29 7 24Z" fill="currentColor" fill-opacity=".28"/><path d="M7 24C2 12 11 5 26 5C28 20 19 29 7 24ZM5 28L22 10M12 21L11 14M16 17L23 17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const GS_SPARKLE = '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3C16 12 12 16 3 16C12 16 16 20 16 29C16 20 20 16 29 16C20 16 16 12 16 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 const GS_CHAR_SVG = `
 <svg id="gs-char" viewBox="0 0 520 560" fill="none" aria-hidden="true">
   <defs>
@@ -55,74 +50,280 @@ const GS_CHAR_SVG = `
   <path d="M228 398q32 26 64 0" stroke="#243B2C" stroke-width="9" stroke-linecap="round"/>
 </svg>`;
 
-const GS_WORDMARK = `
-<svg viewBox="0 0 560 116" role="img" aria-label="Gifted Scholars">
-  <text x="6" y="88" font-family="Epilogue, sans-serif" font-weight="900" font-size="94"
-    letter-spacing="-2.5" fill="currentColor" textLength="540" lengthAdjust="spacingAndGlyphs">gifted scholars</text>
-  <g class="gs-brand-leaf"><path d="M84 22C70 20 65 10 70 1c13 1 21 10 14 21Z" fill="currentColor"/></g>
-</svg>`;
-
-function gsAccents(){
-  return '<div class="gs-accents" aria-hidden="true">'
-    +'<span class="gs-bot gs-bot-a">'+GS_LEAF+'</span>'
-    +'<span class="gs-bot gs-bot-b">'+GS_SPARKLE+'</span>'
-    +'<span class="gs-bot gs-bot-c">'+GS_LEAF+'</span>'
-    +'<span class="gs-bot gs-bot-d">'+GS_SPARKLE+'</span>'
-    +'</div>';
+/* ---------- fig 01 · the level curve, drawn strictly to scale ----------
+   Scale: x — 64 px per level · y — 2.2 px per point. Thresholds come
+   straight from LEVELS[]; the fignote repeats the same numbers. */
+function figureSVG(){
+  const X0=70, DX=64, Y0=392, SY=2.2, TOP=40, LEFT=46, RIGHT=700;
+  const Y=v=>Y0-v*SY;
+  let s='';
+  for(let p=0;p<=160;p+=40){
+    s+='<line x1="'+LEFT+'" y1="'+Y(p)+'" x2="'+RIGHT+'" y2="'+Y(p)+'" stroke="rgba(26,25,23,.16)" stroke-width="1"/>'
+      +'<text x="'+(LEFT-8)+'" y="'+(Y(p)+3.5)+'" text-anchor="end" class="ax">'+p+'</text>';
+  }
+  for(let i=0;i<10;i++){
+    const x=X0+i*DX;
+    s+='<line x1="'+x+'" y1="'+TOP+'" x2="'+x+'" y2="'+Y0+'" stroke="rgba(26,25,23,.09)" stroke-width="1"/>'
+      +'<text x="'+x+'" y="'+(Y0+20)+'" text-anchor="middle" class="ax">L'+(i+1)+'</text>';
+  }
+  s+='<line x1="'+LEFT+'" y1="'+Y0+'" x2="'+RIGHT+'" y2="'+Y0+'" stroke="#1A1917" stroke-width="1.4"/>';
+  s+='<polyline points="'+LEVELS.map((l,i)=>(X0+i*DX)+','+Y(l.min)).join(' ')
+    +'" fill="none" stroke="#1A1917" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  LEVELS.forEach((l,i)=>{ s+='<circle cx="'+(X0+i*DX)+'" cy="'+Y(l.min)+'" r="3" fill="#9B3418"/>'; });
+  const leader=(i,dy,left)=>{
+    const l=LEVELS[i], x=X0+i*DX, y=Y(l.min);
+    return left
+      ? '<line x1="'+x+'" y1="'+y+'" x2="'+(x-26)+'" y2="'+(y-dy)+'" stroke="#9B3418" stroke-width="1"/>'
+        +'<text x="'+(x-31)+'" y="'+(y-dy+3.5)+'" text-anchor="end" class="lb">L'+(i+1)+' · '+l.min+'</text>'
+      : '<line x1="'+x+'" y1="'+y+'" x2="'+(x+26)+'" y2="'+(y-dy)+'" stroke="#9B3418" stroke-width="1"/>'
+        +'<text x="'+(x+31)+'" y="'+(y-dy+3.5)+'" class="lb">L'+(i+1)+' · '+l.min+'</text>';
+  };
+  s+=leader(0,30,false)+leader(4,34,false)+leader(9,30,true);
+  return '<svg viewBox="0 0 760 470" role="img" aria-label="Level curve, drawn to scale">'
+    +'<style>.ax{font:10.5px "Azeret Mono",monospace;fill:#6E6A61;letter-spacing:.1em}'
+    +'.lb{font:10.5px "Azeret Mono",monospace;fill:#9B3418;letter-spacing:.12em}</style>'+s+'</svg>';
 }
-function gsBadges(){
-  return '<div class="gs-socials" aria-label="Our promises">'
-    +'<span role="img" aria-label="Free forever"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M4 13.4h16M12 10v10" stroke="currentColor" stroke-width="1.8"/><path d="M12 10C8.2 10 6.6 7.6 8 6c1.4-1.6 3.4-.4 4 4 .6-4.4 2.6-5.6 4-4 1.4 1.6-.2 4-4 4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>'
-    +'<span role="img" aria-label="Made with care"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20s-7-4.4-9-9c-1.2-2.8.6-6 3.8-6C9 5 10.8 6.3 12 8c1.2-1.7 3-3 5.2-3 3.2 0 5 3.2 3.8 6-2 4.6-9 9-9 9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
-    +'<span role="img" aria-label="For students"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>'
-    +'</div>';
+
+/* ---------- fig 02 · one week, computed ----------
+   THE MODEL (stated once, in the copy): five school days, "answered well"
+   (+2) each day.  d = 5·scroll · pts = 2d · level & progress from LEVELS[].
+   The marker's arc and the printed readouts are the same calculation. */
+function studyModel(p){
+  const d=Math.min(5,Math.floor(p*5.0001));
+  const pts=2*d;
+  let li=0; for(let i=0;i<LEVELS.length;i++){ if(pts>=LEVELS[i].min) li=i; }
+  const cur=LEVELS[li], next=LEVELS[li+1];
+  const into=next ? (pts-cur.min)/(next.min-cur.min) : 1;
+  return {day:d, pts:pts, level:li+1, into:Math.round(into*100), stars:pts};
+}
+const ARC={p0:[12,80], p1:[46,30], p2:[88,10]};
+function arcPoint(t){
+  const u=1-t;
+  return [ u*u*ARC.p0[0]+2*u*t*ARC.p1[0]+t*t*ARC.p2[0],
+           u*u*ARC.p0[1]+2*u*t*ARC.p1[1]+t*t*ARC.p2[1] ];
+}
+function setReadouts(m){
+  const set=(id,v)=>{const n=document.getElementById(id); if(n&&n.textContent!==v)n.textContent=v;};
+  set('rd-day',String(m.day)); set('rd-pts','+'+m.pts); set('rd-lvl','L'+m.level);
+  set('rd-into',m.into+'%'); set('rd-stars',m.stars+' ★');
 }
 
+/* ---------- render ---------- */
 function renderLanding(){
-  document.title="Gifted Scholars — little stars. big smiles.";
-  if(window._gsGazeCleanup)window._gsGazeCleanup();
-  if(window._gsBurstCleanup)window._gsBurstCleanup();
-  $("#view").innerHTML=`
-  <footer class="gs-page" aria-label="Gifted Scholars brand experience">
-    <div class="gs-scene" aria-hidden="true">${GS_CHAR_SVG}${gsAccents()}</div>
-    <div class="gs-bursts" aria-hidden="true"></div>
-    <div class="gs-brand" role="img" aria-label="Gifted Scholars">
-      <div class="gs-brand-reveal">${GS_WORDMARK}</div>
-    </div>
-    <div class="gs-left">
-      <span class="gs-pill">room for a little kindness?</span>
-      <h1 class="gs-headline"><span class="gs-line"><span>little stars.</span></span><span class="gs-line"><span>big smiles.</span></span></h1>
-      <nav class="gs-topics" aria-label="Explore Gifted Scholars">
-        <a href="#/app/classroom"><span>The classroom</span></a>
-        <a href="#/app/shop"><span>Gift shop</span></a>
-        <a href="#/app/leaderboard"><span>Leaderboard</span></a>
-        <button type="button" onclick="openRoomPicker()"><span>Open a gift room</span></button>
-      </nav>
-    </div>
-    <div class="gs-right">
-      <span class="gs-pill">points in. presents out.</span>
-      <h2 class="gs-headline"><span class="gs-line"><span>a little star.</span></span><span class="gs-line"><span>a lot of heart.</span></span></h2>
-      <p class="gs-note">*free forever — a gift from Teacher Mo to ZhongFangYuan Bilingual School.</p>
-      ${gsBadges()}
-    </div>
-    <p class="gs-credit">© 2026 Mohammed Shehzad Khan · a free gift to ZhongFangYuan Bilingual School, never for sale · <a href="#/" onclick="openLicense();return false">license &amp; credit</a></p>
-  </footer>`;
-  initGaze();
-  initBursts();
+  applyLangDoc();
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  document.querySelector('#view').innerHTML=`
+  <div class="gs-page">
+    <nav class="gsnav">
+      <a class="brand" href="#/">gifted scholars<i>.</i></a>
+      <div class="links">
+        <a href="#/app/classroom">${t("navClass")}</a>
+        <a class="xtra" href="#/app/shop">${t("navShop")}</a>
+        <a class="xtra" href="#/app/leaderboard">${t("navBoard")}</a>
+        <a class="xtra" href="#/app/records">${t("navRec")}</a>
+        ${langBtn}
+        <button class="sqbtn" type="button" onclick="openRoomPicker()">${t("navRoom")}</button>
+      </div>
+    </nav>
+
+    <header class="gshero">
+      <div class="gswm" aria-hidden="true">
+        <div class="wm-line wm-top rv rv-raf">gifted</div>
+        <div class="wm-line wm-bot rv rv-raf">scholars</div>
+      </div>
+      <div class="subject rv rv-raf">${GS_CHAR_SVG}</div>
+      <div class="copystack">
+        <span class="eyebrow rv rv-raf">${t("L_eyebrow")}</span>
+        <h1 class="rv rv-raf">${t("L_headA")} <em class="it">${t("L_headB")}</em></h1>
+        <p class="lede rv rv-raf">${t("L_lede")}</p>
+        <div class="ctas" data-stagger>
+          <a class="gsbtn pig rv" href="#/app/classroom">${t("L_btnEnter")}</a>
+          <button class="gsbtn rv" type="button" onclick="openLicense()">${t("L_btnLicense")}</button>
+        </div>
+      </div>
+      <p class="corner-cap rv rv-raf">${t("L_caption")}</p>
+    </header>
+
+    <section class="gsec" id="fig-draw">
+      <div class="gsdraw">
+        <div>
+          <span class="eyebrow rv">${t("L_drawEyebrow")}</span>
+          <h2 class="rv">${t("L_drawHead")}</h2>
+          <p class="seclede rv">${t("L_drawLede")}</p>
+          <dl class="dl" data-stagger>
+            <div class="rv"><dt>${t("L_dlGrowth")}</dt><dd>${t("L_dlGrowthD")}</dd><span class="val num">0 – 160 pts</span></div>
+            <div class="rv"><dt>${t("L_dlStars")}</dt><dd>${t("L_dlStarsD")}</dd><span class="val num">1 ★ = 1 pt</span></div>
+            <div class="rv"><dt>${t("L_dlApproval")}</dt><dd>${t("L_dlApprovalD")}</dd><span class="val">${t("L_valAlways")}</span></div>
+          </dl>
+        </div>
+        <figure class="figwrap rv">
+          ${figureSVG()}
+          <figcaption class="fignote">${t("L_figNote")}</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="gsstudy" id="fig-study">
+      <div class="stage">
+        <div>
+          <span class="eyebrow rv rv-raf">${t("L_studyEyebrow")}</span>
+          <h2 class="rv rv-raf">${t("L_studyHead")}</h2>
+        </div>
+        <div class="arcbox" aria-hidden="true">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M12,80 Q46,30 88,10"/></svg>
+          <div class="subject">${GS_CHAR_SVG}</div>
+          <div class="marker" id="gs-marker"></div>
+        </div>
+        <div class="readouts">
+          <div><span class="k">${t("L_rdDay")}</span><span class="v num" id="rd-day">0</span></div>
+          <div><span class="k">${t("L_rdPts")}</span><span class="v num" id="rd-pts">+0</span></div>
+          <div><span class="k">${t("L_rdLvl")}</span><span class="v num" id="rd-lvl">L1</span></div>
+          <div><span class="k">${t("L_rdInto")}</span><span class="v num" id="rd-into">0%</span></div>
+          <div><span class="k">${t("L_rdStars")}</span><span class="v num" id="rd-stars">0 ★</span></div>
+        </div>
+        <p class="modelnote">${t("L_studyFoot")}</p>
+      </div>
+    </section>
+
+    <section class="gsec gsmat">
+      <span class="eyebrow rv">${t("L_matEyebrow")}</span>
+      <h2 class="rv">${t("L_matHead")}</h2>
+      <div class="rows" data-stagger>
+        <div class="row rv"><span class="k">${t("L_m1")}</span><span class="d">${t("L_m1d")}</span><span class="c">${t("L_m1c")}</span></div>
+        <div class="row rv"><span class="k">${t("L_m2")}</span><span class="d">${t("L_m2d")}</span><span class="c">${t("L_m2c")}</span></div>
+        <div class="row rv"><span class="k">${t("L_m3")}</span><span class="d">${t("L_m3d")}</span><span class="c">${t("L_m3c")}</span></div>
+        <div class="row rv"><span class="k">${t("L_m4")}</span><span class="d">${t("L_m4d")}</span><span class="c">${t("L_m4c")}</span></div>
+        <div class="row rv"><span class="k">${t("L_m5")}</span><span class="d">${t("L_m5d")}</span><span class="c">${t("L_m5c")}</span></div>
+        <div class="row rv"><span class="k">${t("L_m6")}</span><span class="d">${t("L_m6d")}</span><span class="c">${t("L_m6c")}</span></div>
+      </div>
+      <div class="pair">
+        <div>
+          <h3 class="rv">${t("L_pairHead")}</h3>
+          <p class="rv">${t("L_pairBody")}</p>
+        </div>
+        <div class="data" data-stagger>
+          <div class="rv"><span class="k">${t("L_d1")}</span><span class="num">${SEED_STUDENTS.length}</span></div>
+          <div class="rv"><span class="k">${t("L_d2")}</span><span class="num">${S.gifts.length}</span></div>
+          <div class="rv"><span class="k">${t("L_d3")}</span><span class="num">${LEVELS.length}</span></div>
+          <div class="rv"><span class="k">${t("L_d4")}</span><span class="num">${S.rules.length}</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gsec gstable">
+      <span class="eyebrow rv">${t("L_tblEyebrow")}</span>
+      <h2 class="rv">${t("L_tblHead")}</h2>
+      <table class="tbl">
+        <thead><tr>
+          <th scope="col">${t("L_thA")}</th><th scope="col">${t("L_thB")}</th>
+          <th scope="col">${t("L_thC")}</th><th scope="col">${t("L_thD")}</th>
+        </tr></thead>
+        <tbody data-stagger>
+          <tr class="rv"><td class="name" data-k="${t("L_thA")}">${t("L_r1")}</td><td data-k="${t("L_thB")}">${t("L_r1d")}</td><td data-k="${t("L_thC")}">${t("L_r1w")}</td><td class="enter" data-k="${t("L_thD")}"><a href="#/app/classroom">#/app/classroom</a></td></tr>
+          <tr class="rv"><td class="name" data-k="${t("L_thA")}">${t("L_r2")}</td><td data-k="${t("L_thB")}">${t("L_r2d")}</td><td data-k="${t("L_thC")}">${t("L_r2w")}</td><td class="enter" data-k="${t("L_thD")}"><a href="#/app/records">#/app/records</a></td></tr>
+          <tr class="rv"><td class="name" data-k="${t("L_thA")}">${t("L_r3")}</td><td data-k="${t("L_thB")}">${t("L_r3d")}</td><td data-k="${t("L_thC")}">${t("L_r3w")}</td><td class="enter" data-k="${t("L_thD")}"><a href="#/app/shop">#/app/shop</a></td></tr>
+          <tr class="rv"><td class="name" data-k="${t("L_thA")}">${t("L_r4")}</td><td data-k="${t("L_thB")}">${t("L_r4d")}</td><td data-k="${t("L_thC")}">${t("L_r4w")}</td><td class="enter" data-k="${t("L_thD")}"><a href="#/app/leaderboard">#/app/leaderboard</a></td></tr>
+          <tr class="rv"><td class="name" data-k="${t("L_thA")}">${t("L_r5")}</td><td data-k="${t("L_thB")}">${t("L_r5d")}</td><td data-k="${t("L_thC")}">${t("L_r5w")}</td><td class="enter" data-k="${t("L_thD")}"><a href="#/">#/room/…</a></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="gsclose">
+      <span class="eyebrow rv">${t("L_closeEyebrow")}</span>
+      <h2 class="rv">${t("L_closeHeadA")} <em class="it">${t("L_closeHeadB")}</em></h2>
+      <p class="fine rv">${t("L_fine")}</p>
+      <div class="ctas">
+        <button class="gsbtn rv" type="button" onclick="openRoomPicker()">${t("L_closeBtnA")}</button>
+        <a class="gsbtn pig rv" href="#/app/classroom">${t("L_closeBtnB")}</a>
+      </div>
+      <div class="strip">
+        <span>ZHONGFANGYUAN BILINGUAL SCHOOL</span>
+        <span>${t("L_stripMid")}</span>
+        <span>© 2026 MOHAMMED SHEHZAD KHAN</span>
+      </div>
+      <div class="endwm" aria-hidden="true">gifted scholars</div>
+    </footer>
+  </div>`;
+  initStudio();
   window.scrollTo(0,0);
+}
+
+/* ---------- studio controller: reveals + scroll-bound layers ---------- */
+function initStudio(){
+  const root=document.querySelector('.gs-page'); if(!root) return;
+  const motion=document.documentElement.classList.contains('gs-motion')
+    && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hero=document.querySelector('.gshero');
+  const study=document.querySelector('.gsstudy');
+  const marker=document.getElementById('gs-marker');
+  /* above-fold pieces reveal on rAF — never observed (they can sit inside a
+     negative root margin on short viewports and would never fire) */
+  requestAnimationFrame(()=>{ document.querySelectorAll('.rv-raf').forEach(n=>n.classList.add('in')); });
+  /* stagger indices */
+  document.querySelectorAll('[data-stagger]').forEach(g=>{
+    g.querySelectorAll('.rv').forEach((n,i)=>n.style.setProperty('--si',i));
+  });
+  /* in-view reveals */
+  let io=null;
+  if(motion && 'IntersectionObserver' in window){
+    io=new IntersectionObserver(es=>{
+      es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -8% 0px',threshold:.12});
+    document.querySelectorAll('.rv:not(.rv-raf)').forEach(n=>io.observe(n));
+  }else{
+    document.querySelectorAll('.rv').forEach(n=>n.classList.add('in'));
+  }
+  /* scroll-position-bound layer: split wordmark + computed study */
+  let raf=0;
+  const onScroll=()=>{
+    if(raf) return;
+    raf=requestAnimationFrame(()=>{
+      raf=0;
+      if(hero){
+        const r=hero.getBoundingClientRect();
+        const p=Math.max(0,Math.min(1,-r.top/(r.height*.9)));
+        hero.style.setProperty('--wp',p.toFixed(4));
+      }
+      if(study&&marker){
+        const r=study.getBoundingClientRect();
+        const total=r.height-window.innerHeight;
+        const p=Math.max(0,Math.min(1,-r.top/(total||1)));
+        const pt=arcPoint(p);
+        marker.style.left=pt[0]+'%'; marker.style.top=pt[1]+'%';
+        setReadouts(studyModel(p));
+      }
+    });
+  };
+  if(motion){
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll,{passive:true});
+    onScroll();
+    window._gsLandCleanup=()=>{
+      window.removeEventListener('scroll',onScroll);
+      window.removeEventListener('resize',onScroll);
+      if(io) io.disconnect();
+      if(raf) cancelAnimationFrame(raf);
+    };
+  }else{
+    /* static final states: the completed week, wordmark fully parted */
+    if(hero) hero.style.setProperty('--wp','1');
+    if(marker){ const pt=arcPoint(1); marker.style.left=pt[0]+'%'; marker.style.top=pt[1]+'%'; }
+    setReadouts(studyModel(1));
+    window._gsLandCleanup=null;
+  }
 }
 
 /* ---------- open a gift room by student name ---------- */
 function openRoomPicker(){
   modal(`<div class="card stk" style="max-width:420px"><h2 style="font-family:var(--font-round)">Open a gift room</h2>
-  <p style="margin:8px 0 14px;color:var(--ink-soft)">Type your name exactly as your teacher wrote it.</p>
-  <input id="rp-name" placeholder="Your name" style="width:100%;padding:12px 14px;border:var(--bd);border-radius:12px;font-size:16px" aria-label="Your name">
-  <div class="btns" style="margin-top:14px"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn primary" id="rp-go">Open my room</button></div></div>`);
+  <p style="margin:8px 0 14px;color:var(--ink-soft)">${t("nameHint")}</p>
+  <input id="rp-name" placeholder="${t("yourName")}" style="width:100%;padding:12px 14px;border:var(--bd);border-radius:12px;font-size:16px" aria-label="${t("yourName")}">
+  <div class="btns" style="margin-top:14px"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn primary" id="rp-go">${t("openMyRoom")}</button></div></div>`);
   const openIt=()=>{
     const q=($("#rp-name").value||"").trim().toLowerCase();
-    if(!q){toast("Type your name first");return;}
+    if(!q){toast(t("typeFirst"));return;}
     const st=S.students.find(x=>x.name.toLowerCase()===q)||S.students.find(x=>x.name.toLowerCase().startsWith(q));
-    if(!st){toast("No student named \u201C"+$("#rp-name").value.trim()+"\u201D in the demo class");return;}
+    if(!st){toast(t("noStudent") + $("#rp-name").value.trim() + t("noStudent2"));return;}
     go("#/room/"+st.id);
   };
   $("#rp-go").addEventListener("click",openIt);
@@ -135,129 +336,18 @@ function openLicense(){
   modal(`<div class="card stk" style="max-width:560px;max-height:80vh;overflow:auto"><h2 style="font-family:var(--font-round)">About this gift</h2>
   <div style="font-size:14.5px;line-height:1.65;margin-top:10px">
   <p><b>Gifted Scholars</b> — classroom points &amp; virtual gifts.<br>© 2026 Mohammed Shehzad Khan. All rights reserved.</p>
-  <p style="margin-top:10px">This site was created by <b>Mohammed Shehzad Khan</b> ("Teacher Mo") and donated as a free gift to ZhongFangYuan Bilingual School. It will always be free: no fees, no ads, no tracking, nothing for sale.</p>
+  <p style="margin-top:10px">${t("createdBy")}<b>Mohammed Shehzad Khan</b> ("Teacher Mo") and donated as a free gift to ZhongFangYuan Bilingual School. It will always be free: no fees, no ads, no tracking, nothing for sale.</p>
   <p style="margin-top:10px"><b>Ownership.</b> The site, its code, design and artwork remain the property of the author. Donating it to the school does not transfer copyright. The school may keep using it for everyday school life, free of charge, even after the author moves on.</p>
   <p style="margin-top:10px">The school may use it forever, for free, even if the author moves on. <b>You may not</b> sell, charge for, or relicense this work, and the credit in the footer must stay. The author owns this work and may update it or share it with other schools. If these terms are broken, this license ends automatically.</p>
-  <p style="margin-top:10px">Fonts: Epilogue &amp; DM Sans (SIL Open Font License). Provided “as is”, without warranty of any kind.</p>
+      <p style="margin-top:10px" lang="zh-CN">学校可以永远免费使用本作品，即使作者日后离开。<b>不得</b>出售、收费或再许可本作品，页脚署名必须保留。版权归作者所有，作者可继续更新或分享给其他学校。如违反以上条款，本许可自动终止。</p>
+  <p style="margin-top:10px">Fonts: Instrument Serif &amp; Azeret Mono (SIL Open Font License). Provided “as is”, without warranty of any kind.</p>
   </div>
   <div class="btns" style="margin-top:14px"><button class="btn primary" onclick="closeOverlays()">Close</button></div></div>`);
 }
 
-/* ---------- gaze: smoothed cursor-following pupils (ported math) ---------- */
-const GS_TAU=Math.PI*2;
-const gsNorm=a=>((a%GS_TAU)+GS_TAU)%GS_TAU;
-const gsDelta=(from,to)=>gsNorm(to-from+Math.PI)-Math.PI;
-const gsDist=(a,b)=>Math.abs(gsDelta(a,b));
-function gsDamp(current,target,elapsedMs){
-  const delta=gsDelta(current,target);
-  if(Math.abs(delta)<0.003)return gsNorm(target);
-  const dt=Math.max(0,Math.min(elapsedMs,40));
-  const amount=Math.min(Math.abs(delta)*-Math.expm1(-dt/85),dt*0.01);
-  return gsNorm(current+Math.sign(delta)*amount);
-}
-const GS_REST=-Math.PI/2;            // a gentle upward glance at rest
-const GS_PUPIL_RX=13,GS_PUPIL_RY=10; // travel inside the sculpted sockets
-
-function initGaze(){
-  const char=$("#gs-char");if(!char)return;
-  const pupils=[char.querySelector("#gs-pupil-l"),char.querySelector("#gs-pupil-r")];
-  const narrow=matchMedia("(max-width: 700px)");
-  const reduced=matchMedia("(prefers-reduced-motion: reduce)");
-  const fine=matchMedia("(hover: hover) and (pointer: fine)");
-  let raf=0,disposed=false,mode="",pointer=null,eye=null,geoDirty=true;
-  let targetAngle=null,easedAngle=null,lastTick=0;
-  const apply=(x=0,y=-6)=>pupils.forEach(p=>p&&p.setAttribute("transform","translate("+x.toFixed(2)+","+y.toFixed(2)+")"));
-  const currentMode=()=> (reduced.matches||narrow.matches||!fine.matches)?"still":"gaze";
-  const schedule=()=>{if(!disposed&&!document.hidden&&!raf&&mode==="gaze")raf=requestAnimationFrame(tick);};
-  function tick(now){
-    raf=0;
-    if(disposed||document.hidden||mode!=="gaze")return;
-    const elapsed=lastTick?now-lastTick:1000/60;lastTick=now;
-    if(pointer){
-      if(geoDirty||!eye){
-        const rect=char.getBoundingClientRect();       // svg keeps its viewBox aspect, so scale is uniform
-        const scale=rect.width/520;
-        eye={x:rect.left+260*scale,y:rect.top+330*scale}; // eye midpoint in viewBox coordinates
-        geoDirty=false;
-      }
-      const dx=pointer.x-eye.x,dy=pointer.y-eye.y;
-      // Ignore jitter immediately between the eyes, where angle is unstable.
-      if(Math.hypot(dx,dy)>22)targetAngle=Math.atan2(dy,dx);
-    }
-    if(targetAngle===null){easedAngle=null;apply();return;}
-    if(easedAngle===null)easedAngle=GS_REST;
-    easedAngle=gsDamp(easedAngle,targetAngle,elapsed);
-    apply(Math.cos(easedAngle)*GS_PUPIL_RX,Math.sin(easedAngle)*GS_PUPIL_RY-6);
-    if(gsDist(easedAngle,targetAngle)>0.00001)schedule();
-    else{easedAngle=gsNorm(targetAngle);apply(Math.cos(easedAngle)*GS_PUPIL_RX,Math.sin(easedAngle)*GS_PUPIL_RY-6);}
-  }
-  const onPointer=event=>{if(event.pointerType==="touch"||mode!=="gaze")return;pointer={x:event.clientX,y:event.clientY};schedule();};
-  const onGeometry=()=>{geoDirty=true;if(mode==="gaze")schedule();};
-  const applyMode=()=>{
-    const next=currentMode();
-    if(next!==mode){targetAngle=null;easedAngle=null;lastTick=0;geoDirty=true;apply();}
-    mode=next;schedule();
-  };
-  const onVisibility=()=>{lastTick=0;if(document.hidden){cancelAnimationFrame(raf);raf=0;}else applyMode();};
-  window.addEventListener("pointermove",onPointer,{passive:true});
-  window.addEventListener("resize",onGeometry,{passive:true});
-  window.addEventListener("scroll",onGeometry,{passive:true});
-  document.addEventListener("visibilitychange",onVisibility);
-  narrow.addEventListener("change",applyMode);reduced.addEventListener("change",applyMode);fine.addEventListener("change",applyMode);
-  const observer=new ResizeObserver(onGeometry);observer.observe(char);
-  applyMode();
-  window._gsGazeCleanup=()=>{
-    disposed=true;cancelAnimationFrame(raf);raf=0;observer.disconnect();
-    window.removeEventListener("pointermove",onPointer);window.removeEventListener("resize",onGeometry);
-    window.removeEventListener("scroll",onGeometry);document.removeEventListener("visibilitychange",onVisibility);
-    narrow.removeEventListener("change",applyMode);reduced.removeEventListener("change",applyMode);fine.removeEventListener("change",applyMode);
-  };
-}
-
-/* ---------- click / tap leaf bursts (ported from GardenPlay) ---------- */
-function initBursts(){
-  const page=$(".gs-page"),layer=$(".gs-bursts");if(!page||!layer)return;
-  const reduced=matchMedia("(prefers-reduced-motion: reduce)");
-  let down=null,sequence=0;
-  const timers=new Map();
-  const onDown=event=>{if(event.button!==0||!event.isPrimary)return;down={x:event.clientX,y:event.clientY,id:event.pointerId};};
-  const cancel=()=>{down=null;};
-  const onUp=event=>{
-    const origin=down;down=null;
-    if(!origin||event.pointerId!==origin.id||reduced.matches||Math.hypot(event.clientX-origin.x,event.clientY-origin.y)>10)return;
-    if(event.target&&event.target.closest&&event.target.closest("a,button,input,textarea,select"))return;
-    const rect=layer.getBoundingClientRect();
-    const id=++sequence;
-    const bloom=document.createElement("div");bloom.className="gs-bloom";
-    bloom.style.left=(event.clientX-rect.left)+"px";bloom.style.top=(event.clientY-rect.top)+"px";
-    for(let index=0;index<6;index++){
-      const angle=index/6*Math.PI*2;
-      const radius=index%2===0?48:34;
-      const petal=document.createElement("span");petal.className="gs-petal";
-      petal.style.setProperty("--petal-x",(Math.cos(angle)*radius).toFixed(2)+"px");
-      petal.style.setProperty("--petal-y",(Math.sin(angle)*radius-22).toFixed(2)+"px");
-      petal.style.setProperty("--petal-turn",(index%2?85:-65)+"deg");
-      petal.style.setProperty("--petal-delay",(index*15)+"ms");
-      petal.innerHTML=GS_LEAF;
-      bloom.appendChild(petal);
-    }
-    while(layer.children.length>=4)layer.firstElementChild.remove();  // at most four simultaneous bursts
-    layer.appendChild(bloom);
-    timers.set(id,setTimeout(()=>{bloom.remove();timers.delete(id);},1050));
-  };
-  const clearIfReduced=()=>{
-    if(!reduced.matches)return;
-    timers.forEach(clearTimeout);timers.clear();layer.innerHTML="";down=null;
-  };
-  page.addEventListener("pointerdown",onDown,{passive:true});
-  page.addEventListener("pointerup",onUp,{passive:true});
-  page.addEventListener("pointercancel",cancel,{passive:true});
-  reduced.addEventListener("change",clearIfReduced);
-  window._gsBurstCleanup=()=>{
-    timers.forEach(clearTimeout);timers.clear();
-    page.removeEventListener("pointerdown",onDown);
-    page.removeEventListener("pointerup",onUp);
-    page.removeEventListener("pointercancel",cancel);
-    reduced.removeEventListener("change",clearIfReduced);
-  };
-}
+/* ============ init (must run last) ============ */
+if(!load())seed();
+save();
+applyMotion();
+try{matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change",applyMotion);}catch(_){}
+route();

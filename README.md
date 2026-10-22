@@ -13,63 +13,63 @@ the credit is removed or anyone charges money).
 
 ## Run it
 
-Open the [live site](https://mdshezkhn.github.io/gifted-scholars/) or
+Open the [live site](https://my-gifts-with-mo.duckdns.org/) or
 `index.html` in any modern browser. That's it — one file, no install, no
 server, no account, works offline. All data lives in the browser's local
-storage on that device (per-device, per-browser). Use `Setup → Export JSON`
-for backups.
+storage on that device (per-device, per-browser). Use `Settings → Export
+class as JSON` for backups.
 
-- Landing: brand scene — the gift character's eyes follow your cursor
-  (fine-pointer devices), click/tap anywhere for a leaf burst.
-- Teacher app: `The classroom`, `Gift shop`, `Leaderboard` labels on the
-  landing page, or `#/app/classroom` etc.
-- Students: `Open a gift room` (type your name), or direct `#/room/<id>`.
+- Landing: a warm editorial studio page — split wordmark bracketing the
+  character, a to-scale drawing of the level curve, and a scroll-computed
+  "one week" study. Bilingual: 中文 / EN toggle in the nav.
+- Teacher app: `Classroom`, `Gift shop`, `Leaderboard`, `Records` in the
+  nav, or `#/app/classroom` etc.
+- Students: `Open a room` (type your name), or direct `#/room/<id>`.
 
-## Design & motion
+## Design
 
-The landing scene applies the Sprig motion system (reference checkpoint
-`b9635744`, supplied reference pack): exact layout geometry and breakpoints,
-staggered entrances, gentle hover behavior, ambient leaf/sparkle accents,
-the 8-second wordmark leaf sway, and click/tap leaf bursts. The gaze
-controller is a faithful port of the reference `lib/gaze.ts` (22px dead
-zone, rAF-coalesced input, shortest-path angle smoothing with 85ms
-damping, exact settle). Necessary adaptations for this site: the character
-is an original SVG gift box (no video), so the smoothed angle drives the
-pupils; the wordmark is this brand's own mark (Epilogue 900); the four
-topic labels navigate because this is a working app; the social icons row
-became three promise badges.
+Warm editorial studio system: bone ground `#E7E3DA`, ink `#1A1917`, one
+pigment `#9B3418` used only on type/rules/markers; high-contrast display
+serif (Instrument Serif) carries the voice, Azeret Mono carries every
+measurable fact; square corners; hairline rules; no gradients, glows or
+card grids. Motion: scroll-bound split wordmark, IntersectionObserver
+reveals with 0.07 s staggers (above-fold pieces reveal on rAF), and a
+pinned study whose readouts and marker are computed from one stated model
+(d = 5·scroll, pts = 2d, level/progress from the app's LEVELS table).
+The app UI shares the same palette and serif headings.
 
-`prefers-reduced-motion: reduce` disables entrances, hover motion, ambient
-accents, bursts, and pupil tracking, as in the reference.
+`prefers-reduced-motion: reduce` (or Settings → Motion effects → Reduced)
+disables all decorative motion and shows static final states.
 
 ## Fonts
 
-Epilogue 900 and DM Sans 400 are embedded (base64 WOFF2, `font-display:
-swap`, `font-synthesis: none`) under the SIL Open Font License 1.1.
-License files are in `/fonts` and must stay with any redistribution.
+Instrument Serif 400 (roman + italic) and Azeret Mono 400/500/600 are
+embedded (base64 WOFF2, `font-display: swap`) under the SIL Open Font
+License 1.1. The license file is in `/fonts` and must stay with any
+redistribution.
 
 ## Verification
 
-41 unit + render tests pass headlessly (`src/` harness), plus a static
-audit of every spec geometry/timing value. No real-browser screenshot
-verification was possible on the build machine — visual review in a
-browser is recommended (320, 390, 700, 768, 1024, 1440, 1920 px).
+31 headless tests pass (`gs/` harness: engine, i18n, landing structure,
+study-model math, to-scale figure), plus real-headless-Chrome probes:
+zero console errors, all routes reachable, scroll-bound transforms and
+computed readouts verified, screenshots reviewed at desktop and mobile
+widths.
 
 ## Files
 
 - `index.html` — the whole site (fonts embedded); deployed to GitHub Pages
-- `LICENSE.txt` — ownership + free school license
-- `fonts/` — font license texts (OFL)
-- `src/` — build parts + test harness (not needed at runtime):
-  `head/body/tail.html` + `app.css` + `landing.css` + `fonts.css` +
-  `app-core.js` + `landing.js`, assembled by `assemble.py` into
-  `index.html`; `stubs-new.js` + `test-body-new.js` are the test harness.
+- `LICENSE.txt` — ownership + free school license (English + 中文)
+- `fonts/` — font license text (OFL 1.1)
+- `src/` — source parts + harness (not needed at runtime)
 
 ## Rebuild & test
 
 ```bash
-python3 src/assemble.py          # regenerates index.html from src/
-node src/run-tests.js            # 41 headless tests (cat parts first)
+cd src
+python3 assemble.py     # regenerates ../index.html from the gs/ parts
+python3 gen-test.py     # writes the headless test bundle
+node tmp-test.js        # 31 tests
 ```
 
 ---
