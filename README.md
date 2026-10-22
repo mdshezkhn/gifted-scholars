@@ -1,6 +1,7 @@
 # Gifted Scholars — little stars. big smiles.
 
-**Live site: <https://mdshezkhn.github.io/gifted-scholars/>** ·
+**Live site: <https://gifted-scholars-teacher-mo.vercel.app/>** ·
+Mirror: <https://mdshezkhn.github.io/gifted-scholars/> ·
 Free forever · no ads · no tracking · nothing for sale
 
 A free classroom-points platform for schools: teachers rate students in one

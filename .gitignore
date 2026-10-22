@@ -4,3 +4,9 @@ defs.js
 run-tests.js
 dbg*.js
 __pycache__/
+
+.vercel
+.env*
+
+.vercel/
+.env.local
