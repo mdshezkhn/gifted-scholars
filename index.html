@@ -226,7 +226,7 @@ label{font-weight:700;font-size:14px}
 .gs-pill{display:inline-flex;align-items:center;border-radius:100px;background:var(--gs-pill);padding:.39vw .72vw;min-height:1.9vw;font-size:clamp(12px,.88vw,17px);line-height:1.2;white-space:nowrap}
 .gs-headline{font-family:"Epilogue",sans-serif;font-weight:900;font-size:clamp(20px,1.66vw,34px);line-height:1.2;letter-spacing:-.025em;margin:1.45vw 0 0}
 .gs-topics{display:flex;flex-direction:column;align-items:flex-start;gap:.93vw;margin-top:1.3vw;font-size:clamp(14px,1.075vw,20px);line-height:1.35}
-.gs-topics>a,.gs-topics>button{background:none;border:0;padding:0;color:inherit;font:inherit;line-height:inherit;cursor:pointer;text-align:left}
+.gs-topics>a,.gs-topics>button{background:none;border:0;padding:0;color:inherit;font:inherit;line-height:inherit;cursor:pointer;text-align:left;text-decoration:none}
 .gs-brand{position:absolute;top:6.6vw;left:50%;transform:translateX(-50%);width:30vw;z-index:1}
 .gs-brand svg{width:100%;height:auto;display:block;overflow:visible}
 .gs-right{position:absolute;right:6vw;top:6.5vw;width:21vw;z-index:1}
@@ -983,9 +983,8 @@ function doReq(stId,giftId){
   renderRoom(stId);
 }
 
-/* ============ init ============ */
-if(!load())seed();
-route();
+/* init moved to the very end of the script bundle (after landing.js),
+   because route()->renderLanding() needs landing.js consts (TDZ fix) */
 
 /* ======================================================================
    Gifted Scholars — landing scene controller
@@ -1250,6 +1249,11 @@ function initBursts(){
     reduced.removeEventListener("change",clearIfReduced);
   };
 }
+
+/* ============ init (must run last) ============ */
+if(!load())seed();
+save();
+route();
 
 </script>
 </body>
