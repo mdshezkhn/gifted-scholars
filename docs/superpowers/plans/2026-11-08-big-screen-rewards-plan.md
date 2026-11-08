@@ -95,10 +95,10 @@ Expected: FAIL (missing keys, leaks present, default en).
 
 Add all keys to both dicts (zh authored, en natural); replace every audited literal with `t()` calls; dedupe the double pagehead; localize `openLicense()` summary paragraphs (legal lines stay bilingual verbatim); flip `curLang()` default to `"zh"`.
 
-- [ ] **Step 4: Run to verify they pass; rebuild; WP1 commit**
+- [ ] **Step 4: Run to verify they pass; rebuild; measure; WP1 commit**
 
-Run: `python3 src/gen-test.py && node src/tmp-test.js && python3 src/assemble.py && git diff --stat`
-Expected: all PASS; only `src/i18n.js`, `src/app-core.js`, `src/landing.js`, `index.html` changed.
+Run: `python3 src/gen-test.py && node src/tmp-test.js && python3 src/assemble.py && git diff --stat && wc -c index.html`
+Expected: all PASS; only `src/i18n.js`, `src/app-core.js`, `src/landing.js`, `index.html` changed; **record the new `index.html` byte size next to the Task-1 baseline** (whole-project budget remains ≤ baseline +20 KB).
 
 ```bash
 git add src/i18n.js src/app-core.js src/landing.js index.html && git commit -m "fix(i18n): raw \${t()} bugs B1-B4, full zh/en coverage, zh default (WP1)"
@@ -116,7 +116,7 @@ git add src/i18n.js src/app-core.js src/landing.js index.html && git commit -m "
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_level_ignores_negatives` — student with 12 positives stays Lv 3 (curve `[0,5,12,22,…]`) after any number of negative awards. `test_undo_can_lower_level` — undo of a positive that caused a level-up returns the old level. `test_wallet_formula` — positives 20, negatives 5, spent 10, box 2 ⇒ wallet 3; negatives > positives ⇒ wallet 0, never negative. `test_leaderboard_rebases` — all-time board orders by lifetime positives.
+`test_level_ignores_negatives` — student with 12 positives stays Lv 3 (curve `[0,5,12,22,…]`) after any number of negative awards. `test_undo_can_lower_level` — undo of a positive that caused a level-up returns the old level. `test_wallet_formula` — positives 20, negatives 5, spent 10, box 2 ⇒ wallet 3; negatives > positives ⇒ wallet 0, never negative. `test_leaderboard_rebases` — all-time board orders by lifetime positives. `test_leaderboards_weekly_progress` — weekly board ranks by positives with `ts >= weekStart(now)` (fabricate this-week vs last-week records; last-week must not count); progress board (this-week vs last-week delta) rebased the same way — negatives may dent the delta but never move a level.
 
 - [ ] **Step 2: Run to verify they fail**
 
@@ -142,11 +142,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - Test: bundle additions
 
 **Interfaces:**
-- Produces: `emptyState() -> S` (default settings, className zh "我的班级"/en "My class" via `t()`, zero students/records); `seedDemo() -> void` (existing demo data, unchanged content); `tryDemo()` — no-op with confirm modal when students/records exist, else `seedDemo()`; Settings `startEmpty()` with confirm; i18n keys `tryDemo`, `demoConfirmBody`, `startEmpty`, `emptyHint` (Task 3 reserved).
+- Produces: `emptyState() -> S` (default settings, **`className:""` stored empty** — every view that shows the class name renders `S.settings.className || t("defaultClassName")`, zh `我的班级` / en `My class`), zero students/records); `seedDemo() -> void` (existing demo data, unchanged content); `tryDemo()` — no-op with confirm modal when students/records exist, else `seedDemo()`; Settings `startEmpty()` with confirm; i18n keys `tryDemo`, `demoConfirmBody`, `startEmpty`, `emptyHint`, `defaultClassName` (Task 3 reserved).
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_fresh_start_empty` — no stored state ⇒ init yields `emptyState()`, 0 students; classroom renders onboarding card with Try-demo button. `test_trydemo_guard` — with ≥1 student or record, `tryDemo()` shows confirm (mock `confirmModal` records call) and does NOT mutate until confirmed. `test_start_empty_wipes` — `startEmpty()` after confirm ⇒ 0 students, settings defaults.
+`test_fresh_start_empty` — no stored state ⇒ init yields `emptyState()`, 0 students, stored `className === ""`; classroom renders onboarding card with Try-demo button, and the heading shows the translated default (`我的班级` in zh, `My class` in en). `test_trydemo_guard` — with ≥1 student or record, `tryDemo()` shows confirm (mock `confirmModal` records call) and does NOT mutate until confirmed. `test_start_empty_wipes` — `startEmpty()` after confirm ⇒ 0 students, settings defaults.
 
 - [ ] **Step 2: Run to verify they fail** — Run: `python3 src/gen-test.py && node src/tmp-test.js` — Expected: FAIL.
 - [ ] **Step 3: Implement** — as interfaces above; landing enter flow gains one "Try demo" tertiary button calling `tryDemo()`.
@@ -176,11 +176,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - Test: bundle additions
 
 **Interfaces:**
-- Produces: `syncIn() -> void` (`S = load()`); `withState(fn) -> void` — `syncIn(); fn(); save();` — EVERY mutation entry point (award via classroom or drawer, undo, give/spend, mystery box, request approve/decline, settings saves, `seedDemo`, `startEmpty`, export datestamp) is wrapped in it; `window.addEventListener("storage", e => { if(e.key===LS_KEY){ S=load(); rerender-current-view; } })`; `load()`/`save()` wrapped in try/catch setting `STORAGE_OK=false` → non-blocking banner via `storageBlockedNote()` (i18n key `storageBlocked`).
+- Produces: `syncIn() -> void` — calls `load()` (which re-reads localStorage INTO `S` and returns a boolean — never `S = load()`); `withState(fn) -> void` — `syncIn(); fn(); save();` — EVERY mutation entry point (award via classroom or drawer, undo, give/spend, mystery box, request approve/decline, settings saves, `seedDemo`, `startEmpty`, export datestamp) is wrapped in it, and **mutation functions take IDS and re-look-up the objects INSIDE the callback** (`undoRecord(id)`, `decideReq(id, ok)`, … — signatures change from object args to id args; update call sites) so a stale object reference can never write stale data back; `window.addEventListener("storage", e => { if(e.key===LS_KEY){ syncIn(); rerender-current-view; } })`; `onSync(cb)` registry — callbacks fired after S replacement (Task 10 hooks pops here); `load()`/`save()` wrapped in try/catch setting `STORAGE_OK=false` → non-blocking banner via `storageBlockedNote()` (i18n key `storageBlocked`).
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_two_tabs_no_lost_records` — simulate: tab A `withState(award Alice +2)` → capture `localStorage` JSON as tab B's stale snapshot; restore stale `S`; `withState(award Bob +3)`; assert stored `S.records` contains a record with Alice's id in `studentIds` AND a record with Bob's id (nothing overwritten). `test_storage_event_rerenders` — dispatch a fake `storage` event `{key:LS_KEY}` with new JSON; assert S replaced and current view re-rendered. `test_storage_blocked_banner` — make setItem throw; assert no exception escapes `save()` and banner flag set.
+`test_two_tabs_no_lost_records` — simulate: tab A `withState(award Alice +2)` → capture `localStorage` JSON as tab B's stale snapshot; restore stale `S`; `withState(award Bob +3)`; assert stored `S.records` contains a record with Alice's id in `studentIds` AND a record with Bob's id (nothing overwritten). `test_undo_after_storage_event` — tab A awards (record id R); tab B holds stale `S` without R; `withState(()=> undoRecord(R))` ⇒ re-read finds R by id and storage now shows R `undone:true`. `test_approve_after_storage_event` — same shape with `decideReq(requestIdFromTabA, true)` ⇒ request approved in storage despite stale S. `test_storage_event_rerenders` — dispatch a fake `storage` event `{key:LS_KEY}` with new JSON; assert S replaced and current view re-rendered. `test_storage_blocked_banner` — make setItem throw; assert no exception escapes `save()` and banner flag set.
 
 - [ ] **Step 2: Run to verify they fail** — Expected: FAIL (awards currently mutate stale S).
 - [ ] **Step 3: Implement** — as interfaces. Rerender = call current route renderer; on `#/screen` the handler also feeds the pop differ (Task 10 consumes via a registered hook `onSync(cb)`; Task 7 defines `onSync(cb)` registry, calls callbacks after S replacement).
@@ -230,11 +230,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 
 **Interfaces:**
 - Consumes: `onSync` (Task 7), `.gs-motion` class semantics (set by existing `applyMotion()`).
-- Produces: `motionOK() -> Boolean` = `document.documentElement.classList.contains("gs-motion")` (NEW helper — does not exist yet); `snapshot() -> Object` (`{sid: {w: wallet, l: level}}`); `diffPops(prev) -> Array<{sid, kind:"pos"|"neg", n, leveled}>` — called after every re-render (direct or storage); `popTile(sid,kind,n,leveled)` — positive: bounce + ≤16 confetti dots + floating `+N` (transform/opacity only, auto-cleanup ≤1.2 s; skipped when `!motionOK()` → opacity-only badge); negative: quiet grey `−N` chip ~60 s, suppressed entirely when `S.settings.screenHideNeg`; `announceAward(text)` writes to the polite live region; `chime()` — two-note WebAudio, only when `S.settings.sound==="on"` AND context running; `maybeShowSoundChip()` — chip visible iff sound on AND context suspended; tap ⇒ `ctx.resume()` + hide for the session.
+- Produces: `motionOK() -> Boolean` = `document.documentElement.classList.contains("gs-motion")` (NEW helper — does not exist yet); `seenIds() -> Set` of non-undone record ids already announced; `diffPops(prevSeen) -> Array<{sid, kind:"pos"|"neg", n, leveled}>` — driven by **new non-undone RECORD IDS, never wallet diffs**: after every re-render (direct or storage), every record with `undone===false && value!==0` whose id ∉ prevSeen yields one entry per `studentIds` member — `kind = value>0 ? "pos" : "neg"`, `n = Math.abs(value)`, `leveled` from a before/after level snapshot. Consequences (teacher-pinned): gift approve / mystery box never pop (no record, or value 0); an award still pops when the wallet is at 0 or when negatives exceed positives; an undo never pops (the record leaves the non-undone set). `popTile(sid,kind,n,leveled)` — positive: bounce + ≤16 confetti dots + floating `+N` (transform/opacity only, auto-cleanup ≤1.2 s; skipped when `!motionOK()` → opacity-only badge); negative: quiet grey `−N` chip ~60 s, suppressed entirely when `S.settings.screenHideNeg`; `announceAward(text)` writes to the polite live region; `chime()` — two-note WebAudio, only when `S.settings.sound==="on"` AND context running; `maybeShowSoundChip()` — chip visible iff sound on AND context suspended; tap ⇒ `ctx.resume()` + hide for the session.
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_pop_diff` — snapshot A (wallet 5, lv 2) → award +2 ⇒ diff `{sid, kind:"pos", n:2, leveled:false}`; award crossing threshold ⇒ `leveled:true`. Negative award ⇒ `kind:"neg"`, no chime call. `test_hide_neg` — `screenHideNeg=true` ⇒ negative produces no chip (diff still computed for wallet). `test_sound_chip_logic` — sound off ⇒ no chip, no chime; sound on + suspended ctx ⇒ chip visible; after resume ⇒ chip flag false for session. `test_reduced_motion_pops` — `motionOK()===false` ⇒ pop path renders static badge class, zero confetti nodes created.
+`test_pop_diff` — award via `applyRule` ⇒ `diffPops(prevSeen)` returns `{sid, kind from value sign, n, leveled}`; calling again with the updated seen-set returns `[]`; level-crossing award ⇒ `leveled:true`. `test_pop_ignores_spending` — approve a gift request and open the mystery box ⇒ wallet drops but NO new pop entries (spending is not an award). `test_pop_at_wallet_zero` — student whose wallet is 0 (all spent) gets a +2 award ⇒ pos pop still fires. `test_pop_when_negatives_exceed` — negatives > positives (wallet floored at 0): +2 award ⇒ pos pop; −1 award ⇒ neg pop. `test_undo_no_pop` — `undoRecord(id)` of a previously-seen positive record ⇒ no new pop. `test_hide_neg` — `screenHideNeg=true` ⇒ negative produces no chip (diff still computed). `test_sound_chip_logic` — sound off ⇒ no chip, no chime; sound on + suspended ctx ⇒ chip visible; after resume ⇒ chip flag false for session. `test_reduced_motion_pops` — `motionOK()===false` ⇒ pop path renders static badge class, zero confetti nodes created.
 
 - [ ] **Step 2: Run to verify they fail** — Expected: FAIL.
 - [ ] **Step 3: Implement** — WebAudio ctx created lazily on first gesture; all timers `setTimeout`-owned and cleared on re-render.
@@ -247,11 +247,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - Test: bundle additions
 
 **Interfaces:**
-- Produces: `drawerOpen()/drawerClose()` (slide-up panel, motion-gated); `drawerAward(ruleId)` — `withState(()=> applyRule(rule, [...sel]))` using the EXISTING `applyRule(rule, ids)` unchanged — identical record shape `{id, ts, studentIds, ruleId, ruleLabel, value, undone:false}`; "Undo last" button → `withState(()=> undoRecord(S.records[0]))` (existing `undoRecord` marks `undone:true`); shares the `sel` Set with classroom semantics.
+- Produces: `drawerOpen()/drawerClose()` (slide-up panel, motion-gated); `drawerAward(ruleId)` — `withState(()=> applyRule(rule, [...sel]))` using the EXISTING `applyRule(rule, ids)` unchanged — identical record shape `{id, ts, studentIds, ruleId, ruleLabel, value, undone:false}`; "Undo last" button → `withState(()=> { const r = S.records.find(x => !x.undone); if (r) undoRecord(r.id); })` — targets the **newest record with `undone === false`** (records are newest-first; `S.records[0]` may already be undone); shares the `sel` Set with classroom semantics.
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_drawer_award_shape` — award via drawer with 2 selected students ⇒ ONE record with `studentIds.length===2`, shape `{id, ts, studentIds, ruleId, ruleLabel, value, undone:false}` (applyRule is shared, not duplicated); wallet/level update the same as a classroom award. `test_drawer_undo` — undo marks exactly the newest record `undone:true` and nothing else. `test_drawer_chips_shared` — classroom view still renders after the generator extraction (existing classroom tests stay green).
+`test_drawer_award_shape` — award via drawer with 2 selected students ⇒ ONE record with `studentIds.length===2`, shape `{id, ts, studentIds, ruleId, ruleLabel, value, undone:false}` (applyRule is shared, not duplicated); wallet/level update the same as a classroom award. `test_drawer_undo` — newest record already `undone:true` ⇒ undo marks the NEXT newest non-undone record and nothing else. `test_drawer_chips_shared` — classroom view still renders after the generator extraction (existing classroom tests stay green).
 
 - [ ] **Step 2: Run to verify they fail** — Expected: FAIL.
 - [ ] **Step 3: Implement** — extraction is refactor-only for the classroom (its tests must stay green untouched).
@@ -264,11 +264,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - Test: bundle additions
 
 **Interfaces:**
-- Produces: `isTyping(e) -> Boolean` (`e.target.matches("input,textarea,[contenteditable]")`); global keydown on `#/screen`: `A`→drawer, `F`→fullscreen, `Esc`→close drawer/overlays (browser handles fullscreen exit) — ALL ignored when `isTyping(e)`.
+- Produces: `isTyping(e) -> Boolean` (`e.target.matches("input,textarea,select,[contenteditable]")` — includes `<select>`); global keydown on `#/screen`: `A`→drawer, `F`→fullscreen, `Esc`→close drawer/overlays (browser handles fullscreen exit) — ALL ignored when `isTyping(e)` **or** `e.ctrlKey || e.metaKey || e.altKey || e.isComposing` (teacher amendment 5).
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_shortcut_input_guard` — fake events `{key:"a", target: input}` / `{key:"f", target: textarea}` / `{key:"Escape", target: contenteditable}` ⇒ no action taken (drawer stays closed, fullscreen not requested); same keys on `document.body` ⇒ actions fire.
+`test_shortcut_input_guard` — fake events `{key:"a", target: input}` / `{key:"f", target: textarea}` / `{key:"Escape", target: select}` / `{key:"a", target: contenteditable}` ⇒ no action taken (drawer stays closed, fullscreen not requested); `{key:"f", ctrlKey:true}` / `{key:"a", metaKey:true}` / `{key:"Escape", altKey:true}` / `{key:"a", isComposing:true}` on `document.body` ⇒ also inert; same bare keys on `document.body` ⇒ actions fire.
 
 - [ ] **Step 2: Run to verify they fail** — Expected: FAIL.
 - [ ] **Step 3: Implement** — single `keydown` listener registered with the screen view, removed on route change.
@@ -333,3 +333,14 @@ Corrections made during this review: record shape fixed to
 selected students); `applyRule(rule, ids)` argument order fixed; `motionOK()`
 marked NEW (not existing); wallet formula term fixed to existing `spentOf(st)`;
 manual classroom check added to Task 15 reporting.
+
+Teacher's execution fixes (2026-11-08, applied before native execution): Task 10
+pops driven by new non-undone record ids (sign from value) with the four pinned
+spend/zero/negative/undo behaviors; Task 7 `syncIn` uses `load()`'s boolean
+semantics (never `S = load()`) and id-taking mutations that re-look-up inside
+`withState`, with undo/approve-after-storage-event tests; Task 11 Undo-last skips
+already-undone records; Task 12 guards ctrl/meta/alt/isComposing and adds
+`select` to `isTyping`; Task 4 weekly + progress leaderboard tests; Task 5 empty
+`className` with translated display default; Task 3 records `index.html` size
+right after the WP1 build. Execution: native (executing-plans), stop after the
+WP1 commit to show the teacher the new zh strings.
