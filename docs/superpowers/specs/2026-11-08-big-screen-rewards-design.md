@@ -1,7 +1,8 @@
 # Big-Screen Rewards — Design Spec
 
 Date: 2026-11-08 · Project: Gifted Scholars (`github/mdshezkhn/gifted-scholars`)
-Status: **DRAFT — awaiting Teacher Mo's approval. No code written yet.**
+Status: **APPROVED with amendments (2026-11-08). Implementation plan:
+docs/superpowers/plans/2026-11-08-big-screen-rewards-plan.md.**
 Author: Links agent, continuing task_022 (original build, 2026-10-22/23).
 
 ---
@@ -88,7 +89,8 @@ exists.**
    touch targets. Landing page keeps its editorial studio look untouched.
 4. All bugs in §2.1 fixed; zero English leaks in Chinese mode; Chinese becomes the
    default language.
-5. Levels based on lifetime positive points (never lost); wallet = positives −
+5. Levels based on lifetime positive points (never lowered by negative points;
+   undoing a positive can still lower a level); wallet = positives −
    negatives − spending, floored at 0.
 6. Fresh installs start empty with a "Try demo" button; existing teacher data is never
    touched.
@@ -177,9 +179,10 @@ in Settings; goal hidden until enabled. My call (flagged): weekly basis matches 
 freeze after week one.
 
 **Student tile grid.** Tiles: avatar (initial on hue bg — existing `hueOf`), name,
-level badge + `Lv N`, wallet `★ N`, thin progress bar to next level. Density: CSS
-grid, `repeat(auto-fill, minmax(…))` tuned so **up to 48 students fit 1920×1080 with
-no scrolling** (8×6); beyond that the grid scrolls vertically (rare). Tiles are
+level badge + `Lv N`, wallet `★ N`, thin progress bar to next level. **The type scale
+above is binding; tile count follows.** CSS grid, `repeat(auto-fill, minmax(…))` tuned
+so **24–30 tiles fit 1920×1080 with no scrolling**; beyond that the grid scrolls
+vertically. Long names truncate with ellipsis (one line, `min-width:0`). Tiles are
 display-only — no click navigation (my call: avoids accidental route changes on a
 touch screen).
 
@@ -195,10 +198,16 @@ classroom setup, both supported: **single display** (computer drives only the
 projector) → the teacher lives inside `#/screen` and awards through the drawer; that
 is the complete flow on its own. **Dual display** (teacher monitor + projector) →
 Classroom tab on the monitor, `#/screen` fullscreen on the projector, `storage` events
-keep it live. Re-render is a full grid rebuild (≤ 48
-tiles, no inputs → no focus loss); a before/after snapshot (wallet + level per
-student) drives the **pop animations on exactly the changed tiles**, so celebration
-survives the rebuild.
+keep it live.
+
+**State safety across tabs (amendment 1).** Every mutation entry point re-reads state
+from localStorage (`S = load()` before applying the change) and saves immediately
+after; the `storage` handler replaces `S` wholesale before re-rendering. Interleaved
+awards from two tabs therefore lose no records — pinned by a two-simulated-tab unit
+test (tab A awards → tab B, which has not re-read, awards next → both records
+survive). Re-render is a full grid rebuild (tiles, no inputs → no focus loss); a
+before/after snapshot (wallet + level per student) drives the **pop animations on
+exactly the changed tiles**, so celebration survives the rebuild.
 
 **Award pops.**
 - *Positive:* tile does one soft bounce + scale (CSS transform only, ≤ 0.6 s), a burst
@@ -215,6 +224,13 @@ survives the rebuild.
   static `+N`/`−N` badge that appears and fades (opacity only) — still immediate and
   visible, zero movement.
 
+**Audio unlock (amendment 2).** Browsers only allow WebAudio after a user gesture
+*in that tab* — a chime triggered by a `storage` event in a never-touched `#/screen`
+tab would be silently blocked. So `#/screen` shows a **one-time "tap to enable
+sound" chip** (only when sound is enabled but the AudioContext is suspended); the
+first tap resumes the context and the chip does not return for the rest of the
+session. Documented in README.
+
 **Quick-award drawer (teacher-only).** Button on the top bar (🖐 icon, also `A` key)
 slides a panel up over the bottom ~35% of the screen. Inside: student chips
 (multi-select, same `sel` set + `aria-pressed`), then rule chips — reusing the
@@ -228,8 +244,9 @@ the desk, not the class.
 
 - `growthOf(st)` → **lifetime positive points**: sum of `value > 0` record values
   (undone excluded). Levels (`levelOf`, `lvlProgress`, level-up detection in
-  `applyRule`) follow this — **a level can never be lost**.
-- `walletOf(st)` = `max(0, positives − negatives − spentOnGifts − boxSpent)` —
+  `applyRule`) follow this — **a level is never lowered by negative points**.
+  (Undoing a positive award can still lower a level — correct and expected.)
+- `walletOf(st)` = `max(0, positivesOf(st) − negativesOf(st) − spentOf(st) − boxSpent)` —
   negatives still bite the spendable wallet, floored at 0.
 - Displays: Classroom card keeps `★ wallet` but the old `# growth` number becomes the
   level + progress bar (growth score was teacher-jargon; the bar says the same thing
@@ -293,8 +310,15 @@ the desk, not the class.
 ### 6.7 Compatibility & privacy
 
 - `LS_KEY` unchanged; no key is renamed or removed; new settings (`sound`,
-  `screenHideNeg`, `goal`) read with fallbacks. A teacher with live class data
-  upgrades by reloading the page — nothing asks them anything.
+  `screenHideNeg`, `goal`, `lastBackupAt`) read with fallbacks. A teacher with live
+  class data upgrades by reloading the page — nothing asks them anything.
+- **One origin for class data (amendment 3).** `my-gifts-with-mo.duckdns.org` and
+  `mdshezkhn.github.io` are different origins with **separate localStorage** — class
+  data saved on one is invisible on the other. README carries a prominent warning to
+  pick ONE address and stick to it; the Settings data section shows the same note.
+- **Last-backup reminder (amendment 3).** Exporting JSON records
+  `settings.lastBackupAt` (ISO date); Settings shows "Last backup: <date> / never"
+  and a gentle nudge when it is older than 7 days (or never, once students exist).
 - No new network requests; sounds synthesized; confetti is DOM. Child names stay in
   localStorage on the device (and in the teacher's own JSON export).
 
@@ -307,6 +331,8 @@ the desk, not the class.
 3. **Keyboard:** Classroom tiles and drawer controls operable by keyboard
    (Enter/Space on tiles already exists — keep); `A` opens drawer, `Esc` closes
    overlays/drawer, `F` toggles fullscreen; focus-visible outlines never removed.
+   **Amendment 5: `A` / `F` / `Esc` are ignored while a text input or textarea is
+   focused** (typing "a" in a field must never trigger a shortcut).
 4. **Semantics:** progress bars are `role="progressbar"` with `aria-valuemin/max/now`
    + labels; tiles use `aria-pressed`; mute/fullscreen use `aria-pressed` +
    `aria-label`s; toasts stay in the `aria-live="polite"` wrap; award feedback on the
@@ -324,11 +350,12 @@ the desk, not the class.
 
 ## 8. Acceptance criteria (Definition of Done)
 
-1. **`#/screen` on 1920×1080:** goal panel + ≥ 40 student tiles with no scrolling;
-   type minimums of §6.1 met (checked programmatically on computed styles); an award
+1. **`#/screen` on 1920×1080:** goal panel + **24–30 student tiles with no scrolling
+   (type minimums of §6.1 are binding)**; a 40-student class scrolls; an award
    in the other tab updates the tile in < 200 ms (measured); an award via the drawer
-   updates instantly; reload restores the same view + numbers from localStorage;
-   fullscreen and mute buttons work and persist.
+   updates instantly; **two tabs interleaving awards lose no records** (unit test);
+   reload restores the same view + numbers from localStorage; fullscreen and mute
+   buttons work and persist.
 2. **Raw-code bugs gone:** automated test asserts no `${` and no `t("` literal in any
    rendered route's HTML; B1–B4 verified visually in screenshots (zh + en).
 3. **No English leaks in zh:** i18n parity test (identical en/zh key sets) + rendered
@@ -343,7 +370,9 @@ the desk, not the class.
    CI workflow green on push/PR; assemble byte-diff check passes.
 7. **Headless browser:** zero console errors/page errors on every route incl.
    `#/screen` at 1920×1080 and 390×844; reload persistence verified; reduced-motion
-   pass shows no particle/transform animations; screenshots reviewed (zh default).
+   pass shows no particle/transform animations; the one-time sound chip appears only
+   when sound is on + context suspended, and never after its tap; `A`/`F`/`Esc` do
+   nothing while a text input is focused; screenshots reviewed (zh default).
 8. **Accessibility checklist §7** verified in QA (contrast pairs, keyboard pass,
    aria assertions in the headless run).
 9. **Single file, offline:** no runtime network requests (headless-verified); size
@@ -384,15 +413,22 @@ not applicable.
 
 ## 11. Commit plan (local only; push/deploy only after approval)
 
-1. `docs: big-screen rewards design spec` (this file)
-2. `fix(i18n): raw ${t()} bugs + full zh/en coverage, zh default`
+1. `docs: big-screen rewards design spec` (this file, amended on approval)
+2. `fix(i18n): raw ${t()} bugs + full zh/en coverage, zh default` — **WP1 ships
+   FIRST as its own fully tested commit, before any other work package begins**
+   (teacher's ordering, 2026-11-08).
 3. `feat(economy): levels on lifetime positives; wallet formula`
 4. `feat(start): empty first run + Try demo`
 5. `feat(screen): #/screen big-screen mode + quick-award drawer`
 6. `feat(theme): kid visual system for app scope`
 7. `chore: rename test files, add CI, update README`
 
-## 12. My calls (builder decisions — flag anything you disagree with)
+## 12. My calls (builder decisions)
+
+**All ten accepted by the teacher on 2026-11-08, together with amendments 1–5
+(two-tab state safety, audio-unlock chip, one-origin warning + last-backup reminder,
+binding type sizes with 24–30 no-scroll tiles, input-focus shortcut guard) and the
+"never lowered by negative points" wording.** The original calls, for the record:
 
 1. Goal basis = weekly positives (auto-resets Monday), default label "周五奖励".
 2. Sound default **muted**; positives only.
