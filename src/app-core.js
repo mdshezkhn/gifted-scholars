@@ -186,7 +186,7 @@ function applyMotion(){
 function saveMotion(v){S.settings.motion=v;save();applyMotion();}
 window.addEventListener("error",function(e){
   if(window.__gsErrShown)return; window.__gsErrShown=true;
-  try{toast("Something went wrong, but your data is safe. (Details in browser console.)");}catch(_){}
+  try{toast(t("errToast"));}catch(_){}
 });
 function closeOverlays(){$("#modals").innerHTML="";$$(".burst,.lvlup").forEach(e=>e.remove());}
 function modal(html){
@@ -204,7 +204,7 @@ function flushLevelUps(){
   const {st,lv}=levelUpQueue.shift();
   const L=LEVELS[lv];
   const el=document.createElement("div");el.className="lvlup";
-  el.innerHTML='<div class="card stk"><span class="medal">'+L.badge+'</span><h2 style="font-family:var(--font-round)">Level '+(lv+1)+'!</h2><p style="margin-top:6px"><b>'+esc(st.name)+'</b> reached <b>'+esc(nm(L))+'</b></p><div class="btns" style="justify-content:center"><button class="btn gold" onclick="this.closest(\'.lvlup\').remove();flushLevelUps()">${t("celebrate")}</button></div></div>';
+  el.innerHTML='<div class="card stk"><span class="medal">'+L.badge+'</span><h2 style="font-family:var(--font-round)">'+t("levelUpTitle",{n:lv+1})+'</h2><p style="margin-top:6px">'+t("reached",{name:"<b>"+esc(st.name)+"</b>",lv:"<b>"+esc(nm(L))+"</b>"})+'</p><div class="btns" style="justify-content:center"><button class="btn gold" onclick="this.closest(\'.lvlup\').remove();flushLevelUps()">'+t("celebrate")+'</button></div></div>';
   el.addEventListener("click",e=>{if(e.target===el){el.remove();flushLevelUps();}});
   document.body.appendChild(el);
 }
@@ -245,13 +245,13 @@ function renderShell(tab){
 function viewClassroom(){
   const rules=S.rules.filter(r=>r.active!==false);
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>Rate ${esc(S.settings.className)}</h1><span class="sub">Tap students, then a rule. ${sel.size} selected.</span></div>
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className)})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
   <div class="toolbar">
     <button class="btn sm" onclick="selAll(true)">${t("selectAll")}</button>
     <button class="btn sm" onclick="selAll(false)">${t("clear")}</button>
     <span class="rail-legend">
-      <span class="legend"><b class="num">★</b> wallet stars (spendable)</span>
-      <span class="legend"><b class="num">#</b> growth score (levels)</span>
+      <span class="legend"><b class="num">★</b> ${t("legendWallet")}</span>
+      <span class="legend"><b class="num">#</b> ${t("legendGrowth")}</span>
     </span>
   </div>
   <div class="grid" id="stuGrid">${S.students.map(stuCard).join("")}</div>
@@ -267,23 +267,23 @@ function stuCard(st){
     <div class="nm">${esc(st.name)}</div>
     <div class="lv">${L.badge} Lv${lp.i+1} · ${esc(nm(L))}</div>
     <div class="pts"><span class="net num${g<0?" neg":""}"># ${g}</span><span class="wallet num">★ ${w}</span></div>
-    <a class="roomlink" href="#/room/${st.id}" onclick="event.stopPropagation()" title="Open ${esc(st.name)}'s gift room">${t("openRoom")}</a>
+    <a class="roomlink" href="#/room/${st.id}" onclick="event.stopPropagation()" title="${t("openRoomTitle",{name:esc(st.name)})}">${t("openRoom")}</a>
   </div>`;
 }
 function pick(id){
   if(sel.has(id))sel.delete(id);else sel.add(id);
   const el=document.getElementById("card-"+id);
   if(el){el.classList.toggle("sel",sel.has(id));el.setAttribute("aria-pressed",sel.has(id));$(".pick",el).textContent=sel.has(id)?"✓":"";}
-  const sub=document.querySelector(".pagehead .sub");if(sub)sub.textContent="Tap students, then a rule. "+sel.size+" selected.";
+  const sub=document.querySelector(".pagehead .sub");if(sub)sub.textContent=t("pickSub",{n:sel.size});
 }
 function selAll(on){sel=on?new Set(S.students.map(s=>s.id)):new Set();viewClassroom();}
 function rate(ruleId){
   const rule=S.rules.find(r=>r.id===ruleId);if(!rule)return;
-  if(!sel.size){toast("Select one or more students first");return;}
+  if(!sel.size){toast(t("selFirst"));return;}
   applyRule(rule,[...sel]);
   const ids=[...sel];
   ids.forEach(id=>{const el=document.getElementById("card-"+id);if(el){const chip=document.createElement("span");chip.className="float";chip.style.color=rule.value>0?"var(--teal)":"var(--coral)";chip.textContent=(rule.value>0?"+":"")+rule.value;el.appendChild(chip);setTimeout(()=>chip.remove(),1000);}});
-  toast(rule.label+" "+(rule.value>0?"+":"")+rule.value+" → "+ids.map(i=>byId(i).name).slice(0,3).join(", ")+(ids.length>3?" +"+(ids.length-3):""));
+  toast(t("awardToast",{r:(LANG==="zh"&&rule.zh?rule.zh:rule.label)+" "+rule.icon,v:(rule.value>0?"+":"")+rule.value,who:ids.map(i=>byId(i).name).slice(0,3).join(", ")+(ids.length>3?" +"+(ids.length-3):"")}));
   // refresh numbers without rebuilding grid (keeps selection + floats smooth)
   ids.forEach(id=>{const st=byId(id),el=document.getElementById("card-"+id);if(el){const g=growthOf(st),lp=lvlProgress(g);$(".net",el).textContent="# "+g;$(".net",el).classList.toggle("neg",g<0);$(".wallet",el).textContent="★ "+walletOf(st);$(".lv",el).textContent=LEVELS[lp.i].badge+" Lv"+(lp.i+1)+" · "+nm(LEVELS[lp.i]);}});
   flushLevelUps();
@@ -293,9 +293,9 @@ function rate(ruleId){
 function viewRecords(){
   const recs=S.records;
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>${t("tab_records")}</h1><span class="sub">Every rating is logged. Anything can be undone; nothing is deleted.</span></div>
+  <div class="pagehead"><h1>${t("tab_records")}</h1><span class="sub">${t("recSub")}</span></div>
   ${recs.length?`<div class="list">${recs.map(recRow).join("")}</div>`:
-  `<div class="empty stk"><span class="big">🧾</span>${t("noRatings")}<br>${t("headTo")}<a href="#/app/classroom">${t("rate")}</a> and tap a rule.</div>`}`;
+  `<div class="empty stk"><span class="big">🧾</span>${t("noRatings")}<br>${t("headTo")}<a href="#/app/classroom">${t("rate")}</a>${t("thenTapRule")}</div>`}`;
 }
 function recRow(r){
   const names=r.studentIds.map(i=>byId(i)?byId(i).name:"?").join(", ");
@@ -303,12 +303,12 @@ function recRow(r){
     <span class="val num${r.value<0?" neg":""}">${r.value>0?"+":""}${r.value}</span>
     <span class="who"><b>${esc(r.ruleLabel)}</b><br>${esc(names)}</span>
     <span class="meta num">${fmtDT(r.ts)}</span>
-    ${r.undone?'<span class="pill declined">${t("undone")}</span>':'<button class="btn sm" onclick="doUndo(\''+r.id+'\')">${t("undo")}</button>'}
+    ${r.undone?`<span class="pill declined">${t("undone")}</span>`:`<button class="btn sm" onclick="doUndo('${r.id}')">${t("undo")}</button>`}
   </div>`;
 }
 function doUndo(id){
   const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;
-  undoRecord(r);toast("Undone: "+r.ruleLabel);viewRecords();
+  undoRecord(r);toast(t("undoneToast",{r:r.ruleLabel}));viewRecords();
 }
 
 /* ============ gift shop view ============ */
@@ -318,7 +318,7 @@ function approvedCountFor(stId,giftId){return S.requests.filter(q=>q.status==="a
 function viewShop(){
   const pend=S.requests.filter(q=>q.status==="pending");
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>${t("tab_shop")}</h1><span class="sub">Students request, you approve. Stars are only spent at approval.</span></div>
+  <div class="pagehead"><h1>${t("tab_shop")}</h1><span class="sub">${t("shopSub")}</span></div>
   <div class="queue">
     <h2 style="font-size:19px;margin-bottom:10px">${t("waitingFor")}<span class="tag">${pend.length}</span></h2>
     ${pend.length?`<div class="list">${pend.map(reqRow).join("")}</div>`:
@@ -342,7 +342,7 @@ function reqRow(q){
 }
 function itemCard(g){
   const off=g.active===false;
-  const stock=g.stock==null?'<span class="pill approved">'+(LANG==="zh"?"库存 ∞":"stock ∞")+'</span>':(g.stock>0?'<span class="pill approved">'+(LANG==="zh"?"库存 "+g.stock:"stock "+g.stock)+'</span>':'<span class="pill declined">'+t("soldOut")+'</span>');
+  const stock=g.stock==null?'<span class="pill approved">'+t("stockInf")+'</span>':(g.stock>0?'<span class="pill approved">'+t("stockN",{n:g.stock})+'</span>':'<span class="pill declined">'+t("soldOut")+'</span>');
   return `<div class="item stk${off?" off":""}">
     <div class="top"><span class="emoji">${g.emoji}</span>${stock}</div>
     <h3>${esc(nm(g))}</h3>
@@ -359,33 +359,33 @@ function decideReq(id,ok){
   const q=S.requests.find(x=>x.id===id);if(!q||q.status!=="pending")return;
   if(ok){
     const st=byId(q.studentId),g=giftById(q.itemId);
-    if(!st||!g){toast("This gift no longer exists");return;}
+    if(!st||!g){toast(t("giftGone"));return;}
     if(g.active===false){toast(t("offShelf2"));return;}
-    if(g.stock!=null&&g.stock<=0){toast("Sold out: raise the stock to approve.");return;}
-    if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(st.name+" hit the limit of "+g.per+" for this gift");return;}
-    if(walletOf(st)<q.cost){toast(st.name+" only has ★ "+walletOf(st)+" now. Ratings first, then approve.");return;}
+    if(g.stock!=null&&g.stock<=0){toast(t("soldOutRaise"));return;}
+    if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(t("limitHit",{name:st.name,n:g.per}));return;}
+    if(walletOf(st)<q.cost){toast(t("lowWallet",{name:st.name,w:walletOf(st)}));return;}
   }
   decide(q,ok);
-  toast(ok?("Granted: "+q.itemLabel):("Declined: "+q.itemLabel));
+  toast(ok?t("granted",{g:q.itemLabel}):t("declinedToast",{g:q.itemLabel}));
   viewShop();
 }
 /* "Give now" modal: pick a student */
 function openGive(giftId){
   const g=giftById(giftId);if(!g)return;
-  modal(`<h2>Give: ${esc(g.emoji+" "+g.name)}</h2>
-    <p style="font-size:14px;color:var(--ink-soft)">Instant grant: stars are spent now, the gift lands on the student's shelf.</p>
+  modal(`<h2>${t("giveTitle",{g:esc(g.emoji+" "+nm(g))})}</h2>
+    <p style="font-size:14px;color:var(--ink-soft)">${t("giveBlurb")}</p>
     <label for="giveSel">${t("studentCol")}</label>
     <select id="giveSel" style="margin-top:6px">${S.students.map(s=>'<option value="'+s.id+'">'+esc(s.name)+" (★ "+walletOf(s)+")</option>").join("")}</select>
-    <div class="btns"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn gold" onclick="doGive('${giftId}')">Spend ★ ${g.price} and give</button></div>`);
+    <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn gold" onclick="doGive('${giftId}')">${t("spendGive",{n:g.price})}</button></div>`);
 }
 function doGive(giftId){
   const selId=$("#giveSel").value,g=giftById(giftId),st=byId(selId);
   closeOverlays();
   if(!st||!g)return;
   if(g.active===false){toast(t("offShelf"));return;}
-  if(g.stock!=null&&g.stock<=0){toast("Sold out");return;}
-  if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(st.name+" already hit the limit for this gift");return;}
-  if(walletOf(st)<g.price){toast(st.name+" only has ★ "+walletOf(st));return;}
+  if(g.stock!=null&&g.stock<=0){toast(t("soldOut"));return;}
+  if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(t("limitHit",{name:st.name,n:g.per}));return;}
+  if(walletOf(st)<g.price){toast(t("lowWallet",{name:st.name,w:walletOf(st)}));return;}
   const q={id:uid(),studentId:st.id,itemId:g.id,itemLabel:g.emoji+" "+g.name,cost:g.price,status:"pending",note:"given by teacher",ts:Date.now()};
   S.requests.unshift(q);
   decide(q,true);
@@ -407,7 +407,7 @@ function viewBoard(){
   const ruleCount={};weekRecs.forEach(r=>ruleCount[r.ruleLabel]=(ruleCount[r.ruleLabel]||0)+1);
   const topRule=Object.entries(ruleCount).sort((a,b)=>b[1]-a[1])[0];
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>Leaderboards</h1><span class="sub">${t("recogTag")}</span></div>
+  <div class="pagehead"><h1>${t("lbTitle")}</h1><span class="sub">${t("recogTag")}</span></div>
   <div class="statline">
     <div class="stat stk"><div class="k">${t("givenToday")}</div><div class="v num">${givenToday>0?"+":""}${givenToday}</div></div>
     <div class="stat stk"><div class="k">${t("ratingsWeek")}</div><div class="v num">${weekRecs.length}</div></div>
@@ -433,22 +433,20 @@ function viewBoard(){
       <span class="who">${esc(r.s.name)}</span>
       <span class="val num${r.v<0?" neg":""}" style="min-width:60px">${r.v>0?"+":""}${r.v}</span>
     </div>`).join("")}</div>`:
-  `<div class="empty stk"><span class="big">🏁</span>${t("boardEmpty")}<br>The Progress board fills once two weeks have ratings.</div>`}`;
+  `<div class="empty stk"><span class="big">🏁</span>${t("boardEmpty")}<br>${t("progEmpty")}</div>`}`;
 }
 
 /* ============ settings view ============ */
 function viewSettings(){
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>Setup</h1><span class="sub">Your class, your rules, your catalog.</span></div>
+  <div class="pagehead"><h1>${t("tab_settings")}</h1><span class="sub">${t("settingsTag")}</span></div>
 
   <section style="margin-bottom:30px">
     <div class="stk" style="padding:16px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;max-width:560px;background:var(--teal-tint)">
       <span style="font-size:22px">🎁</span>
-      <span style="font-size:14px;line-height:1.5">A free gift to ZhongFangYuan Bilingual School — built with care by <b>Mohammed Shehzad Khan</b> ("Teacher Mo"), © 2026. Always free: no fees, no ads, nothing for sale. <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
+      <span style="font-size:14px;line-height:1.5">${t("creditBox")} <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
     </div>
   </section>
-
-  <div class="pagehead"><h1>Setup</h1><span class="sub">Your class, your rules, your catalog.</span></div>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("classCol")}</h2>
@@ -465,24 +463,24 @@ function viewSettings(){
     <div class="list" style="max-width:760px">
       ${S.rules.map(r=>`
       <div class="row stk">
-        <input type="text" value="${esc(r.icon)}" style="width:52px;text-align:center" aria-label="Icon for ${esc(r.label)}" onchange="editRule('${r.id}','icon',this.value)">
-        <input type="text" value="${esc(r.label)}" style="flex:2;min-width:130px" aria-label="Rule name" onchange="editRule('${r.id}','label',this.value)">
+        <input type="text" value="${esc(r.icon)}" style="width:52px;text-align:center" aria-label="${t("iconFor",{r:esc(r.label)})}" onchange="editRule('${r.id}','icon',this.value)">
+        <input type="text" value="${esc(r.label)}" style="flex:2;min-width:130px" aria-label="${t("ruleName")}" onchange="editRule('${r.id}','label',this.value)">
         <input type="number" value="${r.value}" step="1" style="width:84px" class="num" aria-label="${t("pointsValue")}" onchange="editRule('${r.id}','value',parseInt(this.value)||0)">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" ${r.active!==false?"checked":""} onchange="editRule('${r.id}','active',this.checked)"> On</label>
-        <button class="btn sm danger" onclick="delRule('${r.id}')" aria-label="Delete rule ${esc(r.label)}">Delete</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" ${r.active!==false?"checked":""} onchange="editRule('${r.id}','active',this.checked)"> ${t("on")}</label>
+        <button class="btn sm danger" onclick="delRule('${r.id}')" aria-label="${t("delRuleA11y",{r:esc(r.label)})}">${t("del")}</button>
       </div>`).join("")}
-      <div><button class="btn" onclick="addRule()">+ Add rule</button></div>
+      <div><button class="btn" onclick="addRule()">${t("addRuleBtn")}</button></div>
     </div>
   </section>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("students")}</h2>
     <div class="stk" style="padding:16px;max-width:560px;display:flex;gap:10px;flex-wrap:wrap">
-      <input id="newStu" type="text" placeholder="Add a student by name" style="flex:1;min-width:170px" onkeydown="if(event.key==='Enter')addStudent()">
-      <button class="btn primary" onclick="addStudent()">Add</button>
+      <input id="newStu" type="text" placeholder="${t("addStudent")}" style="flex:1;min-width:170px" onkeydown="if(event.key==='Enter')addStudent()">
+      <button class="btn primary" onclick="addStudent()">${t("addBtn")}</button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-      ${S.students.map(s=>`<span class="chip" style="cursor:default">${esc(s.name)} <button class="btn sm ghost" style="min-height:0;padding:0 4px" onclick="delStudent('${s.id}')" aria-label="Remove ${esc(s.name)}">✕</button></span>`).join("")}
+      ${S.students.map(s=>`<span class="chip" style="cursor:default">${esc(s.name)} <button class="btn sm ghost" style="min-height:0;padding:0 4px" onclick="delStudent('${s.id}')" aria-label="${t("removeA11y",{name:esc(s.name)})}">✕</button></span>`).join("")}
     </div>
   </section>
 
@@ -492,7 +490,7 @@ function viewSettings(){
       <button class="btn" onclick="exportJSON()">${t("exportJSON")}</button>
       <button class="btn danger" onclick="confirmReset()">${t("resetDemo")}</button>
     </div>
-    <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">Everything is stored in this browser only (localStorage). Export gives you a full backup: students, records, requests, collections and settings.</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">${t("dataBlurb")}</p>
   </section>`;
 }
 function saveCls(){
@@ -504,7 +502,7 @@ function saveCls(){
 function editRule(id,key,val){
   const r=S.rules.find(x=>x.id===id);if(!r)return;
   r[key]=val;save();
-  if(key!=="active")toast("Rule updated");
+  if(key!=="active")toast(t("ruleUpdated"));
 }
 function addRule(){
   S.rules.push({id:uid(),icon:"✨",label:t("newRule"),value:1,active:true});
@@ -512,22 +510,22 @@ function addRule(){
 }
 function delRule(id){
   const used=S.records.some(r=>r.ruleId===id);
-  const del=()=>{S.rules=S.rules.filter(r=>r.id!==id);save();viewSettings();toast("Rule deleted");};
-  if(used){confirmModal(t("delRule"),"Past records that used it keep their values for the log, but it disappears from the rating screen.",del);}
+  const del=()=>{S.rules=S.rules.filter(r=>r.id!==id);save();viewSettings();toast(t("ruleDeleted"));};
+  if(used){confirmModal(t("delRule"),t("delRuleBody"),del);}
   else del();
 }
 function addStudent(){
   const inp=$("#newStu");const name=inp.value.trim();
-  if(!name){toast("Type a name first");return;}
+  if(!name){toast(t("typeNameFirst"));return;}
   S.students.push({id:uid(),name,hue:hueOf(name)});
-  inp.value="";save();viewSettings();toast(name+" added");
+  inp.value="";save();viewSettings();toast(t("addedToast",{name}));
 }
 function delStudent(id){
   const st=byId(id);if(!st)return;
-  confirmModal(t("remove")+st.name+"?","Their ratings stay in the records log, but their gift room and shelf data will be removed.",()=>{
+  confirmModal(t("remove")+st.name+"?",t("delStuBody"),()=>{
     S.students=S.students.filter(s=>s.id!==id);
     delete S.collection[id];sel.delete(id);
-    save();viewSettings();toast(st.name+" removed");
+    save();viewSettings();toast(t("removedToast",{name:st.name}));
   });
 }
 function exportJSON(){
@@ -539,20 +537,20 @@ function exportJSON(){
   toast(t("exported"));
 }
 function confirmReset(){
-  confirmModal(t("resetAsk"),"This wipes everything in this browser and reseeds the demo class: 16 students, ten days of ratings, and the default gift catalog.",()=>{
+  confirmModal(t("resetAsk"),t("resetBody"),()=>{
     seed();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
   });
 }
 function confirmModal(title,body,onYes){
   modal(`<h2>${esc(title)}</h2><p style="font-size:14px;color:var(--ink-soft)">${esc(body)}</p>
-  <div class="btns"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn danger" id="cfYes">t("yesDo")</button></div>`);
+  <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn danger" id="cfYes">${t("yesDo")}</button></div>`);
   $("#cfYes").addEventListener("click",()=>{closeOverlays();onYes();});
 }
 
 /* ============ student gift room ============ */
 function renderRoom(id){
   document.title=t("docPre")+(byId(id)?(byId(id).name+" · "+t("roomTitle")):t("roomTitle"));
-  if(!id||!byId(id)){$("#view").innerHTML='<div class="room"><a class="btn" href="#/app/classroom">← Back to class</a><div class="empty stk" style="margin-top:20px"><span class="big">🤷</span>That student does not exist. They may have been removed.</div></div>';return;}
+  if(!id||!byId(id)){$("#view").innerHTML='<div class="room"><a class="btn" href="#/app/classroom">'+t("backClass")+'</a><div class="empty stk" style="margin-top:20px"><span class="big">🤷</span>'+t("stuGone")+'</div></div>';return;}
   const st=byId(id),g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   const col=collectionOf(st);
   const reqs=S.requests.filter(q=>q.studentId===id).slice(0,6);
@@ -564,26 +562,26 @@ function renderRoom(id){
     <div class="roomhead stk">
       <div class="bigav">${esc(st.name.slice(0,1))}</div>
       <div>
-        <h1>${esc(st.name)}'s gift room</h1>
-        <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} Level ${lp.i+1} · ${esc(nm(L))}</div>
+        <h1>${t("roomOf",{name:esc(st.name)})}</h1>
+        <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} ${t("levelN",{n:lp.i+1})} · ${esc(nm(L))}</div>
         ${lp.next?`<div class="lvl-bar" role="progressbar" aria-valuenow="${lp.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${t("toNext")}"><i style="width:${lp.pct}%"></i></div>
-        <div style="font-size:12px;margin-top:5px;color:var(--ink-soft)" class="num">${g} growth · ${lp.next.min-g} to ${lp.next.badge} ${esc(lp.next.name)}</div>`:
+        <div style="font-size:12px;margin-top:5px;color:var(--ink-soft)" class="num">${t("growthLine",{g,need:lp.next.min-g,b:esc(lp.next.badge+" "+lp.next.name)})}</div>`:
         `<div style="font-size:12px;margin-top:5px;color:var(--ink-soft)">${t("topLevel")}</div>`}
       </div>
       <div class="walletbox stk" style="padding:14px 20px"><div class="v num">★ ${w}</div><div style="font-size:12px;font-weight:700">${t("wallet")}</div></div>
     </div>
 
     <div class="actionsbar">
-      <button class="btn gold" onclick="roomBox('${id}')" ${w<BOX_PRICE?"disabled title='Needs ★ "+BOX_PRICE+"'":""}>🎁 Open a mystery box · ★ ${BOX_PRICE}</button>
+      <button class="btn gold" onclick="roomBox('${id}')" ${w<BOX_PRICE?"disabled title='"+t("needStars",{n:BOX_PRICE})+"'":""}>${t("openBoxBtn",{n:BOX_PRICE})}</button>
       <button class="btn primary" onclick="openReqModal('${id}')">${t("askGift")}</button>
     </div>
 
     <section class="shelf">
       <h2>${t("shelf")}</h2>
-      <p class="sub">Collected gifts stay here all year. Rare finds have a teal frame, epic finds a golden glow.</p>
+      <p class="sub">${t("shelfSub")}</p>
       <div class="shelfgrid">
         ${col.map(c=>`<div class="slot stk rar-${c.rar}"><span class="g">${c.emoji}</span><span class="gname">${esc(nm(c))}${c.source==="box"?" 📦":""}</span></div>`).join("")}
-        ${col.length<slots?Array(slots-col.length).fill('<div class="slot empty-slot"><span class="g">·</span><span class="gname">${t("empty")}</span></div>').join(""):""}
+        ${col.length<slots?Array(slots-col.length).fill(`<div class="slot empty-slot"><span class="g">·</span><span class="gname">${t("empty")}</span></div>`).join(""):""}
       </div>
     </section>
 
@@ -593,9 +591,9 @@ function renderRoom(id){
         <div class="row stk">
           <span class="who">${esc(q.itemLabel)} · <b class="num">★ ${q.cost}</b></span>
           <span class="meta num">${fmtDT(q.ts)}</span>
-          <span class="pill ${q.status}">${q.status}</span>
+          <span class="pill ${q.status}">${q.status==="pending"?t("pending"):q.status==="approved"?t("approved"):t("decline")}</span>
         </div>`).join("")}</div>`:
-        `<div class="empty stk"><span class="big">📮</span>No requests yet. Ask for a gift and it waits for the teacher's yes.</div>`}
+        `<div class="empty stk"><span class="big">📮</span>${t("noReqsRoom")}</div>`}
     </section>
   </div>`;
 }
@@ -603,13 +601,13 @@ function roomBox(id){
   const st=byId(id);
   const won=openBox(id);
   if(!won){toast(t("notEnough"));return;}
-  giftBurst(won,()=>{renderRoom(id);toast(st.name+" got: "+won.name+" ("+won.rar+")");});
+  giftBurst(won,()=>{renderRoom(id);toast(t("boxWonToast",{name:st.name,g:nm(won),rar:t("rar"+(won.rar==="common"?"Common":won.rar==="rare"?"Rare":"Epic"))}));});
 }
 function openReqModal(id){
   const st=byId(id),w=walletOf(st);
   const items=S.gifts.filter(g=>g.active!==false);
-  modal(`<h2>Ask for a gift, ${esc(st.name)}</h2>
-  <p style="font-size:14px;color:var(--ink-soft)">Requests wait for the teacher's approval. Only affordable gifts are enabled. You have <b class="num">★ ${w}</b>.</p>
+  modal(`<h2>${t("askTitle",{name:esc(st.name)})}</h2>
+  <p style="font-size:14px;color:var(--ink-soft)">${t("askBlurb",{w})}</p>
   <div class="list" style="margin-top:10px">
   ${items.map(g=>{
     const afford=w>=g.price&&(g.stock==null||g.stock>0);
@@ -617,7 +615,7 @@ function openReqModal(id){
       <span style="font-size:26px">${g.emoji}</span>
       <span class="who"><b>${esc(nm(g))}</b><br><span style="font-weight:400;font-size:12.5px;color:var(--ink-soft)">${esc(g.desc)}</span></span>
       <span class="val num">★ ${g.price}</span>
-      <button class="btn sm primary" ${afford?"":"disabled"} onclick="doReq('${id}','${g.id}')">Ask</button>
+      <button class="btn sm primary" ${afford?"":"disabled"} onclick="doReq('${id}','${g.id}')">${t("askBtn")}</button>
     </div>`;}).join("")}
   </div>
   <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("close")}</button></div>`);
@@ -627,7 +625,7 @@ function doReq(stId,giftId){
   if(!g||!st)return;
   requestGift(stId,g);
   closeOverlays();
-  toast("Requested: "+g.name+". It waits for approval.");
+  toast(t("reqToast",{g:nm(g)}));
   renderRoom(stId);
 }
 

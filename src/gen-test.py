@@ -31,7 +31,7 @@ T("level curve",levelOf(0)===0&&levelOf(4)===0&&levelOf(5)===1&&levelOf(200)===9
 T("week start monday",(()=>{const d=new Date(2026,9,21);return weekStart(d.getTime(),0)===weekStart(d.getTime(),0);})(),true);
 T("persistence roundtrip",(()=>{save();const n=JSON.parse(localStorage.getItem(LS_KEY));return n.students.length===S.students.length;})(),true);
 /* i18n */
-T("t en default",t("tab_classroom")==="Classroom",t("tab_classroom"));
+T("t zh default",t("tab_classroom")==="教室",t("tab_classroom"));
 T("t fallback unknown",t("zzz")==="zzz","returns key");
 T("nm en",(()=>{setLang("en");return nm(S.gifts[0])==="Sticker pack";})(),nm(S.gifts[0]));
 T("nm zh",(()=>{setLang("zh");return nm(S.gifts[0])==="贴纸包";})(),nm(S.gifts[0]));
@@ -53,6 +53,53 @@ T("lang persisted",localStorage.getItem("gs-lang")==="en",localStorage.getItem("
 T("shell en tabs",(location.hash="#/app/classroom",route(),document.querySelector("#view").innerHTML.indexOf("Classroom")>=0&&document.querySelector("#view").innerHTML.indexOf("教室")<0),"tabs en only");
 T("shop zh gifts",(()=>{setLang("zh");(location.hash="#/app/shop",route());const h=document.querySelector("#main").innerHTML;setLang("en");return h.indexOf("贴纸包")>=0;})(),"gift names zh");
 T("room zh title",(()=>{setLang("zh");(location.hash="#/room/s1",route());const h=document.querySelector("#view").innerHTML+document.title;setLang("en");return h.indexOf("礼物小屋")>=0||h.indexOf("星星钱包")>=0;})(),"room zh");
+/* B1-B4: no raw t() code in rendered HTML */
+(function(){
+  const made=[];const _ce=document.createElement;
+  document.createElement=c=>{const e=fakeEl();made.push(e);return e;};
+  const bad=[];
+  try{
+    queueLevelUp(byId("s1"),2);flushLevelUps();
+    const lh=(made[made.length-1]||{}).innerHTML||"";
+    if(lh.indexOf("${")>=0||lh.indexOf('t("')>=0)bad.push("levelup:"+lh.slice(-80));
+    const rr=recRow(S.records[0])+recRow(Object.assign({},S.records[0],{undone:true}));
+    if(rr.indexOf("${")>=0||rr.indexOf('t("')>=0)bad.push("recRow");
+    confirmModal("T","B",noop);
+    const cm=document.querySelector("#modals").innerHTML;
+    if(cm.indexOf("${")>=0||cm.indexOf('t("')>=0)bad.push("confirmModal");
+    (location.hash="#/room/s1",route());
+    const room=document.querySelector("#view").innerHTML;
+    if(room.indexOf("${")>=0||room.indexOf('t("')>=0)bad.push("room:"+room.slice(-90));
+  }catch(err){bad.push("ERR "+err);}
+  document.createElement=_ce;
+  T("no raw t() code",bad.length===0,bad.join(" | ")||"clean");
+})();
+/* Task 3: parity + zh default + no English leaks */
+T("i18n parity",(function(){const a=Object.keys(I18N.en).sort(),b=Object.keys(I18N.zh).sort();return a.length===b.length&&a.every((k,i)=>b[i]===k);})(),Object.keys(I18N.en).length+"/"+Object.keys(I18N.zh).length);
+T("zh default lang",(function(){if(typeof detectLang!=="function")return false;localStorage.removeItem("gs-lang");setLang(detectLang());return detectLang()==="zh"&&LANG==="zh";})(),"detectLang="+typeof detectLang);
+(function(){
+  setLang("zh");seed();
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift"];
+  const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
+  const hits=[];
+  for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+    for(const s of leaks)if(h.indexOf(s)>=0){hits.push(v+" :: "+s);}}
+  const made=[];const _ce=document.createElement;document.createElement=c=>{const e=fakeEl();made.push(e);return e;};
+  queueLevelUp(byId("s1"),2);flushLevelUps();
+  openReqModal("s1");
+  openGive(S.gifts[0].id);
+  document.createElement=_ce;
+  const mh=made.map(e=>e.innerHTML||"").join(" || ")+" || "+document.querySelector("#modals").innerHTML;
+  for(const s of ["Level ","Ask for a gift",">Ask<","Instant grant","Spend ★",">Cancel<"])if(mh.indexOf(s)>=0)hits.push("modal :: "+s);
+  closeOverlays();
+  const toasts=[];document.createElement=c=>{const e=fakeEl();toasts.push(e);return e;};
+  try{doUndo(S.records[0].id);sel=new Set(["s1"]);rate(S.rules[0].id);}catch(err){}
+  document.createElement=_ce;
+  const th=toasts.map(e=>e.textContent||"").join(" | ");
+  for(const s of ["Undone: ","Select one or more"])if(th.indexOf(s)>=0)hits.push("toast :: "+s);
+  T("no english leak zh",hits.length===0,hits.slice(0,8).join(" | ")||"clean");
+  setLang("en");
+})();
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
 '''

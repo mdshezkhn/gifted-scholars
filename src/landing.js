@@ -333,16 +333,15 @@ function openRoomPicker(){
 
 /* ---------- license / authorship ---------- */
 function openLicense(){
-  modal(`<div class="card stk" style="max-width:560px;max-height:80vh;overflow:auto"><h2 style="font-family:var(--font-round)">About this gift</h2>
+  modal(`<div class="card stk" style="max-width:560px;max-height:80vh;overflow:auto"><h2 style="font-family:var(--font-round)">${t("aboutGift")}</h2>
   <div style="font-size:14.5px;line-height:1.65;margin-top:10px">
   <p><b>Gifted Scholars</b> — classroom points &amp; virtual gifts.<br>© 2026 Mohammed Shehzad Khan. All rights reserved.</p>
-  <p style="margin-top:10px">${t("createdBy")}<b>Mohammed Shehzad Khan</b> ("Teacher Mo") and donated as a free gift to ZhongFangYuan Bilingual School. It will always be free: no fees, no ads, no tracking, nothing for sale.</p>
-  <p style="margin-top:10px"><b>Ownership.</b> The site, its code, design and artwork remain the property of the author. Donating it to the school does not transfer copyright. The school may keep using it for everyday school life, free of charge, even after the author moves on.</p>
-  <p style="margin-top:10px">The school may use it forever, for free, even if the author moves on. <b>You may not</b> sell, charge for, or relicense this work, and the credit in the footer must stay. The author owns this work and may update it or share it with other schools. If these terms are broken, this license ends automatically.</p>
-      <p style="margin-top:10px" lang="zh-CN">学校可以永远免费使用本作品，即使作者日后离开。<b>不得</b>出售、收费或再许可本作品，页脚署名必须保留。版权归作者所有，作者可继续更新或分享给其他学校。如违反以上条款，本许可自动终止。</p>
-  <p style="margin-top:10px">Fonts: Instrument Serif &amp; Azeret Mono (SIL Open Font License). Provided “as is”, without warranty of any kind.</p>
+  <p style="margin-top:10px">${t("createdBy")}<b>Mohammed Shehzad Khan</b> ("Teacher Mo") ${t("licSum")}</p>
+  <p style="margin-top:10px">${t("licOwn")}</p>
+  <p style="margin-top:10px">${t("licenseBody")}</p>
+  <p style="margin-top:10px">${t("licFonts")}</p>
   </div>
-  <div class="btns" style="margin-top:14px"><button class="btn primary" onclick="closeOverlays()">Close</button></div></div>`);
+  <div class="btns" style="margin-top:14px"><button class="btn primary" onclick="closeOverlays()">${t("close")}</button></div></div>`);
 }
 
 /* ============ init (must run last) ============ */
