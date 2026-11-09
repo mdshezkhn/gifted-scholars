@@ -1310,7 +1310,8 @@ onSync(function(){
 });
 
 /* ---- Task 11: two-tap quick-award drawer ---- */
-let DRW_SEL=new Set();
+let DRW_SEL=new Set(), DRW_OPEN=false;
+function drawerIsOpen(){return DRW_OPEN===true;}
 function drawerSelCount(){return DRW_SEL.size;}
 function drawerToggle(id){
   const st=byId(id);if(!st)return;
@@ -1322,6 +1323,7 @@ function drawerToggle(id){
   if(hint)hint.textContent=t("pickSub",{n:DRW_SEL.size});
 }
 function drawerApply(ruleId){
+  /* award even if drawer was closed programmatically */
   withState(function(){
     const rule=S.rules.find(r=>r.id===ruleId);          /* id re-lookup inside */
     if(!rule||!DRW_SEL.size)return;
@@ -1329,7 +1331,7 @@ function drawerApply(ruleId){
   });
   DRW_SEL=new Set();
   const pops=screenAfterChange();                        /* pops behind the drawer */
-  if(location.hash==="#/screen"&&document.querySelector("#drwPanel"))openDrawer(true);
+  if(location.hash==="#/screen"&&DRW_OPEN)openDrawer(true);
   return pops||[];
 }
 function drawerUndoLast(){
@@ -1343,11 +1345,12 @@ function drawerUndoLast(){
 }
 function closeDrawer(){
   const el=document.querySelector("#drwPanel");
-  if(el)el.remove();
-  DRW_SEL=new Set();
+  if(el)try{el.remove();}catch(_){}
+  DRW_SEL=new Set();DRW_OPEN=false;
 }
 function openDrawer(keepSel){
   closeDrawer();
+  DRW_OPEN=true;
   const rules=S.rules.filter(r=>r.active!==false);
   const wrap=document.createElement("div");
   wrap.id="drwPanel";
@@ -1379,6 +1382,31 @@ function openDrawer(keepSel){
     </div>`;
   try{document.querySelector("#view").appendChild(wrap);}catch(_){}
 }
+
+/* ---- Task 12: keyboard shortcuts A / F / Esc (guarded) ---- */
+function isTyping(el){
+  if(!el||!el.tagName)return false;
+  const tg=String(el.tagName).toUpperCase();
+  if(tg==="TEXTAREA"||tg==="SELECT")return true;
+  if(tg==="INPUT"){
+    const ty=String(el.type||"text").toLowerCase();
+    return ["checkbox","radio","button","submit","reset","file","range","color","image"].indexOf(ty)<0;
+  }
+  return el.isContentEditable===true;
+}
+function scrKeydown(e){
+  if(!e)return;
+  if(e.ctrlKey||e.metaKey||e.altKey)return;   /* plain keys only */
+  if(e.isComposing)return;                    /* IME mid-composition */
+  if(isTyping(e.target))return;               /* typing in a field wins */
+  const key=String(e.key||"");
+  if(location.hash==="#/screen"){
+    if(key==="a"||key==="A"){openDrawer();if(e.preventDefault)e.preventDefault();return;}
+    if(key==="f"||key==="F"){toggleFullscreen();if(e.preventDefault)e.preventDefault();return;}
+  }
+  if(key==="Escape"&&drawerIsOpen()){closeDrawer();if(e.preventDefault)e.preventDefault();}
+}
+try{document.addEventListener("keydown",scrKeydown);}catch(_){}
 
 /* ======================================================================
    Gifted Scholars — studio landing (warm editorial system)
@@ -2164,7 +2192,7 @@ T("drawer two-tap award",safeT(function(){
   const rec=S.records[0];
   if(rec.studentIds.length!==2||rec.studentIds.indexOf(S.students[0].id)<0)return "wrong students";
   if(rec.value!==rule.value)return "wrong value";
-  if(!document.querySelector("#drwPanel"))return "drawer closed after award";
+  if(!drawerIsOpen())return "drawer closed after award";
   if(drawerSelCount()!==0)return "selection must clear";
   closeDrawer();
   return true;
@@ -2193,6 +2221,44 @@ T("drawer award pops tiles behind",safeT(function(){
   closeDrawer();
   return (pops&&pops.length===1&&pops[0].sign==="pos")?true:"no pop from drawer award";
 }),"drawer award path triggers pops"),
+
+/* Task 12: A / F / Esc shortcuts with typing, modifier and IME guards */
+T("shortcut guards",safeT(function(){
+  seedDemo();location.hash="#/screen";route();
+  if(typeof scrKeydown!=="function")return "no scrKeydown";
+  scrKeydown({key:"a",target:{tagName:"BODY"}});
+  if(!document.querySelector("#drwPanel"))return "A should open drawer";
+  scrKeydown({key:"a",ctrlKey:true,target:{tagName:"BODY"}});
+  closeDrawer();
+  scrKeydown({key:"a",target:{tagName:"INPUT",type:"text"}});
+  if(drawerIsOpen())return "A must ignore text input";
+  scrKeydown({key:"a",target:{tagName:"TEXTAREA"}});
+  if(drawerIsOpen())return "A must ignore textarea";
+  scrKeydown({key:"a",target:{tagName:"SELECT"}});
+  if(drawerIsOpen())return "A must ignore select";
+  scrKeydown({key:"a",target:{tagName:"INPUT",type:"checkbox"}});
+  if(!document.querySelector("#drwPanel"))return "checkbox is not typing";
+  closeDrawer();
+  scrKeydown({key:"a",isComposing:true,target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must ignore IME composition";
+  scrKeydown({key:"a",metaKey:true,target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must ignore meta";
+  scrKeydown({key:"a",altKey:true,target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must ignore alt";
+  return true;
+}),"A opens; typing/select/IME/modifiers ignored"),
+T("Esc closes drawer; A/F inactive off-screen",safeT(function(){
+  seedDemo();location.hash="#/screen";route();
+  scrKeydown({key:"a",target:{tagName:"BODY"}});
+  if(!drawerIsOpen())return "setup failed";
+  scrKeydown({key:"Escape",target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "Esc must close drawer";
+  location.hash="#/app/classroom";route();
+  scrKeydown({key:"a",target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must not open drawer off-screen";
+  scrKeydown({key:"f",target:{tagName:"BODY"}});
+  return true;
+}),"Esc closes; A/F scoped to #/screen"),
 
 /* route coverage: every route renders non-empty without throwing (zh) */
 T("route coverage all views",safeT(function(){

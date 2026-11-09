@@ -453,7 +453,7 @@ T("drawer two-tap award",safeT(function(){
   const rec=S.records[0];
   if(rec.studentIds.length!==2||rec.studentIds.indexOf(S.students[0].id)<0)return "wrong students";
   if(rec.value!==rule.value)return "wrong value";
-  if(!document.querySelector("#drwPanel"))return "drawer closed after award";
+  if(!drawerIsOpen())return "drawer closed after award";
   if(drawerSelCount()!==0)return "selection must clear";
   closeDrawer();
   return true;
@@ -482,6 +482,44 @@ T("drawer award pops tiles behind",safeT(function(){
   closeDrawer();
   return (pops&&pops.length===1&&pops[0].sign==="pos")?true:"no pop from drawer award";
 }),"drawer award path triggers pops"),
+
+/* Task 12: A / F / Esc shortcuts with typing, modifier and IME guards */
+T("shortcut guards",safeT(function(){
+  seedDemo();location.hash="#/screen";route();
+  if(typeof scrKeydown!=="function")return "no scrKeydown";
+  scrKeydown({key:"a",target:{tagName:"BODY"}});
+  if(!document.querySelector("#drwPanel"))return "A should open drawer";
+  scrKeydown({key:"a",ctrlKey:true,target:{tagName:"BODY"}});
+  closeDrawer();
+  scrKeydown({key:"a",target:{tagName:"INPUT",type:"text"}});
+  if(drawerIsOpen())return "A must ignore text input";
+  scrKeydown({key:"a",target:{tagName:"TEXTAREA"}});
+  if(drawerIsOpen())return "A must ignore textarea";
+  scrKeydown({key:"a",target:{tagName:"SELECT"}});
+  if(drawerIsOpen())return "A must ignore select";
+  scrKeydown({key:"a",target:{tagName:"INPUT",type:"checkbox"}});
+  if(!document.querySelector("#drwPanel"))return "checkbox is not typing";
+  closeDrawer();
+  scrKeydown({key:"a",isComposing:true,target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must ignore IME composition";
+  scrKeydown({key:"a",metaKey:true,target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must ignore meta";
+  scrKeydown({key:"a",altKey:true,target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must ignore alt";
+  return true;
+}),"A opens; typing/select/IME/modifiers ignored"),
+T("Esc closes drawer; A/F inactive off-screen",safeT(function(){
+  seedDemo();location.hash="#/screen";route();
+  scrKeydown({key:"a",target:{tagName:"BODY"}});
+  if(!drawerIsOpen())return "setup failed";
+  scrKeydown({key:"Escape",target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "Esc must close drawer";
+  location.hash="#/app/classroom";route();
+  scrKeydown({key:"a",target:{tagName:"BODY"}});
+  if(drawerIsOpen())return "A must not open drawer off-screen";
+  scrKeydown({key:"f",target:{tagName:"BODY"}});
+  return true;
+}),"Esc closes; A/F scoped to #/screen"),
 
 /* route coverage: every route renders non-empty without throwing (zh) */
 T("route coverage all views",safeT(function(){

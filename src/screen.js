@@ -224,7 +224,8 @@ onSync(function(){
 });
 
 /* ---- Task 11: two-tap quick-award drawer ---- */
-let DRW_SEL=new Set();
+let DRW_SEL=new Set(), DRW_OPEN=false;
+function drawerIsOpen(){return DRW_OPEN===true;}
 function drawerSelCount(){return DRW_SEL.size;}
 function drawerToggle(id){
   const st=byId(id);if(!st)return;
@@ -236,6 +237,7 @@ function drawerToggle(id){
   if(hint)hint.textContent=t("pickSub",{n:DRW_SEL.size});
 }
 function drawerApply(ruleId){
+  /* award even if drawer was closed programmatically */
   withState(function(){
     const rule=S.rules.find(r=>r.id===ruleId);          /* id re-lookup inside */
     if(!rule||!DRW_SEL.size)return;
@@ -243,7 +245,7 @@ function drawerApply(ruleId){
   });
   DRW_SEL=new Set();
   const pops=screenAfterChange();                        /* pops behind the drawer */
-  if(location.hash==="#/screen"&&document.querySelector("#drwPanel"))openDrawer(true);
+  if(location.hash==="#/screen"&&DRW_OPEN)openDrawer(true);
   return pops||[];
 }
 function drawerUndoLast(){
@@ -257,11 +259,12 @@ function drawerUndoLast(){
 }
 function closeDrawer(){
   const el=document.querySelector("#drwPanel");
-  if(el)el.remove();
-  DRW_SEL=new Set();
+  if(el)try{el.remove();}catch(_){}
+  DRW_SEL=new Set();DRW_OPEN=false;
 }
 function openDrawer(keepSel){
   closeDrawer();
+  DRW_OPEN=true;
   const rules=S.rules.filter(r=>r.active!==false);
   const wrap=document.createElement("div");
   wrap.id="drwPanel";
@@ -293,3 +296,28 @@ function openDrawer(keepSel){
     </div>`;
   try{document.querySelector("#view").appendChild(wrap);}catch(_){}
 }
+
+/* ---- Task 12: keyboard shortcuts A / F / Esc (guarded) ---- */
+function isTyping(el){
+  if(!el||!el.tagName)return false;
+  const tg=String(el.tagName).toUpperCase();
+  if(tg==="TEXTAREA"||tg==="SELECT")return true;
+  if(tg==="INPUT"){
+    const ty=String(el.type||"text").toLowerCase();
+    return ["checkbox","radio","button","submit","reset","file","range","color","image"].indexOf(ty)<0;
+  }
+  return el.isContentEditable===true;
+}
+function scrKeydown(e){
+  if(!e)return;
+  if(e.ctrlKey||e.metaKey||e.altKey)return;   /* plain keys only */
+  if(e.isComposing)return;                    /* IME mid-composition */
+  if(isTyping(e.target))return;               /* typing in a field wins */
+  const key=String(e.key||"");
+  if(location.hash==="#/screen"){
+    if(key==="a"||key==="A"){openDrawer();if(e.preventDefault)e.preventDefault();return;}
+    if(key==="f"||key==="F"){toggleFullscreen();if(e.preventDefault)e.preventDefault();return;}
+  }
+  if(key==="Escape"&&drawerIsOpen()){closeDrawer();if(e.preventDefault)e.preventDefault();}
+}
+try{document.addEventListener("keydown",scrKeydown);}catch(_){}
