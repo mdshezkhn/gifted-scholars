@@ -452,10 +452,13 @@ function fmtDT(ts){const d=new Date(ts);return d.toLocaleDateString(LOCALE(),{mo
 function weekStart(ts,back){const d=new Date(ts);const day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day-(back||0)*7);return d.getTime();}
 
 /* ---- derived ledgers ---- */
+function posOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.value<=0)continue;if(r.studentIds.includes(st.id))n+=r.value;}return n;}
+function negOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.value>=0)continue;if(r.studentIds.includes(st.id))n+=-r.value;}return n;}
 function netOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.studentIds.includes(st.id))n+=r.value;}return n;}
-function growthOf(st){return netOf(st);}
+function growthOf(st){return posOf(st);}
 function spentOf(st){let sp=0;for(const q of S.requests){if(q.status!=="approved")continue;if(q.studentId!==st.id)continue;sp+=q.cost;}return sp;}
-function walletOf(st){return Math.max(0,growthOf(st)-spentOf(st)-(S.boxSpent[st.id]||0));}
+function walletOf(st){return Math.max(0,posOf(st)-negOf(st)-spentOf(st)-(S.boxSpent[st.id]||0));}
+function recLabel(rec){const r=(S.rules||[]).find(x=>x.id===rec.ruleId);if(!r)return rec.ruleLabel||"";return ((LANG==="zh"&&r.zh)?r.zh:r.label)+" "+r.icon;}
 function levelOf(g){let i=0;for(let k=0;k<LEVELS.length;k++){if(g>=LEVELS[k].min)i=k;}return i;}
 function lvlProgress(g){const i=levelOf(g);if(i>=LEVELS.length-1)return {i,pct:100,next:null};const a=LEVELS[i].min,b=LEVELS[i+1].min;return {i,pct:Math.min(100,Math.round(((g-a)/(b-a))*100)),next:LEVELS[i+1]};}
 function collectionOf(id){return S.collection[id]||[];}
@@ -680,14 +683,14 @@ function recRow(r){
   const names=r.studentIds.map(i=>byId(i)?byId(i).name:"?").join(", ");
   return `<div class="row stk${r.undone?" undone":""}">
     <span class="val num${r.value<0?" neg":""}">${r.value>0?"+":""}${r.value}</span>
-    <span class="who"><b>${esc(r.ruleLabel)}</b><br>${esc(names)}</span>
+    <span class="who"><b>${esc(recLabel(r))}</b><br>${esc(names)}</span>
     <span class="meta num">${fmtDT(r.ts)}</span>
     ${r.undone?`<span class="pill declined">${t("undone")}</span>`:`<button class="btn sm" onclick="doUndo('${r.id}')">${t("undo")}</button>`}
   </div>`;
 }
 function doUndo(id){
   const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;
-  undoRecord(r);toast(t("undoneToast",{r:r.ruleLabel}));viewRecords();
+  undoRecord(r);toast(t("undoneToast",{r:recLabel(r)}));viewRecords();
 }
 
 /* ============ gift shop view ============ */
@@ -779,11 +782,11 @@ function viewBoard(){
   let rows;
   if(mode==="week"){rows=S.students.map(s=>({s,v:netOf(s,w1)})).sort((a,b)=>b.v-a.v);}
   else if(mode==="progress"){rows=S.students.map(s=>({s,v:netOf(s,w1)-netOf(s,w0)})).filter(r=>r.v!==0).sort((a,b)=>b.v-a.v);}
-  else{rows=S.students.map(s=>({s,v:netOf(s)})).sort((a,b)=>b.v-a.v);}
+  else{rows=S.students.map(s=>({s,v:posOf(s)})).sort((a,b)=>b.v-a.v);}
   const today=weekStart(Date.now(),0)+864e5*(((new Date().getDay())+6)%7);
   const givenToday=S.records.filter(r=>!r.undone&&r.ts>=today).reduce((a,r)=>a+r.value*r.studentIds.length,0);
   const weekRecs=S.records.filter(r=>!r.undone&&r.ts>=w1);
-  const ruleCount={};weekRecs.forEach(r=>ruleCount[r.ruleLabel]=(ruleCount[r.ruleLabel]||0)+1);
+  const ruleCount={};weekRecs.forEach(r=>{const L=recLabel(r);ruleCount[L]=(ruleCount[L]||0)+1;});
   const topRule=Object.entries(ruleCount).sort((a,b)=>b[1]-a[1])[0];
   $("#main").innerHTML=`
   <div class="pagehead"><h1>${t("lbTitle")}</h1><span class="sub">${t("recogTag")}</span></div>
@@ -1446,5 +1449,48 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
   T("no english leak zh",hits.length===0,hits.slice(0,8).join(" | ")||"clean");
   setLang("en");
 })();
+/* Task 4: economy re-base (WP2) */
+T("level ignores negatives",(function(){seed();const st=S.students[0];const lv0=levelOf(growthOf(st));
+  for(let i=0;i<3;i++)S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t -2",value:-2,undone:false});
+  return levelOf(growthOf(st))===lv0;})(),"level must not change on negatives");
+T("undo can lower level",(function(){const st=S.students[0];const g0=growthOf(st);
+  const nxt=LEVELS[levelOf(g0)+1]?LEVELS[levelOf(g0)+1].min-g0:1;
+  const r={id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:nxt,undone:false};
+  S.records.unshift(r);const lv1=levelOf(growthOf(st));undoRecord(r);
+  return lv1>levelOf(growthOf(st));})(),"undo lowers level");
+T("wallet formula",(function(){seed();const st=S.students[0];
+  S.records=S.records.filter(r=>!r.studentIds.includes(st.id));
+  S.requests=S.requests.filter(q=>q.studentId!==st.id);delete S.boxSpent[st.id];
+  S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:20,undone:false});
+  S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:-5,undone:false});
+  S.requests.push({id:uid(),studentId:st.id,itemId:"g1",itemLabel:"t",cost:10,status:"approved",ts:Date.now()});
+  S.boxSpent[st.id]=2;
+  return walletOf(st)===3&&growthOf(st)===20;})(),"wallet=pos-neg-spent-box, growth=pos");
+(function(){
+  seed();setLang("en");
+  const A=S.students[0],B=S.students[1];
+  const now=Date.now(),w0=weekStart(now,1)+36e5,w1=weekStart(now,0)+36e5;
+  S.records=[];S.boxSpent={};
+  const R=(st,v,ts)=>S.records.unshift({id:uid(),ts,studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t "+v,value:v,undone:false});
+  R(A,10,now-864e5*12);R(A,-8,now-864e5*12);R(B,5,now-864e5*12);  // lifetime (2 wks back): pos A10 B5
+  R(A,2,w1);R(A,-8,w1);R(B,5,w1);                                    // week net: A-6 B+5
+  R(A,4,w0);R(B,1,w0);                                               // last week: A4 B1 -> progress A-10 B+4
+  const order=()=>{const h=$("#main").innerHTML;return [h.indexOf(">"+A.name+"<"),h.indexOf(">"+B.name+"<")];};
+  ui.board="all";viewBoard();let all=order();
+  ui.board="week";viewBoard();let wk=order();
+  ui.board="progress";viewBoard();let pr=order();
+  T("all-time board uses lifetime positives",all[0]>=0&&all[0]<all[1],"A(idx "+all[0]+") must rank above B(idx "+all[1]+")");
+  T("weekly board net of week",wk[0]>=0&&wk[1]>=0&&wk[1]<wk[0],"B(idx "+wk[1]+") must rank above A(idx "+wk[0]+")");
+  T("progress board vs last week",pr[0]>=0&&pr[1]>=0&&pr[1]<pr[0],"B(idx "+pr[1]+") must rank above A(idx "+pr[0]+")");
+  ui.board="all";
+})();
+T("record label rebinds to rule",(function(){seed();setLang("en");
+  const rule=S.rules.find(r=>r.zh)||S.rules[0];const st=S.students[0];
+  S.records=[{id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:rule.id,ruleLabel:rule.label+" "+rule.icon,value:2,undone:false}];
+  location.hash="#/app/records";route();const en=($("#main").innerHTML.indexOf(rule.label)>=0);
+  setLang("zh");route();const zh=($("#main").innerHTML.indexOf(rule.zh||rule.label)>=0);
+  S.rules=S.rules.filter(r=>r.id!==rule.id);route();const fb=($("#main").innerHTML.indexOf(rule.label)>=0);
+  return en&&zh&&fb;})(),"en render, zh rebind after lang switch, stored fallback after rule delete");
+
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);

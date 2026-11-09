@@ -73,10 +73,13 @@ function fmtDT(ts){const d=new Date(ts);return d.toLocaleDateString(LOCALE(),{mo
 function weekStart(ts,back){const d=new Date(ts);const day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day-(back||0)*7);return d.getTime();}
 
 /* ---- derived ledgers ---- */
+function posOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.value<=0)continue;if(r.studentIds.includes(st.id))n+=r.value;}return n;}
+function negOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.value>=0)continue;if(r.studentIds.includes(st.id))n+=-r.value;}return n;}
 function netOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.studentIds.includes(st.id))n+=r.value;}return n;}
-function growthOf(st){return netOf(st);}
+function growthOf(st){return posOf(st);}
 function spentOf(st){let sp=0;for(const q of S.requests){if(q.status!=="approved")continue;if(q.studentId!==st.id)continue;sp+=q.cost;}return sp;}
-function walletOf(st){return Math.max(0,growthOf(st)-spentOf(st)-(S.boxSpent[st.id]||0));}
+function walletOf(st){return Math.max(0,posOf(st)-negOf(st)-spentOf(st)-(S.boxSpent[st.id]||0));}
+function recLabel(rec){const r=(S.rules||[]).find(x=>x.id===rec.ruleId);if(!r)return rec.ruleLabel||"";return ((LANG==="zh"&&r.zh)?r.zh:r.label)+" "+r.icon;}
 function levelOf(g){let i=0;for(let k=0;k<LEVELS.length;k++){if(g>=LEVELS[k].min)i=k;}return i;}
 function lvlProgress(g){const i=levelOf(g);if(i>=LEVELS.length-1)return {i,pct:100,next:null};const a=LEVELS[i].min,b=LEVELS[i+1].min;return {i,pct:Math.min(100,Math.round(((g-a)/(b-a))*100)),next:LEVELS[i+1]};}
 function collectionOf(id){return S.collection[id]||[];}
@@ -301,14 +304,14 @@ function recRow(r){
   const names=r.studentIds.map(i=>byId(i)?byId(i).name:"?").join(", ");
   return `<div class="row stk${r.undone?" undone":""}">
     <span class="val num${r.value<0?" neg":""}">${r.value>0?"+":""}${r.value}</span>
-    <span class="who"><b>${esc(r.ruleLabel)}</b><br>${esc(names)}</span>
+    <span class="who"><b>${esc(recLabel(r))}</b><br>${esc(names)}</span>
     <span class="meta num">${fmtDT(r.ts)}</span>
     ${r.undone?`<span class="pill declined">${t("undone")}</span>`:`<button class="btn sm" onclick="doUndo('${r.id}')">${t("undo")}</button>`}
   </div>`;
 }
 function doUndo(id){
   const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;
-  undoRecord(r);toast(t("undoneToast",{r:r.ruleLabel}));viewRecords();
+  undoRecord(r);toast(t("undoneToast",{r:recLabel(r)}));viewRecords();
 }
 
 /* ============ gift shop view ============ */
@@ -400,11 +403,11 @@ function viewBoard(){
   let rows;
   if(mode==="week"){rows=S.students.map(s=>({s,v:netOf(s,w1)})).sort((a,b)=>b.v-a.v);}
   else if(mode==="progress"){rows=S.students.map(s=>({s,v:netOf(s,w1)-netOf(s,w0)})).filter(r=>r.v!==0).sort((a,b)=>b.v-a.v);}
-  else{rows=S.students.map(s=>({s,v:netOf(s)})).sort((a,b)=>b.v-a.v);}
+  else{rows=S.students.map(s=>({s,v:posOf(s)})).sort((a,b)=>b.v-a.v);}
   const today=weekStart(Date.now(),0)+864e5*(((new Date().getDay())+6)%7);
   const givenToday=S.records.filter(r=>!r.undone&&r.ts>=today).reduce((a,r)=>a+r.value*r.studentIds.length,0);
   const weekRecs=S.records.filter(r=>!r.undone&&r.ts>=w1);
-  const ruleCount={};weekRecs.forEach(r=>ruleCount[r.ruleLabel]=(ruleCount[r.ruleLabel]||0)+1);
+  const ruleCount={};weekRecs.forEach(r=>{const L=recLabel(r);ruleCount[L]=(ruleCount[L]||0)+1;});
   const topRule=Object.entries(ruleCount).sort((a,b)=>b[1]-a[1])[0];
   $("#main").innerHTML=`
   <div class="pagehead"><h1>${t("lbTitle")}</h1><span class="sub">${t("recogTag")}</span></div>

@@ -100,6 +100,49 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
   T("no english leak zh",hits.length===0,hits.slice(0,8).join(" | ")||"clean");
   setLang("en");
 })();
+/* Task 4: economy re-base (WP2) */
+T("level ignores negatives",(function(){seed();const st=S.students[0];const lv0=levelOf(growthOf(st));
+  for(let i=0;i<3;i++)S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t -2",value:-2,undone:false});
+  return levelOf(growthOf(st))===lv0;})(),"level must not change on negatives");
+T("undo can lower level",(function(){const st=S.students[0];const g0=growthOf(st);
+  const nxt=LEVELS[levelOf(g0)+1]?LEVELS[levelOf(g0)+1].min-g0:1;
+  const r={id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:nxt,undone:false};
+  S.records.unshift(r);const lv1=levelOf(growthOf(st));undoRecord(r);
+  return lv1>levelOf(growthOf(st));})(),"undo lowers level");
+T("wallet formula",(function(){seed();const st=S.students[0];
+  S.records=S.records.filter(r=>!r.studentIds.includes(st.id));
+  S.requests=S.requests.filter(q=>q.studentId!==st.id);delete S.boxSpent[st.id];
+  S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:20,undone:false});
+  S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:-5,undone:false});
+  S.requests.push({id:uid(),studentId:st.id,itemId:"g1",itemLabel:"t",cost:10,status:"approved",ts:Date.now()});
+  S.boxSpent[st.id]=2;
+  return walletOf(st)===3&&growthOf(st)===20;})(),"wallet=pos-neg-spent-box, growth=pos");
+(function(){
+  seed();setLang("en");
+  const A=S.students[0],B=S.students[1];
+  const now=Date.now(),w0=weekStart(now,1)+36e5,w1=weekStart(now,0)+36e5;
+  S.records=[];S.boxSpent={};
+  const R=(st,v,ts)=>S.records.unshift({id:uid(),ts,studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t "+v,value:v,undone:false});
+  R(A,10,now-864e5*12);R(A,-8,now-864e5*12);R(B,5,now-864e5*12);  // lifetime (2 wks back): pos A10 B5
+  R(A,2,w1);R(A,-8,w1);R(B,5,w1);                                    // week net: A-6 B+5
+  R(A,4,w0);R(B,1,w0);                                               // last week: A4 B1 -> progress A-10 B+4
+  const order=()=>{const h=$("#main").innerHTML;return [h.indexOf(">"+A.name+"<"),h.indexOf(">"+B.name+"<")];};
+  ui.board="all";viewBoard();let all=order();
+  ui.board="week";viewBoard();let wk=order();
+  ui.board="progress";viewBoard();let pr=order();
+  T("all-time board uses lifetime positives",all[0]>=0&&all[0]<all[1],"A(idx "+all[0]+") must rank above B(idx "+all[1]+")");
+  T("weekly board net of week",wk[0]>=0&&wk[1]>=0&&wk[1]<wk[0],"B(idx "+wk[1]+") must rank above A(idx "+wk[0]+")");
+  T("progress board vs last week",pr[0]>=0&&pr[1]>=0&&pr[1]<pr[0],"B(idx "+pr[1]+") must rank above A(idx "+pr[0]+")");
+  ui.board="all";
+})();
+T("record label rebinds to rule",(function(){seed();setLang("en");
+  const rule=S.rules.find(r=>r.zh)||S.rules[0];const st=S.students[0];
+  S.records=[{id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:rule.id,ruleLabel:rule.label+" "+rule.icon,value:2,undone:false}];
+  location.hash="#/app/records";route();const en=($("#main").innerHTML.indexOf(rule.label)>=0);
+  setLang("zh");route();const zh=($("#main").innerHTML.indexOf(rule.zh||rule.label)>=0);
+  S.rules=S.rules.filter(r=>r.id!==rule.id);route();const fb=($("#main").innerHTML.indexOf(rule.label)>=0);
+  return en&&zh&&fb;})(),"en render, zh rebind after lang switch, stored fallback after rule delete");
+
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
 '''
