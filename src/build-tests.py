@@ -555,6 +555,6 @@ process.exit(fails===0?0:1);
 import json
 fix=json.load(io.open('fixture-baseline-state.json',encoding='utf-8'))
 out = stubs + 'const FIXTURE=' + json.dumps(fix,ensure_ascii=False,separators=(',',':')) + ';' + chr(10) + rd('i18n.js') + NL + rd('app-core.js') + NL + rd('screen.js') + NL + rd('landing.js') + NL + tests
-io.open('tmp-test.js', 'w', encoding='utf-8', newline=NL).write(out)
+io.open('test-bundle.js', 'w', encoding='utf-8', newline=NL).write(out)
 print('test file written', len(out))
 
