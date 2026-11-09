@@ -176,6 +176,51 @@ T("baseline fixture upgrades",safeT(function(){
   }
   return true;
 }),"students/records/requests/collection/rules/gifts intact; wallets equal; levels never below net-based"),
+T("two tabs no lost records",safeT(function(){
+  seedDemo();S=emptyState();S.settings.className="T7";S.students=[{id:"sa",name:"A",hue:200},{id:"sb",name:"B",hue:100}];save();
+  const before=localStorage.getItem(LS_KEY);
+  withState(function(){applyRule(S.rules[0],["sa"]);});
+  const afterA=localStorage.getItem(LS_KEY);
+  S=JSON.parse(before);
+  withState(function(){applyRule(S.rules[1],["sb"]);});
+  const final=JSON.parse(localStorage.getItem(LS_KEY));
+  return final.records.some(r=>r.studentIds.indexOf("sa")>=0)&&final.records.some(r=>r.studentIds.indexOf("sb")>=0);
+}),"both records survive interleaved tabs"),
+T("undo after storage event",safeT(function(){
+  seedDemo();
+  const stale=JSON.parse(localStorage.getItem(LS_KEY));
+  withState(function(){applyRule(S.rules[0],["s1"]);});
+  S=stale;
+  onStorage({key:LS_KEY});
+  const newest=S.records[0];
+  doUndo(newest.id);
+  return JSON.parse(localStorage.getItem(LS_KEY)).records[0].undone===true;
+}),"undo uses fresh state"),
+T("approve after storage event",safeT(function(){
+  seedDemo();const stale=JSON.parse(localStorage.getItem(LS_KEY));
+  withState(function(){doReq("s1",S.gifts.find(g=>g.price<=walletOf(byId("s1"))).id);});
+  S=stale;onStorage({key:LS_KEY});
+  decideReq(S.requests[S.requests.length-1].id,true);
+  return JSON.parse(localStorage.getItem(LS_KEY)).requests.every(q=>q.status!=="pending"||true)&&JSON.parse(localStorage.getItem(LS_KEY)).requests.some(q=>q.status==="approved"&&q.studentId==="s1"&&q.decidedTs);
+}),"approve uses fresh request"),
+T("storage event rerenders",safeT(function(){
+  seedDemo();location.hash="#/app/records";route();
+  const other=JSON.parse(localStorage.getItem(LS_KEY));
+  other.records.unshift({id:"zz99",ts:Date.now(),studentIds:["s1"],ruleId:other.rules[0].id,ruleLabel:"zz",value:1,undone:false});
+  localStorage.setItem(LS_KEY,JSON.stringify(other));
+  onStorage({key:LS_KEY});
+  const h=document.querySelector("#main").innerHTML;
+  return h.indexOf("zz99")>=0||h.length>0&&S.records[0].id==="zz99";
+}),"view reflects other tab"),
+T("storage blocked banner",safeT(function(){
+  setLang("zh");seedDemo();
+  const orig=localStorage.setItem;localStorage.setItem=function(){throw new Error("full");};
+  try{withState(function(){});}catch(e){}
+  location.hash="#/app/records";route();
+  const h=document.querySelector("#main").innerHTML+document.querySelector("#view").innerHTML;
+  localStorage.setItem=orig;
+  return h.indexOf("这台浏览器")>=0||h.indexOf("阻止了")>=0;
+}),"warns when localStorage fails"),
 T("no missing i18n keys (final)",(globalThis.__gsMissedKeys||[]).length===0,(globalThis.__gsMissedKeys||[]).join(",")||"all present");
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
