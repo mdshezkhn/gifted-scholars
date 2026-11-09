@@ -49,6 +49,8 @@ with sync_playwright() as p:
     pg.wait_for_timeout(400)
     after = pg.evaluate("((JSON.parse(localStorage.getItem(LS_KEY))||{}).records||[]).length")
     check("award persists", after == before + 1, f"records {before}->{after}")
+    conf = pg.evaluate("document.querySelectorAll('.scr-confetti').length")
+    check("confetti spawns on award", conf > 0, f"{conf} particles")
     check("wallet updates on tile", pg.evaluate("document.querySelector('.scr-tile .scr-pts') !== null"))
 
     # reload survival

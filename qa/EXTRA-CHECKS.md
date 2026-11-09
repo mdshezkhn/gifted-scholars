@@ -2,9 +2,9 @@
 
 | check | result | detail |
 |---|---|---|
-| a1 group award 30 students no crash | ✅ | {'awardMs': 11.199999988079071, 'pops': 30, 'particles': 150, 'badges': 24} |
+| a1 group award 30 students no crash | ✅ | {'awardMs': 66.80000001192093, 'pops': 30, 'particles': 150, 'badges': 24} |
 | a2 particle cap holds (<=150 live) | ✅ | 150 granted, 24 badge fallbacks |
-| a3 award+render time sane @4x throttle | ✅ | 11ms in-page |
+| a3 award+render time sane @4x throttle | ✅ | 67ms in-page |
 | a4 zero page errors @4x | ✅ | [] |
 | b1 corrupt JSON -> fresh state, no crash | ✅ | [] |
 | b2 quota exceeded caught, banner path, no throw | ✅ |  |

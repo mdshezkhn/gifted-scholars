@@ -181,7 +181,7 @@ function spawnConfetti(tile,n){
 function applyPop(stId,rec){
   const pos=rec.value>0;
   if(!pos&&(S.settings.hideNeg===true))return null;   /* marker fully hidden */
-  const tile=document.querySelector('[data-stu="'+stId+'"]');
+  const tile=document.querySelector('#tile-'+stId);
   let particles=0, badge=false;
   if(pos){
     if(motionOK()){
@@ -189,6 +189,7 @@ function applyPop(stId,rec){
       particles=reserveParticles(want);
       if(particles<want)badge=true;                   /* over cap: badge carries the news */
       if(particles>0&&tile)spawnConfetti(tile,particles);
+      else if(particles>0)releaseParticles(particles);/* no tile: return budget */
     }else badge=true;                                 /* reduced motion: badge only */
   }
   if(tile){

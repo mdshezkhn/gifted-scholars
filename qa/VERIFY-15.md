@@ -4,7 +4,7 @@
 |---|---|---|
 | 8.1a 1080p tiles visible | ✅ | 16 |
 | 8.1b no page scroll at 16 tiles | ✅ |  |
-| 8.1c cross-tab in-page update < 200ms | ✅ | 0.0ms storage->mutation |
+| 8.1c cross-tab in-page update < 200ms | ✅ | 0.1ms storage->mutation |
 | 8.1d drawer updates instantly | ✅ | ★ 4 |
 | 8.1e reload restores view+numbers | ✅ | 105->105 tiles 16 |
 | 8.1f mute toggle persists | ✅ | on/on |
