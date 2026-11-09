@@ -222,3 +222,74 @@ onSync(function(){
     for(const r of recs){ for(const stId of (r.studentIds||[]))applyPop(stId,r); }
   },0);
 });
+
+/* ---- Task 11: two-tap quick-award drawer ---- */
+let DRW_SEL=new Set();
+function drawerSelCount(){return DRW_SEL.size;}
+function drawerToggle(id){
+  const st=byId(id);if(!st)return;
+  if(DRW_SEL.has(id))DRW_SEL.delete(id);else DRW_SEL.add(id);
+  const el=document.querySelector('[data-drw="'+id+'"]');
+  if(el)el.setAttribute("aria-pressed",DRW_SEL.has(id)?"true":"false");
+  if(el)el.classList[DRW_SEL.has(id)?"add":"remove"]("drw-on");
+  const hint=document.querySelector("#drwHint");
+  if(hint)hint.textContent=t("pickSub",{n:DRW_SEL.size});
+}
+function drawerApply(ruleId){
+  withState(function(){
+    const rule=S.rules.find(r=>r.id===ruleId);          /* id re-lookup inside */
+    if(!rule||!DRW_SEL.size)return;
+    applyRule(rule,[...DRW_SEL]);
+  });
+  DRW_SEL=new Set();
+  const pops=screenAfterChange();                        /* pops behind the drawer */
+  if(location.hash==="#/screen"&&document.querySelector("#drwPanel"))openDrawer(true);
+  return pops||[];
+}
+function drawerUndoLast(){
+  withState(function(){
+    const r=S.records.find(x=>x.undone===false);
+    if(r)undoRecord(r);
+  });
+  toast(t("undoneToast"));
+  screenAfterChange();
+  if(location.hash==="#/screen"&&document.querySelector("#drwPanel"))openDrawer(true);
+}
+function closeDrawer(){
+  const el=document.querySelector("#drwPanel");
+  if(el)el.remove();
+  DRW_SEL=new Set();
+}
+function openDrawer(keepSel){
+  closeDrawer();
+  const rules=S.rules.filter(r=>r.active!==false);
+  const wrap=document.createElement("div");
+  wrap.id="drwPanel";
+  wrap.className="drw";
+  wrap.setAttribute("role","dialog");
+  wrap.setAttribute("aria-label",t("screenDrawer"));
+  wrap.innerHTML=`
+    <div class="drw-card stk">
+      <div class="drw-head">
+        <b>✨ ${t("screenDrawer")}</b>
+        <span class="sub" id="drwHint">${t("pickSub",{n:DRW_SEL.size})}</span>
+        <button class="scr-btn" aria-label="${t("close")}" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="drw-stus" role="group" aria-label="${t("students")}">
+        ${S.students.map(st=>`<button type="button" class="drw-stu${DRW_SEL.has(st.id)?" drw-on":""}" data-drw="${st.id}"
+          aria-pressed="${DRW_SEL.has(st.id)?"true":"false"}" onclick="drawerToggle('${st.id}')">
+          <span class="drw-av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</span>
+          <span class="drw-nm">${esc(st.name)}</span><span class="drw-pt">★${walletOf(st)}</span>
+        </button>`).join("")}
+      </div>
+      <div class="drw-rules" role="group" aria-label="${t("rate")}">
+        ${rules.map(r=>`<button type="button" class="drw-rule${r.value<0?" drw-neg":""}" onclick="drawerApply('${r.id}')">
+          <span class="drw-ic">${r.icon}</span><span>${esc(nm(r))}</span><b>${r.value>0?"+":""}${r.value}</b>
+        </button>`).join("")}
+      </div>
+      <div class="drw-foot">
+        <button type="button" class="drw-undo" onclick="drawerUndoLast()">↩︎ ${t("undoLast")}</button>
+      </div>
+    </div>`;
+  try{document.querySelector("#view").appendChild(wrap);}catch(_){}
+}

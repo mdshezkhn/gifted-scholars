@@ -333,7 +333,7 @@ Object.assign(I18N.en,{
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
  backupNudge:"It has been over a week — export a fresh backup.",
- screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",soundChip:"Tap anywhere to enable sound",scrHideNeg:"Hide minus markers on the Big Screen",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
+ screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",soundChip:"Tap anywhere to enable sound",undoLast:"Undo last",undoneToast:"Undone",scrHideNeg:"Hide minus markers on the Big Screen",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
 });
 Object.assign(I18N.zh,{
  errToast:"出了点小问题，但你的数据是安全的。",
@@ -380,7 +380,7 @@ Object.assign(I18N.zh,{
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",
  backupNudge:"已经超过一周了——导出一份新备份吧。",
- screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",soundChip:"轻点任意位置开启声音",scrHideNeg:"大屏上隐藏扣分标记",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
+ screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",soundChip:"轻点任意位置开启声音",undoLast:"撤销上一次",undoneToast:"已撤销",scrHideNeg:"大屏上隐藏扣分标记",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
 });
 
 "use strict";
@@ -1309,6 +1309,77 @@ onSync(function(){
   },0);
 });
 
+/* ---- Task 11: two-tap quick-award drawer ---- */
+let DRW_SEL=new Set();
+function drawerSelCount(){return DRW_SEL.size;}
+function drawerToggle(id){
+  const st=byId(id);if(!st)return;
+  if(DRW_SEL.has(id))DRW_SEL.delete(id);else DRW_SEL.add(id);
+  const el=document.querySelector('[data-drw="'+id+'"]');
+  if(el)el.setAttribute("aria-pressed",DRW_SEL.has(id)?"true":"false");
+  if(el)el.classList[DRW_SEL.has(id)?"add":"remove"]("drw-on");
+  const hint=document.querySelector("#drwHint");
+  if(hint)hint.textContent=t("pickSub",{n:DRW_SEL.size});
+}
+function drawerApply(ruleId){
+  withState(function(){
+    const rule=S.rules.find(r=>r.id===ruleId);          /* id re-lookup inside */
+    if(!rule||!DRW_SEL.size)return;
+    applyRule(rule,[...DRW_SEL]);
+  });
+  DRW_SEL=new Set();
+  const pops=screenAfterChange();                        /* pops behind the drawer */
+  if(location.hash==="#/screen"&&document.querySelector("#drwPanel"))openDrawer(true);
+  return pops||[];
+}
+function drawerUndoLast(){
+  withState(function(){
+    const r=S.records.find(x=>x.undone===false);
+    if(r)undoRecord(r);
+  });
+  toast(t("undoneToast"));
+  screenAfterChange();
+  if(location.hash==="#/screen"&&document.querySelector("#drwPanel"))openDrawer(true);
+}
+function closeDrawer(){
+  const el=document.querySelector("#drwPanel");
+  if(el)el.remove();
+  DRW_SEL=new Set();
+}
+function openDrawer(keepSel){
+  closeDrawer();
+  const rules=S.rules.filter(r=>r.active!==false);
+  const wrap=document.createElement("div");
+  wrap.id="drwPanel";
+  wrap.className="drw";
+  wrap.setAttribute("role","dialog");
+  wrap.setAttribute("aria-label",t("screenDrawer"));
+  wrap.innerHTML=`
+    <div class="drw-card stk">
+      <div class="drw-head">
+        <b>✨ ${t("screenDrawer")}</b>
+        <span class="sub" id="drwHint">${t("pickSub",{n:DRW_SEL.size})}</span>
+        <button class="scr-btn" aria-label="${t("close")}" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="drw-stus" role="group" aria-label="${t("students")}">
+        ${S.students.map(st=>`<button type="button" class="drw-stu${DRW_SEL.has(st.id)?" drw-on":""}" data-drw="${st.id}"
+          aria-pressed="${DRW_SEL.has(st.id)?"true":"false"}" onclick="drawerToggle('${st.id}')">
+          <span class="drw-av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</span>
+          <span class="drw-nm">${esc(st.name)}</span><span class="drw-pt">★${walletOf(st)}</span>
+        </button>`).join("")}
+      </div>
+      <div class="drw-rules" role="group" aria-label="${t("rate")}">
+        ${rules.map(r=>`<button type="button" class="drw-rule${r.value<0?" drw-neg":""}" onclick="drawerApply('${r.id}')">
+          <span class="drw-ic">${r.icon}</span><span>${esc(nm(r))}</span><b>${r.value>0?"+":""}${r.value}</b>
+        </button>`).join("")}
+      </div>
+      <div class="drw-foot">
+        <button type="button" class="drw-undo" onclick="drawerUndoLast()">↩︎ ${t("undoLast")}</button>
+      </div>
+    </div>`;
+  try{document.querySelector("#view").appendChild(wrap);}catch(_){}
+}
+
 /* ======================================================================
    Gifted Scholars — studio landing (warm editorial system)
    Seven sections: nav / split-wordmark hero / to-scale drawing /
@@ -2099,7 +2170,7 @@ T("drawer two-tap award",safeT(function(){
   return true;
 }),"select 2, tap rule => 1 record, drawer stays, sel clears"),
 T("drawer undo last targets newest non-undone",safeT(function(){
-  seedDemo();location.hash="#/screen";route();
+  seedDemo();S.records=[];S.collection={};S.boxSpent={};save();location.hash="#/screen";route();
   const a=S.students[0],b=S.students[1],rule=S.rules.find(r=>r.value>0);
   withState(function(){applyRule(rule,[a.id]);});
   withState(function(){applyRule(rule,[b.id]);});
@@ -2118,8 +2189,7 @@ T("drawer award pops tiles behind",safeT(function(){
   openDrawer();
   drawerToggle(S.students[0].id);
   const rule=S.rules.find(r=>r.value>0);
-  drawerApply(rule.id);
-  const pops=screenAfterChange();
+  const pops=drawerApply(rule.id);
   closeDrawer();
   return (pops&&pops.length===1&&pops[0].sign==="pos")?true:"no pop from drawer award";
 }),"drawer award path triggers pops"),

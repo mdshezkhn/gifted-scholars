@@ -120,3 +120,26 @@
   .scr-confetti{display:none}
   .scr-tile.pop-pos,.scr-chip{animation:none}
 }
+
+/* Task 11: quick-award drawer — big touch targets (>=48px) */
+.drw{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,18,15,.35)}
+.drw-card{width:min(1200px,96vw);max-height:86vh;overflow:auto;background:var(--paper,#E7E3DA);
+  border-radius:18px 18px 0 0;padding:18px 20px;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
+.drw-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;font-size:22px}
+.drw-head .sub{font-size:16px;color:var(--ink-soft,#4A4741)}
+.drw-head .scr-btn{margin-left:auto}
+.drw-stus{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.drw-stu{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;font-size:18px;
+  border:2px solid rgba(26,25,23,.22);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+.drw-stu.drw-on{border-color:var(--gold,#9B3418);background:var(--gold-tint,#EDE7DA);box-shadow:0 0 0 3px rgba(155,52,24,.2)}
+.drw-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:700;flex:none}
+.drw-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drw-pt{font-variant-numeric:tabular-nums;color:var(--ink-soft,#4A4741)}
+.drw-rules{display:flex;flex-wrap:wrap;gap:10px}
+.drw-rule{display:flex;align-items:center;gap:8px;min-height:52px;min-width:120px;padding:8px 16px;font-size:19px;
+  border:2px solid rgba(26,25,23,.22);border-radius:999px;background:#fff;cursor:pointer}
+.drw-rule b{color:#2E7D32}
+.drw-rule.drw-neg b{color:#8A6D3B}
+.drw-foot{margin-top:14px;display:flex;justify-content:flex-end}
+.drw-undo{min-height:48px;padding:8px 18px;font-size:17px;border-radius:999px;border:2px solid rgba(26,25,23,.22);background:#fff;cursor:pointer}
+@media (prefers-reduced-motion: reduce){.drw-card{transition:none}}

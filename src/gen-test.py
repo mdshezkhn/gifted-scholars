@@ -459,7 +459,7 @@ T("drawer two-tap award",safeT(function(){
   return true;
 }),"select 2, tap rule => 1 record, drawer stays, sel clears"),
 T("drawer undo last targets newest non-undone",safeT(function(){
-  seedDemo();location.hash="#/screen";route();
+  seedDemo();S.records=[];S.collection={};S.boxSpent={};save();location.hash="#/screen";route();
   const a=S.students[0],b=S.students[1],rule=S.rules.find(r=>r.value>0);
   withState(function(){applyRule(rule,[a.id]);});
   withState(function(){applyRule(rule,[b.id]);});
@@ -478,8 +478,7 @@ T("drawer award pops tiles behind",safeT(function(){
   openDrawer();
   drawerToggle(S.students[0].id);
   const rule=S.rules.find(r=>r.value>0);
-  drawerApply(rule.id);
-  const pops=screenAfterChange();
+  const pops=drawerApply(rule.id);
   closeDrawer();
   return (pops&&pops.length===1&&pops[0].sign==="pos")?true:"no pop from drawer award";
 }),"drawer award path triggers pops"),
