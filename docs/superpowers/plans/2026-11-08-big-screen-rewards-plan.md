@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- One deployable `index.html`; offline; no runtime network requests; size budget ≤ current +20 KB.
+- One deployable `index.html`; offline; no runtime network requests; size budget ≤ current +40 KB (teacher, 2026-11-09; report the byte size after Tasks 7, 9 and 13).
 - `LS_KEY = "gifted-scholars-v1"` unchanged; no stored key renamed/removed; new settings (`sound`, `screenHideNeg`, `goal`, `lastBackupAt`) read as `S.settings.x || default`.
 - No backend, no accounts, no cross-device sync; child data never leaves the device.
 - Every user-visible string via `t()` with zh + en; **zh is the default language**; en/zh key parity is test-enforced.
@@ -98,7 +98,7 @@ Add all keys to both dicts (zh authored, en natural); replace every audited lite
 - [ ] **Step 4: Run to verify they pass; rebuild; measure; WP1 commit**
 
 Run: `python3 src/gen-test.py && node src/tmp-test.js && python3 src/assemble.py && git diff --stat && wc -c index.html`
-Expected: all PASS; only `src/i18n.js`, `src/app-core.js`, `src/landing.js`, `index.html` changed; **record the new `index.html` byte size next to the Task-1 baseline** (whole-project budget remains ≤ baseline +20 KB).
+Expected: all PASS; only `src/i18n.js`, `src/app-core.js`, `src/landing.js`, `index.html` changed; **record the new `index.html` byte size next to the Task-1 baseline** (whole-project budget remains ≤ baseline +40 KB).
 
 ```bash
 git add src/i18n.js src/app-core.js src/landing.js index.html && git commit -m "fix(i18n): raw \${t()} bugs B1-B4, full zh/en coverage, zh default (WP1)"
@@ -321,7 +321,7 @@ Expected: byte-diff clean, tests PASS, old artifact gone. Validate `ci.yml` by i
 **Files:**
 - Create: `qa/qa.py` (Playwright + system Edge headless, pattern from sibling workspace projects), `qa/*.png` outputs
 
-- [ ] **Step 1: Run the headless suite** — routes × {zh,en} console/page errors = 0; `#/screen` at 1920×1080: computed styles meet the binding type minimums, 30-tile class has no grid overflow, 40-tile scrolls; drawer award updates instantly; two-window `storage` update < 200 ms; reload restores numbers; `A`/`F`/`Esc` inert while typing; reduced-motion pass creates zero confetti/transform nodes; sound chip lifecycle; no network requests (route interception log empty); `wc -c index.html` ≤ baseline +20 KB.
+- [ ] **Step 1: Run the headless suite** — routes × {zh,en} console/page errors = 0; `#/screen` at 1920×1080: computed styles meet the binding type minimums, 30-tile class has no grid overflow, 40-tile scrolls; drawer award updates instantly; two-window `storage` update < 200 ms; reload restores numbers; `A`/`F`/`Esc` inert while typing; reduced-motion pass creates zero confetti/transform nodes; sound chip lifecycle; no network requests (route interception log empty); `wc -c index.html` ≤ baseline +40 KB.
 - [ ] **Step 2: Screenshots** — classroom/screen/drawer/landing × zh+en; landing compared by eye to pre-theme shot for zero drift.
 - [ ] **Step 3: Report** — numbers + screenshots + list of legacy tests edited (Task 4) + what remains; remind the teacher of the §9 manual check (project it in the real classroom, 8 m readability, two-tab setup on the school computer) before sign-off; ask about push/deploy. Commit QA rig: `git commit -m "test: headless QA rig for big-screen release"`. — the summary MUST state, in plain words: (a) the all-time board now ignores negative points BY DESIGN (levels ride lifetime positives), and (b) renaming a rule updates how past records read (labels rebind at render time), plus the full list of legacy tests edited.
 
