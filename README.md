@@ -67,10 +67,43 @@ widths.
 
 ```bash
 cd src
-python3 assemble.py     # regenerates ../index.html from the gs/ parts
-python3 gen-test.py     # writes the headless test bundle
-node tmp-test.js        # 31 tests
+python3 assemble.py     # regenerates ../index.html from the src/ parts
+python3 build-tests.py  # writes the headless test bundle (test-bundle.js)
+node test-bundle.js     # full suite (85 tests)
 ```
+
+GitHub Actions runs the same three steps on every push (`.github/workflows/ci.yml`)
+and fails if the committed `index.html` drifts from a fresh build.
+
+## Big Screen mode (#/screen)
+
+Open `index.html#/screen` on the classroom display.
+
+- **Single display** (screen + teacher on one computer): tap **✨ Quick award**
+  (or press `A`) — a drawer opens: tap students, tap a rule, done. Two taps
+  per award. `↩︎ Undo last` reverses the newest award.
+- **Two displays, one computer**: keep the browser on the big screen at
+  `#/screen` and award from a second browser *window* (same browser!) at
+  `#/app/classroom`. Both tabs share localStorage; the screen updates within
+  ~200 ms via storage events. Two separate browsers do NOT share data.
+- **Sound** is off by default. Turn it on with the 🔇/🔊 button; browsers
+  require one tap anywhere on the page before audio can play (a chip reminds
+  you once). Award chime only — negative points are always silent.
+- **Shortcuts**: `A` quick award · `F` fullscreen · `Esc` close drawer.
+  They are ignored while typing, with Ctrl/Alt/Win held, or during IME input.
+- Negative points show as a small quiet marker; Settings → 🎁 has a toggle to
+  hide them on the screen entirely. Points always still count.
+
+## One origin, and back up
+
+`my-gifts-with-mo.duckdns.org` and `mdshezkhn.github.io` are **different
+origins with separate localStorage** — data entered on one is invisible on the
+other. Pick ONE address and always open the site there. Export a backup
+(Settings → Data → Export) weekly; Settings shows the last backup date.
+
+**Windows note**: the repo stores LF line endings (`.gitattributes`); if a
+local rebuild produces a huge `index.html` diff, run
+`git add --renormalize .` and rebuild before committing.
 
 ---
 

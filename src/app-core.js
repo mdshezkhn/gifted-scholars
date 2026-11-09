@@ -56,7 +56,6 @@ const DEFAULT_GIFTS = [
   {id:"g10",emoji:"🧰",name:"Treasure box pick",zh:"百宝箱", desc:"One pick from the real treasure box",price:15,stock:5,per:1},
   {id:"g11",emoji:"🎲",name:"Board game Friday",zh:"桌游周五", desc:"Bring a board game for Friday choice time",price:20,stock:null,per:1}
 ];
-const SEED_STUDENTS = ["Amelia","Bhavya","Chen","Dina","Emeka","Farah","Gabriel","Hana","Ibrahim","Jade","Kofi","Lena","Mateo","Nia","Omar","Priya"];
 
 let S = null;                 // app state
 let sel = new Set();          // classroom multi-select
@@ -64,6 +63,7 @@ let ui = {board:"all"};
 
 const $ = (s,el)=> (el||document).querySelector(s);
 const $$ = (s,el)=> Array.from((el||document).querySelectorAll(s));
+function initialOf(n){const a=Array.from(String(n==null?"":n).trim());return a.length?a[0]:"?";}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid = () => "x"+Math.random().toString(36).slice(2,9);
 const HUES = [12,45,95,150,185,210,260,300,330];
@@ -73,29 +73,40 @@ function fmtDT(ts){const d=new Date(ts);return d.toLocaleDateString(LOCALE(),{mo
 function weekStart(ts,back){const d=new Date(ts);const day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day-(back||0)*7);return d.getTime();}
 
 /* ---- derived ledgers ---- */
+function posOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.value<=0)continue;if(r.studentIds.includes(st.id))n+=r.value;}return n;}
+function negOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.value>=0)continue;if(r.studentIds.includes(st.id))n+=-r.value;}return n;}
 function netOf(st,fromTs){let n=0;for(const r of S.records){if(r.undone)continue;if(fromTs&&r.ts<fromTs)continue;if(r.studentIds.includes(st.id))n+=r.value;}return n;}
-function growthOf(st){return netOf(st);}
+function growthOf(st){return posOf(st);}
 function spentOf(st){let sp=0;for(const q of S.requests){if(q.status!=="approved")continue;if(q.studentId!==st.id)continue;sp+=q.cost;}return sp;}
-function walletOf(st){return Math.max(0,growthOf(st)-spentOf(st)-(S.boxSpent[st.id]||0));}
+function walletOf(st){return Math.max(0,posOf(st)-negOf(st)-spentOf(st)-(S.boxSpent[st.id]||0));}
+function recLabel(rec){const r=(S.rules||[]).find(x=>x.id===rec.ruleId);if(!r)return rec.ruleLabel||"";return ((LANG==="zh"&&r.zh)?r.zh:r.label)+" "+r.icon;}
 function levelOf(g){let i=0;for(let k=0;k<LEVELS.length;k++){if(g>=LEVELS[k].min)i=k;}return i;}
 function lvlProgress(g){const i=levelOf(g);if(i>=LEVELS.length-1)return {i,pct:100,next:null};const a=LEVELS[i].min,b=LEVELS[i+1].min;return {i,pct:Math.min(100,Math.round(((g-a)/(b-a))*100)),next:LEVELS[i+1]};}
 function collectionOf(id){return S.collection[id]||[];}
 
 /* ---- persistence ---- */
-function save(){localStorage.setItem(LS_KEY,JSON.stringify(S));}
+let STORAGE_OK=true;
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(S));STORAGE_OK=true;}catch(e){STORAGE_OK=false;}}
 function load(){
   try{const raw=localStorage.getItem(LS_KEY);if(raw){S=JSON.parse(raw);if(S&&S.students&&S.rules&&S.gifts&&S.records)return true;}}catch(e){}
   return false;
 }
-function seed(){
+function syncIn(){load();}
+function withState(fn){syncIn();fn();save();}
+const SYNC_CBS=[];
+function onSync(cb){SYNC_CBS.push(cb);}
+function onStorage(e){if(e&&e.key&&e.key!==LS_KEY)return;syncIn();for(const cb of SYNC_CBS){try{cb();}catch(_){}}route();}
+if(typeof window!=="undefined"&&window.addEventListener)window.addEventListener("storage",onStorage);
+function storageBlockedNote(){return STORAGE_OK?"":'<div class="stk" role="alert" style="padding:10px 14px;border:2px solid var(--coral, #e5484d);margin-bottom:14px">⚠️ '+t("storageBlocked")+'</div>';}
+function seedDemo(){
   // deterministic demo history so leaderboards and shelves have shape
   let rngState=42;const rng=()=>{rngState=(rngState*1103515245+12345)%2147483648;return rngState/2147483648;};
   S={version:1,
-    settings:{className:"Class 4B",schoolName:"Maple Grove Primary",teacher:"Ms. Rivera",motion:"auto"},
+    settings:{className:t("demoClass"),schoolName:t("demoSchool"),teacher:t("demoTeacher"),motion:"auto"},
     rules:DEFAULT_RULES.map(r=>({...r})),
     gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};
-  SEED_STUDENTS.forEach((n,i)=>S.students.push({id:"s"+(i+1),name:n,hue:HUES[i%HUES.length]}));
+  t("demoNames").split(/[,，]\s*/).forEach((n,i)=>S.students.push({id:"s"+(i+1),name:n.trim(),hue:HUES[i%HUES.length]}));
   const now=Date.now(),day=864e5;
   for(let d=9;d>=0;d--){                       // ten school days of history
     const nEv=6+Math.floor(rng()*8);
@@ -160,12 +171,13 @@ function route(){
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
-  if(h.startsWith("#/app")){
+  if(h==="#/screen"){renderScreen();return;}
+  else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
     renderShell(["classroom","records","shop","leaderboard","settings"].includes(tab)?tab:"classroom");
-    return;
   }
-  renderLanding();
+  else{renderLanding();}
+  if(!STORAGE_OK){const m=$("#main");if(m)m.innerHTML=storageBlockedNote()+m.innerHTML;const v=$("#view");if(v&&v.innerHTML.indexOf(storageBlockedNote())<0)v.innerHTML=storageBlockedNote()+v.innerHTML;}
 }
 window.addEventListener("hashchange",route);
 
@@ -183,10 +195,10 @@ function applyMotion(){
   const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.documentElement.classList.toggle("gs-motion", m==="on"||(m==="auto"&&!rm));
 }
-function saveMotion(v){S.settings.motion=v;save();applyMotion();}
+function saveMotion(v){withState(()=>{S.settings.motion=v;});applyMotion();}
 window.addEventListener("error",function(e){
   if(window.__gsErrShown)return; window.__gsErrShown=true;
-  try{toast("Something went wrong, but your data is safe. (Details in browser console.)");}catch(_){}
+  try{toast(t("errToast"));}catch(_){}
 });
 function closeOverlays(){$("#modals").innerHTML="";$$(".burst,.lvlup").forEach(e=>e.remove());}
 function modal(html){
@@ -204,7 +216,7 @@ function flushLevelUps(){
   const {st,lv}=levelUpQueue.shift();
   const L=LEVELS[lv];
   const el=document.createElement("div");el.className="lvlup";
-  el.innerHTML='<div class="card stk"><span class="medal">'+L.badge+'</span><h2 style="font-family:var(--font-round)">Level '+(lv+1)+'!</h2><p style="margin-top:6px"><b>'+esc(st.name)+'</b> reached <b>'+esc(nm(L))+'</b></p><div class="btns" style="justify-content:center"><button class="btn gold" onclick="this.closest(\'.lvlup\').remove();flushLevelUps()">${t("celebrate")}</button></div></div>';
+  el.innerHTML='<div class="card stk"><span class="medal">'+L.badge+'</span><h2 style="font-family:var(--font-round)">'+t("levelUpTitle",{n:lv+1})+'</h2><p style="margin-top:6px">'+t("reached",{name:"<b>"+esc(st.name)+"</b>",lv:"<b>"+esc(nm(L))+"</b>"})+'</p><div class="btns" style="justify-content:center"><button class="btn gold" onclick="this.closest(\'.lvlup\').remove();flushLevelUps()">'+t("celebrate")+'</button></div></div>';
   el.addEventListener("click",e=>{if(e.target===el){el.remove();flushLevelUps();}});
   document.body.appendChild(el);
 }
@@ -225,11 +237,11 @@ const TABS=[{id:"classroom",label:t("tab_classroom"),icon:"\uD83C\uDF93"},{id:"r
 function renderShell(tab){
   document.title=t("docPre")+t("tab_"+tab);
   $("#view").innerHTML=`
-  <div class="shell">
+  <div class="shell app-ui">
     <nav class="rail" aria-label="${t("appSections")}">
       <a class="logo" href="#/">${logoSVG()} Gifted Scholars</a>
-      ${TABS.map(tb=>'<a class="tab" href="#/app/'+t.id+'"'+(t.id===tab?' aria-current="page"':'')+'><span>'+t.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}
-      <div class="foot">${esc(S.settings.className)}<br>${esc(S.settings.schoolName)}</div>
+      ${TABS.map(tb=>'<a class="tab" href="#/app/'+tb.id+'"'+(tb.id===tab?' aria-current="page"':'')+'><span>'+tb.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}
+      <div class="foot">${esc(S.settings.className||t("defaultClassName"))}<br>${esc(S.settings.schoolName||"")}</div>
     </nav>
     <main class="main" id="main"></main>
   </div>`;
@@ -244,14 +256,19 @@ function renderShell(tab){
 /* ============ classroom view ============ */
 function viewClassroom(){
   const rules=S.rules.filter(r=>r.active!==false);
+  if(!S.students.length){$("#main").innerHTML=`
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className||t("defaultClassName"))})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
+  <div class="empty stk" style="margin-top:26px"><span class="big">🌱</span>${t("emptyHint")}<br>
+    <div class="btns" style="margin-top:12px;justify-content:center"><a class="btn primary" href="#/app/settings">${t("goSetup")}</a>
+    <button class="btn ghost" onclick="tryDemo()">${t("tryDemo")}</button></div></div>`;return;}
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>Rate ${esc(S.settings.className)}</h1><span class="sub">Tap students, then a rule. ${sel.size} selected.</span></div>
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className||t("defaultClassName"))})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
   <div class="toolbar">
     <button class="btn sm" onclick="selAll(true)">${t("selectAll")}</button>
     <button class="btn sm" onclick="selAll(false)">${t("clear")}</button>
     <span class="rail-legend">
-      <span class="legend"><b class="num">★</b> wallet stars (spendable)</span>
-      <span class="legend"><b class="num">#</b> growth score (levels)</span>
+      <span class="legend"><b class="num">★</b> ${t("legendWallet")}</span>
+      <span class="legend"><b class="num">#</b> ${t("legendGrowth")}</span>
     </span>
   </div>
   <div class="grid" id="stuGrid">${S.students.map(stuCard).join("")}</div>
@@ -263,27 +280,27 @@ function stuCard(st){
   const g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}" onclick="pick('${st.id}')" role="button" tabindex="0" aria-pressed="${sel.has(st.id)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${st.id}')}">
     <span class="pick" aria-hidden="true">${sel.has(st.id)?"✓":""}</span>
-    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(st.name.slice(0,1))}</div>
+    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</div>
     <div class="nm">${esc(st.name)}</div>
     <div class="lv">${L.badge} Lv${lp.i+1} · ${esc(nm(L))}</div>
     <div class="pts"><span class="net num${g<0?" neg":""}"># ${g}</span><span class="wallet num">★ ${w}</span></div>
-    <a class="roomlink" href="#/room/${st.id}" onclick="event.stopPropagation()" title="Open ${esc(st.name)}'s gift room">${t("openRoom")}</a>
+    <a class="roomlink" href="#/room/${st.id}" onclick="event.stopPropagation()" title="${t("openRoomTitle",{name:esc(st.name)})}">${t("openRoom")}</a>
   </div>`;
 }
 function pick(id){
   if(sel.has(id))sel.delete(id);else sel.add(id);
   const el=document.getElementById("card-"+id);
   if(el){el.classList.toggle("sel",sel.has(id));el.setAttribute("aria-pressed",sel.has(id));$(".pick",el).textContent=sel.has(id)?"✓":"";}
-  const sub=document.querySelector(".pagehead .sub");if(sub)sub.textContent="Tap students, then a rule. "+sel.size+" selected.";
+  const sub=document.querySelector(".pagehead .sub");if(sub)sub.textContent=t("pickSub",{n:sel.size});
 }
 function selAll(on){sel=on?new Set(S.students.map(s=>s.id)):new Set();viewClassroom();}
 function rate(ruleId){
-  const rule=S.rules.find(r=>r.id===ruleId);if(!rule)return;
-  if(!sel.size){toast("Select one or more students first");return;}
-  applyRule(rule,[...sel]);
-  const ids=[...sel];
+  if(!sel.size){toast(t("selFirst"));return;}
+  const ids=[...sel];let rule=null;
+  withState(()=>{rule=S.rules.find(r=>r.id===ruleId);if(!rule)return;applyRule(rule,[...ids]);});
+  if(!rule)return;
   ids.forEach(id=>{const el=document.getElementById("card-"+id);if(el){const chip=document.createElement("span");chip.className="float";chip.style.color=rule.value>0?"var(--teal)":"var(--coral)";chip.textContent=(rule.value>0?"+":"")+rule.value;el.appendChild(chip);setTimeout(()=>chip.remove(),1000);}});
-  toast(rule.label+" "+(rule.value>0?"+":"")+rule.value+" → "+ids.map(i=>byId(i).name).slice(0,3).join(", ")+(ids.length>3?" +"+(ids.length-3):""));
+  toast(t("awardToast",{r:(LANG==="zh"&&rule.zh?rule.zh:rule.label)+" "+rule.icon,v:(rule.value>0?"+":"")+rule.value,who:ids.map(i=>byId(i).name).slice(0,3).join(", ")+(ids.length>3?" +"+(ids.length-3):"")}));
   // refresh numbers without rebuilding grid (keeps selection + floats smooth)
   ids.forEach(id=>{const st=byId(id),el=document.getElementById("card-"+id);if(el){const g=growthOf(st),lp=lvlProgress(g);$(".net",el).textContent="# "+g;$(".net",el).classList.toggle("neg",g<0);$(".wallet",el).textContent="★ "+walletOf(st);$(".lv",el).textContent=LEVELS[lp.i].badge+" Lv"+(lp.i+1)+" · "+nm(LEVELS[lp.i]);}});
   flushLevelUps();
@@ -293,22 +310,24 @@ function rate(ruleId){
 function viewRecords(){
   const recs=S.records;
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>${t("tab_records")}</h1><span class="sub">Every rating is logged. Anything can be undone; nothing is deleted.</span></div>
+  <div class="pagehead"><h1>${t("tab_records")}</h1><span class="sub">${t("recSub")}</span></div>
   ${recs.length?`<div class="list">${recs.map(recRow).join("")}</div>`:
-  `<div class="empty stk"><span class="big">🧾</span>${t("noRatings")}<br>${t("headTo")}<a href="#/app/classroom">${t("rate")}</a> and tap a rule.</div>`}`;
+  `<div class="empty stk"><span class="big">🧾</span>${t("noRatings")}<br>${t("headTo")}<a href="#/app/classroom">${t("rate")}</a>${t("thenTapRule")}</div>`}`;
 }
 function recRow(r){
   const names=r.studentIds.map(i=>byId(i)?byId(i).name:"?").join(", ");
   return `<div class="row stk${r.undone?" undone":""}">
     <span class="val num${r.value<0?" neg":""}">${r.value>0?"+":""}${r.value}</span>
-    <span class="who"><b>${esc(r.ruleLabel)}</b><br>${esc(names)}</span>
+    <span class="who"><b>${esc(recLabel(r))}</b><br>${esc(names)}</span>
     <span class="meta num">${fmtDT(r.ts)}</span>
-    ${r.undone?'<span class="pill declined">${t("undone")}</span>':'<button class="btn sm" onclick="doUndo(\''+r.id+'\')">${t("undo")}</button>'}
+    ${r.undone?`<span class="pill declined">${t("undone")}</span>`:`<button class="btn sm" onclick="doUndo('${r.id}')">${t("undo")}</button>`}
   </div>`;
 }
 function doUndo(id){
-  const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;
-  undoRecord(r);toast("Undone: "+r.ruleLabel);viewRecords();
+  let label=null;
+  withState(()=>{const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;undoRecord(r);label=recLabel(r);});
+  if(label==null)return;
+  toast(t("undoneToast",{r:label}));viewRecords();
 }
 
 /* ============ gift shop view ============ */
@@ -318,7 +337,7 @@ function approvedCountFor(stId,giftId){return S.requests.filter(q=>q.status==="a
 function viewShop(){
   const pend=S.requests.filter(q=>q.status==="pending");
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>${t("tab_shop")}</h1><span class="sub">Students request, you approve. Stars are only spent at approval.</span></div>
+  <div class="pagehead"><h1>${t("tab_shop")}</h1><span class="sub">${t("shopSub")}</span></div>
   <div class="queue">
     <h2 style="font-size:19px;margin-bottom:10px">${t("waitingFor")}<span class="tag">${pend.length}</span></h2>
     ${pend.length?`<div class="list">${pend.map(reqRow).join("")}</div>`:
@@ -342,7 +361,7 @@ function reqRow(q){
 }
 function itemCard(g){
   const off=g.active===false;
-  const stock=g.stock==null?'<span class="pill approved">'+(LANG==="zh"?"库存 ∞":"stock ∞")+'</span>':(g.stock>0?'<span class="pill approved">'+(LANG==="zh"?"库存 "+g.stock:"stock "+g.stock)+'</span>':'<span class="pill declined">'+t("soldOut")+'</span>');
+  const stock=g.stock==null?'<span class="pill approved">'+t("stockInf")+'</span>':(g.stock>0?'<span class="pill approved">'+t("stockN",{n:g.stock})+'</span>':'<span class="pill declined">'+t("soldOut")+'</span>');
   return `<div class="item stk${off?" off":""}">
     <div class="top"><span class="emoji">${g.emoji}</span>${stock}</div>
     <h3>${esc(nm(g))}</h3>
@@ -354,42 +373,53 @@ function itemCard(g){
     </div>
   </div>`;
 }
-function toggleItem(id){const g=giftById(id);g.active=g.active===false;save();viewShop();}
+function toggleItem(id){withState(()=>{const g=giftById(id);if(g)g.active=g.active===false;});viewShop();}
 function decideReq(id,ok){
-  const q=S.requests.find(x=>x.id===id);if(!q||q.status!=="pending")return;
-  if(ok){
+  let q=null,go=false;
+  withState(()=>{
+    q=S.requests.find(x=>x.id===id);if(!q||q.status!=="pending")return;
+    go=true;
+    if(ok){
     const st=byId(q.studentId),g=giftById(q.itemId);
-    if(!st||!g){toast("This gift no longer exists");return;}
+    if(!st||!g){toast(t("giftGone"));return;}
     if(g.active===false){toast(t("offShelf2"));return;}
-    if(g.stock!=null&&g.stock<=0){toast("Sold out: raise the stock to approve.");return;}
-    if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(st.name+" hit the limit of "+g.per+" for this gift");return;}
-    if(walletOf(st)<q.cost){toast(st.name+" only has ★ "+walletOf(st)+" now. Ratings first, then approve.");return;}
-  }
+    if(g.stock!=null&&g.stock<=0){toast(t("soldOutRaise"));return;}
+    if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(t("limitHit",{name:st.name,n:g.per}));return;}
+    if(walletOf(st)<q.cost){toast(t("lowWallet",{name:st.name,w:walletOf(st)}));return;}
+    }
+  });
+  if(!go||!q)return;
   decide(q,ok);
-  toast(ok?("Granted: "+q.itemLabel):("Declined: "+q.itemLabel));
+  toast(ok?t("granted",{g:q.itemLabel}):t("declinedToast",{g:q.itemLabel}));
   viewShop();
 }
 /* "Give now" modal: pick a student */
 function openGive(giftId){
   const g=giftById(giftId);if(!g)return;
-  modal(`<h2>Give: ${esc(g.emoji+" "+g.name)}</h2>
-    <p style="font-size:14px;color:var(--ink-soft)">Instant grant: stars are spent now, the gift lands on the student's shelf.</p>
+  modal(`<h2>${t("giveTitle",{g:esc(g.emoji+" "+nm(g))})}</h2>
+    <p style="font-size:14px;color:var(--ink-soft)">${t("giveBlurb")}</p>
     <label for="giveSel">${t("studentCol")}</label>
     <select id="giveSel" style="margin-top:6px">${S.students.map(s=>'<option value="'+s.id+'">'+esc(s.name)+" (★ "+walletOf(s)+")</option>").join("")}</select>
-    <div class="btns"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn gold" onclick="doGive('${giftId}')">Spend ★ ${g.price} and give</button></div>`);
+    <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn gold" onclick="doGive('${giftId}')">${t("spendGive",{n:g.price})}</button></div>`);
 }
 function doGive(giftId){
-  const selId=$("#giveSel").value,g=giftById(giftId),st=byId(selId);
+  const selId=$("#giveSel").value;
   closeOverlays();
+  let msg=null;
+  withState(()=>{
+  const g=giftById(giftId),st=byId(selId);
   if(!st||!g)return;
   if(g.active===false){toast(t("offShelf"));return;}
-  if(g.stock!=null&&g.stock<=0){toast("Sold out");return;}
-  if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(st.name+" already hit the limit for this gift");return;}
-  if(walletOf(st)<g.price){toast(st.name+" only has ★ "+walletOf(st));return;}
+  if(g.stock!=null&&g.stock<=0){toast(t("soldOut"));return;}
+  if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(t("limitHit",{name:st.name,n:g.per}));return;}
+  if(walletOf(st)<g.price){toast(t("lowWallet",{name:st.name,w:walletOf(st)}));return;}
   const q={id:uid(),studentId:st.id,itemId:g.id,itemLabel:g.emoji+" "+g.name,cost:g.price,status:"pending",note:"given by teacher",ts:Date.now()};
   S.requests.unshift(q);
   decide(q,true);
-  toast(t("givenTo")+st.name+": "+g.name);
+  msg=t("givenTo")+st.name+": "+g.name;
+  });
+  if(msg==null)return;
+  toast(msg);
   viewShop();
 }
 
@@ -400,14 +430,14 @@ function viewBoard(){
   let rows;
   if(mode==="week"){rows=S.students.map(s=>({s,v:netOf(s,w1)})).sort((a,b)=>b.v-a.v);}
   else if(mode==="progress"){rows=S.students.map(s=>({s,v:netOf(s,w1)-netOf(s,w0)})).filter(r=>r.v!==0).sort((a,b)=>b.v-a.v);}
-  else{rows=S.students.map(s=>({s,v:netOf(s)})).sort((a,b)=>b.v-a.v);}
+  else{rows=S.students.map(s=>({s,v:posOf(s)})).sort((a,b)=>b.v-a.v);}
   const today=weekStart(Date.now(),0)+864e5*(((new Date().getDay())+6)%7);
   const givenToday=S.records.filter(r=>!r.undone&&r.ts>=today).reduce((a,r)=>a+r.value*r.studentIds.length,0);
   const weekRecs=S.records.filter(r=>!r.undone&&r.ts>=w1);
-  const ruleCount={};weekRecs.forEach(r=>ruleCount[r.ruleLabel]=(ruleCount[r.ruleLabel]||0)+1);
+  const ruleCount={};weekRecs.forEach(r=>{const L=recLabel(r);ruleCount[L]=(ruleCount[L]||0)+1;});
   const topRule=Object.entries(ruleCount).sort((a,b)=>b[1]-a[1])[0];
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>Leaderboards</h1><span class="sub">${t("recogTag")}</span></div>
+  <div class="pagehead"><h1>${t("lbTitle")}</h1><span class="sub">${t("recogTag")}</span></div>
   <div class="statline">
     <div class="stat stk"><div class="k">${t("givenToday")}</div><div class="v num">${givenToday>0?"+":""}${givenToday}</div></div>
     <div class="stat stk"><div class="k">${t("ratingsWeek")}</div><div class="v num">${weekRecs.length}</div></div>
@@ -433,22 +463,32 @@ function viewBoard(){
       <span class="who">${esc(r.s.name)}</span>
       <span class="val num${r.v<0?" neg":""}" style="min-width:60px">${r.v>0?"+":""}${r.v}</span>
     </div>`).join("")}</div>`:
-  `<div class="empty stk"><span class="big">🏁</span>${t("boardEmpty")}<br>The Progress board fills once two weeks have ratings.</div>`}`;
+  `<div class="empty stk"><span class="big">🏁</span>${t("boardEmpty")}<br>${t("progEmpty")}</div>`}`;
 }
 
 /* ============ settings view ============ */
 function viewSettings(){
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>Setup</h1><span class="sub">Your class, your rules, your catalog.</span></div>
+  <div class="pagehead"><h1>${t("tab_settings")}</h1><span class="sub">${t("settingsTag")}</span></div>
 
   <section style="margin-bottom:30px">
     <div class="stk" style="padding:16px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;max-width:560px;background:var(--teal-tint)">
       <span style="font-size:22px">🎁</span>
-      <span style="font-size:14px;line-height:1.5">A free gift to ZhongFangYuan Bilingual School — built with care by <b>Mohammed Shehzad Khan</b> ("Teacher Mo"), © 2026. Always free: no fees, no ads, nothing for sale. <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
+      <span style="font-size:14px;line-height:1.5">${t("creditBox")} <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
     </div>
-  </section>
-
-  <div class="pagehead"><h1>Setup</h1><span class="sub">Your class, your rules, your catalog.</span></div>
+  
+    <div class="stk" style="padding:16px 18px;margin-top:14px">
+      <h2 style="font-family:var(--font-round);font-size:22px">${t("goalSection")}</h2>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="goalEn" ${((S.settings.goal||{}).enabled)?"checked":""}> ${t("goalEnable")}</label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalName")} <input id="goalLabel" type="text" value="${esc((S.settings.goal||{}).label||"")}" placeholder="${t("goalDefault")}"></label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalTarget")} <input id="goalTarget" type="number" min="1" class="num" style="width:120px" value="${esc(String((S.settings.goal||{}).target||""))}"></label>
+      <div class="btns" style="margin-top:10px"><button class="btn primary" onclick="saveGoal()">${t("saveGoal")}</button>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px">
+        <input type="checkbox" id="hideNegChk" ${S.settings.hideNeg===true?"checked":""} onchange="saveHideNeg(this.checked)" style="width:20px;height:20px">
+        ${t("scrHideNeg")}
+      </label></div>
+    </div>
+</section>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("classCol")}</h2>
@@ -465,24 +505,24 @@ function viewSettings(){
     <div class="list" style="max-width:760px">
       ${S.rules.map(r=>`
       <div class="row stk">
-        <input type="text" value="${esc(r.icon)}" style="width:52px;text-align:center" aria-label="Icon for ${esc(r.label)}" onchange="editRule('${r.id}','icon',this.value)">
-        <input type="text" value="${esc(r.label)}" style="flex:2;min-width:130px" aria-label="Rule name" onchange="editRule('${r.id}','label',this.value)">
+        <input type="text" value="${esc(r.icon)}" style="width:52px;text-align:center" aria-label="${t("iconFor",{r:esc(r.label)})}" onchange="editRule('${r.id}','icon',this.value)">
+        <input type="text" value="${esc(nm(r))}" style="flex:2;min-width:130px" aria-label="${t("ruleName")}" onchange="editRule('${r.id}','nmEdit',this.value)">
         <input type="number" value="${r.value}" step="1" style="width:84px" class="num" aria-label="${t("pointsValue")}" onchange="editRule('${r.id}','value',parseInt(this.value)||0)">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" ${r.active!==false?"checked":""} onchange="editRule('${r.id}','active',this.checked)"> On</label>
-        <button class="btn sm danger" onclick="delRule('${r.id}')" aria-label="Delete rule ${esc(r.label)}">Delete</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" ${r.active!==false?"checked":""} onchange="editRule('${r.id}','active',this.checked)"> ${t("on")}</label>
+        <button class="btn sm danger" onclick="delRule('${r.id}')" aria-label="${t("delRuleA11y",{r:esc(r.label)})}">${t("del")}</button>
       </div>`).join("")}
-      <div><button class="btn" onclick="addRule()">+ Add rule</button></div>
+      <div><button class="btn" onclick="addRule()">${t("addRuleBtn")}</button></div>
     </div>
   </section>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("students")}</h2>
     <div class="stk" style="padding:16px;max-width:560px;display:flex;gap:10px;flex-wrap:wrap">
-      <input id="newStu" type="text" placeholder="Add a student by name" style="flex:1;min-width:170px" onkeydown="if(event.key==='Enter')addStudent()">
-      <button class="btn primary" onclick="addStudent()">Add</button>
+      <input id="newStu" type="text" placeholder="${t("addStudent")}" style="flex:1;min-width:170px" onkeydown="if(event.key==='Enter')addStudent()">
+      <button class="btn primary" onclick="addStudent()">${t("addBtn")}</button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-      ${S.students.map(s=>`<span class="chip" style="cursor:default">${esc(s.name)} <button class="btn sm ghost" style="min-height:0;padding:0 4px" onclick="delStudent('${s.id}')" aria-label="Remove ${esc(s.name)}">✕</button></span>`).join("")}
+      ${S.students.map(s=>`<span class="chip" style="cursor:default">${esc(s.name)} <button class="btn sm ghost" style="min-height:0;padding:0 4px" onclick="delStudent('${s.id}')" aria-label="${t("removeA11y",{name:esc(s.name)})}">✕</button></span>`).join("")}
     </div>
   </section>
 
@@ -491,68 +531,92 @@ function viewSettings(){
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn" onclick="exportJSON()">${t("exportJSON")}</button>
       <button class="btn danger" onclick="confirmReset()">${t("resetDemo")}</button>
+      <button class="btn danger" onclick="startEmpty()">${t("startEmpty")}</button>
     </div>
-    <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">Everything is stored in this browser only (localStorage). Export gives you a full backup: students, records, requests, collections and settings.</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">${t("dataBlurb")}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">${S.settings.lastBackupAt?esc(t("backupOn",{date:fmtDT(S.settings.lastBackupAt)})):t("backupNever")}${backupNote()}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">⚠️ ${t("oneOrigin")}</p>
   </section>`;
 }
+function backupNote(){
+  const has=S.students.length||S.records.length,lb=S.settings.lastBackupAt;
+  const stale=lb&&(Date.now()-lb)>7*864e5,none=has&&!lb;
+  if(!(stale||none))return "";
+  return " · ⚠️ "+(stale?t("backupNudge"):t("backupNeverNudge"));
+}
 function saveCls(){
+  withState(()=>{
   S.settings.className=$("#clsName").value.trim()||S.settings.className;
   S.settings.schoolName=$("#schName").value.trim()||S.settings.schoolName;
   S.settings.teacher=$("#tchName").value.trim()||S.settings.teacher;
+  });
   save();toast(t("classSaved"));
 }
 function editRule(id,key,val){
-  const r=S.rules.find(x=>x.id===id);if(!r)return;
-  r[key]=val;save();
-  if(key!=="active")toast("Rule updated");
+  let found=false;
+  withState(()=>{const r=S.rules.find(x=>x.id===id);if(!r)return;found=true;
+    if(key==="nmEdit"){if(LANG==="zh")r.zh=val;else r.label=val;}
+    else r[key]=val;});
+  if(found&&key!=="active")toast(t("ruleUpdated"));
 }
 function addRule(){
-  S.rules.push({id:uid(),icon:"✨",label:t("newRule"),value:1,active:true});
-  save();viewSettings();
+  withState(()=>{S.rules.push({id:uid(),icon:"✨",label:t("newRule"),value:1,active:true});});
+  viewSettings();
 }
 function delRule(id){
   const used=S.records.some(r=>r.ruleId===id);
-  const del=()=>{S.rules=S.rules.filter(r=>r.id!==id);save();viewSettings();toast("Rule deleted");};
-  if(used){confirmModal(t("delRule"),"Past records that used it keep their values for the log, but it disappears from the rating screen.",del);}
+  const del=()=>{withState(()=>{S.rules=S.rules.filter(r=>r.id!==id);});viewSettings();toast(t("ruleDeleted"));};
+  if(used){confirmModal(t("delRule"),t("delRuleBody"),del);}
   else del();
 }
 function addStudent(){
   const inp=$("#newStu");const name=inp.value.trim();
-  if(!name){toast("Type a name first");return;}
-  S.students.push({id:uid(),name,hue:hueOf(name)});
-  inp.value="";save();viewSettings();toast(name+" added");
+  if(!name){toast(t("typeNameFirst"));return;}
+  withState(()=>{S.students.push({id:uid(),name,hue:hueOf(name)});});
+  inp.value="";viewSettings();toast(t("addedToast",{name}));
 }
 function delStudent(id){
   const st=byId(id);if(!st)return;
-  confirmModal(t("remove")+st.name+"?","Their ratings stay in the records log, but their gift room and shelf data will be removed.",()=>{
-    S.students=S.students.filter(s=>s.id!==id);
-    delete S.collection[id];sel.delete(id);
-    save();viewSettings();toast(st.name+" removed");
+  confirmModal(t("remove")+st.name+"?",t("delStuBody"),()=>{
+    withState(()=>{S.students=S.students.filter(s=>s.id!==id);delete S.collection[id];});
+    sel.delete(id);viewSettings();toast(t("removedToast",{name:st.name}));
   });
 }
+function emptyState(){return {version:1,
+    settings:{className:"",schoolName:"",teacher:"",motion:"auto",sound:"off"},
+    rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
+    students:[],records:[],requests:[],collection:{},boxSpent:{}};}
+function startEmptyConfirmed(){withState(()=>{S=emptyState();});sel=new Set();toast(t("startEmpty"));go("#/app/classroom");route();}
+function startEmpty(){if(S.students.length||S.records.length)confirmModal(t("startEmpty"),t("startEmptyBody"),startEmptyConfirmed,{backup:true});else startEmptyConfirmed();}
+function tryDemo(){
+  const doIt=()=>{withState(()=>{seedDemo();});sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();};
+  if(S.students.length||S.records.length)confirmModal(t("tryDemo"),t("demoConfirmBody"),doIt,{backup:true});else doIt();
+}
+function downloadBackupFirst(){try{exportJSON();}catch(_){}}
 function exportJSON(){
+  withState(()=>{S.settings.lastBackupAt=Date.now();});
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="gifted-scholars-"+S.settings.className.replace(/\s+/g,"-").toLowerCase()+".json";
+  a.download="gifted-scholars-"+(S.settings.className||t("defaultClassName")).replace(/\s+/g,"-").toLowerCase()+".json";
   a.click();URL.revokeObjectURL(a.href);
   toast(t("exported"));
 }
 function confirmReset(){
-  confirmModal(t("resetAsk"),"This wipes everything in this browser and reseeds the demo class: 16 students, ten days of ratings, and the default gift catalog.",()=>{
-    seed();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
-  });
+  confirmModal(t("resetAsk"),t("resetBody"),()=>{
+    withState(()=>{seedDemo();});sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
+  },{backup:true});
 }
-function confirmModal(title,body,onYes){
+function confirmModal(title,body,onYes,opts){
   modal(`<h2>${esc(title)}</h2><p style="font-size:14px;color:var(--ink-soft)">${esc(body)}</p>
-  <div class="btns"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn danger" id="cfYes">t("yesDo")</button></div>`);
+  <div class="btns">${opts&&opts.backup&&(S.students.length||S.records.length)?`<button class="btn ghost" onclick="downloadBackupFirst()">⬇ ${t("backupFirst")}</button>`:""}<button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn danger" id="cfYes">${t("yesDo")}</button></div>`);
   $("#cfYes").addEventListener("click",()=>{closeOverlays();onYes();});
 }
 
 /* ============ student gift room ============ */
 function renderRoom(id){
   document.title=t("docPre")+(byId(id)?(byId(id).name+" · "+t("roomTitle")):t("roomTitle"));
-  if(!id||!byId(id)){$("#view").innerHTML='<div class="room"><a class="btn" href="#/app/classroom">← Back to class</a><div class="empty stk" style="margin-top:20px"><span class="big">🤷</span>That student does not exist. They may have been removed.</div></div>';return;}
+  if(!id||!byId(id)){$("#view").innerHTML='<div class="room"><a class="btn" href="#/app/classroom">'+t("backClass")+'</a><div class="empty stk" style="margin-top:20px"><span class="big">🤷</span>'+t("stuGone")+'</div></div>';return;}
   const st=byId(id),g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   const col=collectionOf(st);
   const reqs=S.requests.filter(q=>q.studentId===id).slice(0,6);
@@ -560,30 +624,30 @@ function renderRoom(id){
   document.title=t("roomPre")+st.name;
   $("#view").innerHTML=`
   <div class="room">
-    <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className)}</a></div>
+    <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className||t("defaultClassName"))}</a></div>
     <div class="roomhead stk">
-      <div class="bigav">${esc(st.name.slice(0,1))}</div>
+      <div class="bigav">${esc(initialOf(st.name))}</div>
       <div>
-        <h1>${esc(st.name)}'s gift room</h1>
-        <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} Level ${lp.i+1} · ${esc(nm(L))}</div>
+        <h1>${t("roomOf",{name:esc(st.name)})}</h1>
+        <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} ${t("levelN",{n:lp.i+1})} · ${esc(nm(L))}</div>
         ${lp.next?`<div class="lvl-bar" role="progressbar" aria-valuenow="${lp.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${t("toNext")}"><i style="width:${lp.pct}%"></i></div>
-        <div style="font-size:12px;margin-top:5px;color:var(--ink-soft)" class="num">${g} growth · ${lp.next.min-g} to ${lp.next.badge} ${esc(lp.next.name)}</div>`:
+        <div style="font-size:12px;margin-top:5px;color:var(--ink-soft)" class="num">${t("growthLine",{g,need:lp.next.min-g,b:esc(lp.next.badge+" "+nm(lp.next))})}</div>`:
         `<div style="font-size:12px;margin-top:5px;color:var(--ink-soft)">${t("topLevel")}</div>`}
       </div>
       <div class="walletbox stk" style="padding:14px 20px"><div class="v num">★ ${w}</div><div style="font-size:12px;font-weight:700">${t("wallet")}</div></div>
     </div>
 
     <div class="actionsbar">
-      <button class="btn gold" onclick="roomBox('${id}')" ${w<BOX_PRICE?"disabled title='Needs ★ "+BOX_PRICE+"'":""}>🎁 Open a mystery box · ★ ${BOX_PRICE}</button>
+      <button class="btn gold" onclick="roomBox('${id}')" ${w<BOX_PRICE?"disabled title='"+t("needStars",{n:BOX_PRICE})+"'":""}>${t("openBoxBtn",{n:BOX_PRICE})}</button>
       <button class="btn primary" onclick="openReqModal('${id}')">${t("askGift")}</button>
     </div>
 
     <section class="shelf">
       <h2>${t("shelf")}</h2>
-      <p class="sub">Collected gifts stay here all year. Rare finds have a teal frame, epic finds a golden glow.</p>
+      <p class="sub">${t("shelfSub")}</p>
       <div class="shelfgrid">
         ${col.map(c=>`<div class="slot stk rar-${c.rar}"><span class="g">${c.emoji}</span><span class="gname">${esc(nm(c))}${c.source==="box"?" 📦":""}</span></div>`).join("")}
-        ${col.length<slots?Array(slots-col.length).fill('<div class="slot empty-slot"><span class="g">·</span><span class="gname">${t("empty")}</span></div>').join(""):""}
+        ${col.length<slots?Array(slots-col.length).fill(`<div class="slot empty-slot"><span class="g">·</span><span class="gname">${t("empty")}</span></div>`).join(""):""}
       </div>
     </section>
 
@@ -593,23 +657,24 @@ function renderRoom(id){
         <div class="row stk">
           <span class="who">${esc(q.itemLabel)} · <b class="num">★ ${q.cost}</b></span>
           <span class="meta num">${fmtDT(q.ts)}</span>
-          <span class="pill ${q.status}">${q.status}</span>
+          <span class="pill ${q.status}">${q.status==="pending"?t("pending"):q.status==="approved"?t("approved"):t("reqDeclined")}</span>
         </div>`).join("")}</div>`:
-        `<div class="empty stk"><span class="big">📮</span>No requests yet. Ask for a gift and it waits for the teacher's yes.</div>`}
+        `<div class="empty stk"><span class="big">📮</span>${t("noReqsRoom")}</div>`}
     </section>
   </div>`;
 }
 function roomBox(id){
+  let won=null;
+  withState(()=>{won=openBox(id);});
   const st=byId(id);
-  const won=openBox(id);
   if(!won){toast(t("notEnough"));return;}
-  giftBurst(won,()=>{renderRoom(id);toast(st.name+" got: "+won.name+" ("+won.rar+")");});
+  giftBurst(won,()=>{renderRoom(id);toast(t("boxWonToast",{name:st.name,g:nm(won),rar:t("rar"+(won.rar==="common"?"Common":won.rar==="rare"?"Rare":"Epic"))}));});
 }
 function openReqModal(id){
   const st=byId(id),w=walletOf(st);
   const items=S.gifts.filter(g=>g.active!==false);
-  modal(`<h2>Ask for a gift, ${esc(st.name)}</h2>
-  <p style="font-size:14px;color:var(--ink-soft)">Requests wait for the teacher's approval. Only affordable gifts are enabled. You have <b class="num">★ ${w}</b>.</p>
+  modal(`<h2>${t("askTitle",{name:esc(st.name)})}</h2>
+  <p style="font-size:14px;color:var(--ink-soft)">${t("askBlurb",{w})}</p>
   <div class="list" style="margin-top:10px">
   ${items.map(g=>{
     const afford=w>=g.price&&(g.stock==null||g.stock>0);
@@ -617,17 +682,17 @@ function openReqModal(id){
       <span style="font-size:26px">${g.emoji}</span>
       <span class="who"><b>${esc(nm(g))}</b><br><span style="font-weight:400;font-size:12.5px;color:var(--ink-soft)">${esc(g.desc)}</span></span>
       <span class="val num">★ ${g.price}</span>
-      <button class="btn sm primary" ${afford?"":"disabled"} onclick="doReq('${id}','${g.id}')">Ask</button>
+      <button class="btn sm primary" ${afford?"":"disabled"} onclick="doReq('${id}','${g.id}')">${t("askBtn")}</button>
     </div>`;}).join("")}
   </div>
   <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("close")}</button></div>`);
 }
 function doReq(stId,giftId){
-  const g=giftById(giftId),st=byId(stId);
-  if(!g||!st)return;
-  requestGift(stId,g);
+  let label=null;
+  withState(()=>{const g=giftById(giftId),st=byId(stId);if(!g||!st)return;requestGift(stId,g);label=nm(g);});
+  if(label==null)return;
   closeOverlays();
-  toast("Requested: "+g.name+". It waits for approval.");
+  toast(t("reqToast",{g:label}));
   renderRoom(stId);
 }
 

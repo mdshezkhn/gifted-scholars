@@ -1,0 +1,32 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build test bundle
+        run: python build-tests.py
+
+      - name: Run headless test suite
+        run: node test-bundle.js
+
+      - name: Assemble single-file app
+        run: python assemble.py
+
+      - name: Byte-diff committed index.html vs rebuilt
+        working-directory: .
+        run: git diff --exit-code -- index.html

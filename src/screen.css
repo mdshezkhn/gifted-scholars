@@ -1,0 +1,145 @@
+/* ============ Big Screen (#/screen) — WP5 ============ */
+/* Binding 8-metre type scale (spec §6.1 / amendment 4). Tiles refine in Task 9. */
+:root{
+  --scr-name:32px;
+  --scr-pts:44px;
+  --scr-lv:24px;
+  --scr-goal:32px;
+  --scr-tile:300px;
+}
+.screen-root{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--paper);color:var(--ink);
+}
+.scr-top{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:18px;
+  padding:20px 26px 14px;
+  border-bottom:var(--bd);
+}
+.scr-class{font-size:var(--scr-goal);font-family:var(--font-round);line-height:1.1;display:block;}
+.scr-goal{margin-top:12px;max-width:640px;}
+.scr-goal-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;}
+.scr-goal-label{font-size:22px;font-family:var(--font-round);}
+.scr-goal-nums{font-size:20px;}
+.scr-track{
+  position:relative;height:20px;margin-top:8px;
+  border:2px solid var(--ink);border-radius:999px;background:var(--white);
+}
+.scr-track i{display:block;height:100%;background:var(--coral);border-radius:999px;transition:width .7s cubic-bezier(.22,1,.36,1);}
+.scr-rocket{position:absolute;top:-16px;font-size:28px;transition:left .7s cubic-bezier(.22,1,.36,1);}
+.scr-btns{display:flex;gap:10px;flex-shrink:0;}
+.scr-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:52px;padding:10px 18px;
+  font-size:20px;font-family:var(--font-body);
+  border:var(--bd);border-radius:14px;background:var(--white);color:var(--ink);
+  cursor:pointer;text-decoration:none;
+}
+.scr-btn:hover{background:var(--paper-2);}
+.scr-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:16px;padding:22px 26px;
+  align-content:start;flex:1;
+}
+.scr-tile{
+  border:var(--bd);border-radius:18px;background:var(--white);
+  padding:16px 18px;display:flex;flex-direction:column;gap:6px;
+}
+.scr-name{font-size:var(--scr-name);font-weight:700;font-family:var(--font-round);line-height:1.15;}
+.scr-pts{font-size:var(--scr-pts);font-weight:700;}
+.scr-lv{font-size:var(--scr-lv);color:var(--ink-soft);}
+.scr-bar{height:12px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);overflow:hidden;}
+.scr-bar i{display:block;height:100%;background:var(--teal);border-radius:999px;}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+#scrChip{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);}
+@media (prefers-reduced-motion: reduce){
+  .scr-track i,.scr-rocket{transition:none;}
+}
+
+/* Task 9: tile grid — 6 columns x 5 rows at 1920x1080 => 24-30 tiles, no page scroll;
+   more students scroll INSIDE the grid (header/goal stay pinned). */
+.screen-root{height:100vh;overflow:hidden;}
+.scr-grid{
+  flex:1;min-height:0;
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(var(--scr-tile),1fr));
+  gap:10px;
+  padding:6px 16px 16px;
+  align-content:start;
+}
+.scr-tile{
+  background:var(--white);
+  border:2px solid hsl(var(--h),45%,70%);
+  border-radius:18px;
+  padding:8px 14px 12px;
+  display:flex;flex-direction:column;gap:2px;
+  min-width:0;
+}
+.scr-row1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.scr-av{
+  width:44px;height:44px;border-radius:50%;
+  background:hsl(var(--h),55%,82%);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:24px;font-family:var(--font-round);
+}
+.scr-lv{font-size:var(--scr-lv);color:var(--ink-soft);white-space:nowrap;}
+.scr-name{
+  font-size:var(--scr-name);line-height:1.08;font-family:var(--font-round);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.scr-pts{font-size:var(--scr-pts);line-height:1.05;color:var(--ink);}
+.scr-bar{height:8px;border-radius:4px;background:var(--paper-2);overflow:hidden;}
+.scr-bar i{display:block;height:100%;background:hsl(var(--h),60%,55%);}
+@media (max-width:1100px){:root{--scr-tile:260px;--scr-name:24px;--scr-pts:34px;--scr-lv:18px;--scr-goal:24px;}}
+
+/* Task 10: pops, confetti, quiet negatives, sound chip */
+.scr-tile{position:relative;overflow:hidden}
+.scr-tile.pop-pos{animation:scrPop .5s ease-out 1}
+.scr-tile.pop-badge::after{
+  content:"+" attr(data-popv) " ★";position:absolute;top:8px;right:8px;z-index:5;
+  background:#fff;border:2px solid var(--gold,#9B3418);border-radius:999px;
+  padding:2px 10px;font-size:22px;font-weight:700;animation:scrBadge 2.4s ease-out 1 forwards;
+}
+.scr-tile.pop-neg::after{
+  content:"−" attr(data-popn);position:absolute;top:8px;right:8px;z-index:5;
+  background:#eee;border:1px solid #999;border-radius:999px;color:#555;
+  padding:1px 9px;font-size:18px;opacity:.9;animation:scrBadge 2.2s ease-out 1 forwards;
+}
+.scr-confetti{position:absolute;left:var(--cx,50%);top:38%;width:9px;height:9px;border-radius:2px;
+  background:hsl(calc(var(--hue,40)*3.6) 90% 55%);pointer-events:none;z-index:4;
+  animation:scrFall var(--dur,1.2s) cubic-bezier(.2,.6,.4,1) 1 forwards}
+@keyframes scrFall{to{transform:translate(var(--dx,0),120px) rotate(var(--rot,180deg));opacity:0}}
+@keyframes scrPop{0%{transform:scale(1)}35%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes scrBadge{0%{opacity:0;transform:translateY(6px)}12%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0}}
+.scr-chip{background:#fff;border:2px solid var(--gold,#9B3418);border-radius:999px;
+  padding:6px 14px;font-size:16px;animation:scrPulse 2s ease-in-out infinite}
+@keyframes scrPulse{0%,100%{box-shadow:0 0 0 0 rgba(155,52,24,.25)}50%{box-shadow:0 0 0 8px rgba(155,52,24,0)}}
+@media (prefers-reduced-motion: reduce){
+  .scr-confetti{display:none}
+  .scr-tile.pop-pos,.scr-chip{animation:none}
+}
+
+/* Task 11: quick-award drawer — big touch targets (>=48px) */
+.drw{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,18,15,.35)}
+.drw-card{width:min(1200px,96vw);max-height:86vh;overflow:auto;background:var(--paper,#E7E3DA);
+  border-radius:18px 18px 0 0;padding:18px 20px;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
+.drw-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;font-size:22px}
+.drw-head .sub{font-size:16px;color:var(--ink-soft,#4A4741)}
+.drw-head .scr-btn{margin-left:auto}
+.drw-stus{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.drw-stu{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;font-size:18px;
+  border:2px solid rgba(26,25,23,.22);border-radius:12px;background:#fff;cursor:pointer;text-align:left}
+.drw-stu.drw-on{border-color:var(--gold,#9B3418);background:var(--gold-tint,#EDE7DA);box-shadow:0 0 0 3px rgba(155,52,24,.2)}
+.drw-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:700;flex:none}
+.drw-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drw-pt{font-variant-numeric:tabular-nums;color:var(--ink-soft,#4A4741)}
+.drw-rules{display:flex;flex-wrap:wrap;gap:10px}
+.drw-rule{display:flex;align-items:center;gap:8px;min-height:52px;min-width:120px;padding:8px 16px;font-size:19px;
+  border:2px solid rgba(26,25,23,.22);border-radius:999px;background:#fff;cursor:pointer}
+.drw-rule b{color:#2E7D32}
+.drw-rule.drw-neg b{color:#8A6D3B}
+.drw-foot{margin-top:14px;display:flex;justify-content:flex-end}
+.drw-undo{min-height:48px;padding:8px 18px;font-size:17px;border-radius:999px;border:2px solid rgba(26,25,23,.22);background:#fff;cursor:pointer}
+@media (prefers-reduced-motion: reduce){.drw-card{transition:none}}

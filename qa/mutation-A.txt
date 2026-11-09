@@ -1,0 +1,2 @@
+FAIL goal math | earned=10 (this week only, undone excluded), pct=25, left=30
+FAILURES: 1

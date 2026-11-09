@@ -176,3 +176,23 @@ label{font-weight:700;font-size:14px}
   .roomhead .bigav{margin:0 auto}
   .podium{grid-template-columns:1fr}
 }
+/* ============ kid visual system — scoped to .app-ui (Task 13) ============ */
+/* Landing (gs-page) is deliberately editorial and untouched by this block. */
+.app-ui{--radius:14px;--bd:1.5px solid rgba(26,25,23,.16)}
+.app-ui .btn,.app-ui .btn.sm{min-height:44px;border-radius:999px;font-weight:700;letter-spacing:.01em}
+.app-ui .btn.primary{background:#E88654;color:#fff;border-color:#C96A38;box-shadow:0 3px 0 #C96A38}
+.app-ui .btn.primary:active{transform:translateY(2px);box-shadow:0 1px 0 #C96A38}
+.app-ui .btn.danger{border-radius:999px}
+.app-ui .card,.app-ui .stk{border-radius:var(--radius)}
+.app-ui .tab{border-radius:999px;min-height:44px;display:flex;align-items:center;gap:8px}
+.app-ui .tab[aria-current="page"]{background:#FBBC94;font-weight:700}
+.app-ui input[type="text"],.app-ui input[type="number"],.app-ui textarea,.app-ui select{
+  min-height:44px;border-radius:10px;border:1.5px solid rgba(26,25,23,.2);font-size:16px}
+.app-ui .chip,.app-ui .rule{border-radius:999px;min-height:44px}
+.app-ui .stu{border-radius:14px}
+.app-ui .pagehead h1{font-family:var(--font-round)}
+.app-ui button:focus-visible,.app-ui a:focus-visible,.app-ui input:focus-visible{
+  outline:3px solid #E88654;outline-offset:2px}
+.app-ui .av,.app-ui .bigav{border-radius:50%}
+.app-ui .empty .big{font-size:44px}
+@media (prefers-reduced-motion: reduce){.app-ui .btn.primary:active{transform:none}}
