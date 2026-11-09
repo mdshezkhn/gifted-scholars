@@ -1527,7 +1527,7 @@ try{matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change",app
 route();
 
 
-let fails=0;const T=(n,c,i)=>{if(typeof c==="function"){try{c=c();}catch(e){c=false;i="THREW "+(e&&e.message||e);}}if(typeof c==="string"){i=c;c=false;}console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
+let fails=0;const T=(n,c,i)=>{if(typeof c==="function"){try{c=c();}catch(e){c=false;i="THREW "+(e&&e.message||e);}}if(typeof c==="function"){try{c=c();}catch(e){c=false;i="THREW "+(e&&e.message||e);}}if(c!==true)c=false;console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
 /* harness self-tests (teacher 2026-11-09): a false and a throwing test must each record FAIL */
 T("selftest harness failing",(()=>{const _l=console.log;console.log=()=>{};const f0=fails;T("__sfx",false,"x");const inc=fails-f0===1;fails=f0;console.log=_l;return inc;})(),"false condition records FAIL");
 T("selftest harness throwing",(()=>{const _l=console.log;console.log=()=>{};const f0=fails;T("__sth",()=>{throw new Error("boom")},"x");const inc=fails-f0===1;fails=f0;console.log=_l;return inc;})(),"throwing test records FAIL, not pass");
@@ -1843,6 +1843,19 @@ for(const _k in _ALLOW){
   if(_n>_ALLOW[_k][0])_viol.push("COUNT "+_n+">"+_ALLOW[_k][0]+" for: "+_k);
 }
 T("savecalls inside withstate",_viol.length===0,_viol.join(" || ")||("clean ("+_sites.length+" sites)"));
+
+/* route coverage: every route renders non-empty without throwing (zh) */
+T("route coverage all views",safeT(function(){
+  seedDemo();const bad=[];
+  const routes=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/screen","#/room/"+S.students[0].id,"#/app/nosuch"];
+  for(const r of routes){
+    try{location.hash=r;route();
+      const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+      if(h.length<40)bad.push(r+" empty");
+    }catch(e){bad.push(r+" THREW "+(e&&e.message||e));}
+  }
+  return bad.length===0?true:bad.join(",");
+}),"all routes render non-empty; unknown #/app tab falls back to classroom");
 
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
