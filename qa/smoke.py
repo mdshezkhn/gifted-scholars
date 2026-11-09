@@ -29,6 +29,10 @@ with sync_playwright() as p:
     pg.goto(f"http://localhost:{PORT}/index.html")
     pg.wait_for_timeout(1000)
     check("landing loads", pg.evaluate("document.querySelector('.gs-page') !== null"))
+    pg.evaluate("location.hash='#/app/classroom'; route()"); pg.wait_for_timeout(300)
+    check("app-ui theme applied", pg.evaluate("document.querySelector('.shell.app-ui') !== null"))
+    pg.evaluate("location.hash='#/'")
+    pg.wait_for_timeout(200)
 
     pg.evaluate("localStorage.clear()")
     pg.evaluate("tryDemo(true)")  # fresh empty -> demo, no confirm dialog

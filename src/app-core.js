@@ -237,7 +237,7 @@ const TABS=[{id:"classroom",label:t("tab_classroom"),icon:"\uD83C\uDF93"},{id:"r
 function renderShell(tab){
   document.title=t("docPre")+t("tab_"+tab);
   $("#view").innerHTML=`
-  <div class="shell">
+  <div class="shell app-ui">
     <nav class="rail" aria-label="${t("appSections")}">
       <a class="logo" href="#/">${logoSVG()} Gifted Scholars</a>
       ${TABS.map(tb=>'<a class="tab" href="#/app/'+tb.id+'"'+(tb.id===tab?' aria-current="page"':'')+'><span>'+tb.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}

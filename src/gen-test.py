@@ -521,6 +521,21 @@ T("Esc closes drawer; A/F inactive off-screen",safeT(function(){
   return true;
 }),"Esc closes; A/F scoped to #/screen"),
 
+/* Task 13: kid theme scoped to .app-ui; landing untouched */
+T("app-ui theme scoping",safeT(function(){
+  const css=require("fs").readFileSync("app.css","utf8");
+  if(css.indexOf(".app-ui{")<0)return "no .app-ui block";
+  if(css.indexOf(".app-ui .btn")<0)return "no button rules";
+  const lcss=require("fs").readFileSync("landing.css","utf8");
+  if(lcss.indexOf("app-ui")>=0)return "landing.css must not reference app-ui";
+  location.hash="#/app/classroom";route();
+  const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+  if(h.indexOf("shell app-ui")<0)return "shell missing app-ui class";
+  location.hash="#/";route();
+  const lh=document.querySelector("#view").innerHTML;
+  if(lh.indexOf("app-ui")>=0)return "landing must not carry app-ui";
+  return true;
+}),"theme scoped; landing clean"),
 /* route coverage: every route renders non-empty without throwing (zh) */
 T("route coverage all views",safeT(function(){
   seedDemo();const bad=[];
