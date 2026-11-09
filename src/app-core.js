@@ -482,7 +482,11 @@ function viewSettings(){
       <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="goalEn" ${((S.settings.goal||{}).enabled)?"checked":""}> ${t("goalEnable")}</label>
       <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalName")} <input id="goalLabel" type="text" value="${esc((S.settings.goal||{}).label||"")}" placeholder="${t("goalDefault")}"></label>
       <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalTarget")} <input id="goalTarget" type="number" min="1" class="num" style="width:120px" value="${esc(String((S.settings.goal||{}).target||""))}"></label>
-      <div class="btns" style="margin-top:10px"><button class="btn primary" onclick="saveGoal()">${t("saveGoal")}</button></div>
+      <div class="btns" style="margin-top:10px"><button class="btn primary" onclick="saveGoal()">${t("saveGoal")}</button>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px">
+        <input type="checkbox" id="hideNegChk" ${S.settings.hideNeg===true?"checked":""} onchange="saveHideNeg(this.checked)" style="width:20px;height:20px">
+        ${t("scrHideNeg")}
+      </label></div>
     </div>
 </section>
 

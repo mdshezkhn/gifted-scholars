@@ -93,3 +93,30 @@
 .scr-bar{height:8px;border-radius:4px;background:var(--paper-2);overflow:hidden;}
 .scr-bar i{display:block;height:100%;background:hsl(var(--h),60%,55%);}
 @media (max-width:1100px){:root{--scr-tile:260px;--scr-name:24px;--scr-pts:34px;--scr-lv:18px;--scr-goal:24px;}}
+
+/* Task 10: pops, confetti, quiet negatives, sound chip */
+.scr-tile{position:relative;overflow:hidden}
+.scr-tile.pop-pos{animation:scrPop .5s ease-out 1}
+.scr-tile.pop-badge::after{
+  content:"+" attr(data-popv) " ★";position:absolute;top:8px;right:8px;z-index:5;
+  background:#fff;border:2px solid var(--gold,#9B3418);border-radius:999px;
+  padding:2px 10px;font-size:22px;font-weight:700;animation:scrBadge 2.4s ease-out 1 forwards;
+}
+.scr-tile.pop-neg::after{
+  content:"−" attr(data-popn);position:absolute;top:8px;right:8px;z-index:5;
+  background:#eee;border:1px solid #999;border-radius:999px;color:#555;
+  padding:1px 9px;font-size:18px;opacity:.9;animation:scrBadge 2.2s ease-out 1 forwards;
+}
+.scr-confetti{position:absolute;left:var(--cx,50%);top:38%;width:9px;height:9px;border-radius:2px;
+  background:hsl(calc(var(--hue,40)*3.6) 90% 55%);pointer-events:none;z-index:4;
+  animation:scrFall var(--dur,1.2s) cubic-bezier(.2,.6,.4,1) 1 forwards}
+@keyframes scrFall{to{transform:translate(var(--dx,0),120px) rotate(var(--rot,180deg));opacity:0}}
+@keyframes scrPop{0%{transform:scale(1)}35%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes scrBadge{0%{opacity:0;transform:translateY(6px)}12%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0}}
+.scr-chip{background:#fff;border:2px solid var(--gold,#9B3418);border-radius:999px;
+  padding:6px 14px;font-size:16px;animation:scrPulse 2s ease-in-out infinite}
+@keyframes scrPulse{0%,100%{box-shadow:0 0 0 0 rgba(155,52,24,.25)}50%{box-shadow:0 0 0 8px rgba(155,52,24,0)}}
+@media (prefers-reduced-motion: reduce){
+  .scr-confetti{display:none}
+  .scr-tile.pop-pos,.scr-chip{animation:none}
+}

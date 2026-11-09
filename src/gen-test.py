@@ -3,6 +3,10 @@ NL = chr(10)
 def rd(p): return io.open(p, encoding='utf-8').read()
 stubs = '''
 function noop(){}
+globalThis.AudioContext=function(){this.state="suspended";this.currentTime=0;this.destination={};
+  this.resume=()=>{this.state="running";};
+  this.createOscillator=()=>({type:"sine",frequency:{value:0,setValueAtTime:()=>{},exponentialRampToValueAtTime:()=>{}},connect:()=>{},start:()=>{},stop:()=>{}});
+  this.createGain=()=>({gain:{value:0,setValueAtTime:()=>{},exponentialRampToValueAtTime:()=>{}},connect:()=>{}});};
 function fakeEl(){const e={innerHTML:"",textContent:"",style:{setProperty:function(){},removeProperty:function(){}},value:"",checked:true,disabled:false,
  setAttribute:noop,getAttribute:()=>null,appendChild:noop,remove:noop,addEventListener:noop,click:noop,focus:noop,dataset:{},
  classList:{toggle:noop,add:noop,remove:noop,contains:()=>false},
@@ -11,6 +15,7 @@ const _els={};globalThis.localStorage={_s:{},getItem(k){return this._s[k]||null}
 globalThis.document={querySelector:s=>_els[s]||(_els[s]=fakeEl()),querySelectorAll:()=>[],createElement:()=>fakeEl(),
  addEventListener:noop,getElementById:()=>fakeEl(),body:{appendChild:noop},title:"",documentElement:{lang:"",className:"",classList:{toggle:noop,add:noop,remove:noop,contains:()=>false}}};
 globalThis.window={addEventListener:noop,scrollTo:noop};
+globalThis.window.AudioContext=globalThis.AudioContext;
 globalThis.location={hash:"#/"};
 globalThis.navigator={language:"en-US"};
 globalThis.matchMedia=()=>({matches:false,addEventListener:noop});
@@ -362,7 +367,7 @@ T("no pop for gift purchase or box",safeT(function(){
   return true;
 }),"spends never pop"),
 T("pop at wallet 0 and when negatives exceed positives",safeT(function(){
-  seedDemo();location.hash="#/screen";route();
+  seedDemo();S.records=[];S.collection={};S.boxSpent={};save();location.hash="#/screen";route();
   const st=S.students[0],neg=S.rules.find(r=>r.value<0),pos=S.rules.find(r=>r.value>0);
   withState(function(){applyRule(neg,[st.id]);applyRule(neg,[st.id]);});
   screenAfterChange();
