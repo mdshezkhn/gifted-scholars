@@ -157,11 +157,32 @@ T("export stamps lastBackupAt",safeT(function(){seedDemo();exportJSON();return (
 T("start empty wipes after confirm",safeT(function(){seedDemo();startEmpty();const stayed=S.students.length===16&&document.querySelector("#modals").innerHTML.indexOf("startEmpty")>=0||S.students.length===16;startEmptyConfirmed();return S.students.length===0&&S.records.length===0&&S.settings.className==="";}),"modal first, then wipe");
 T("demo labels localized",safeT(function(){setLang("zh");seedDemo();const zh=S.settings.className==="三年二班"&&S.settings.schoolName==="枫叶小学"&&/[\u4e00-\u9fff]/.test(S.students[0].name);setLang("en");seedDemo();const en=S.settings.className==="Class 4B"&&S.students[0].name==="Amelia";setLang("zh");seedDemo();return zh&&en;}),"zh and en demo classes");
 T("settings origin + backup note",safeT(function(){seedDemo();delete S.settings.lastBackupAt;save();(location.hash="#/app/settings",route());const h1=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;exportJSON();(location.hash="#/app/settings",route());const h2=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h1.indexOf("两个网址")>=0&&h1.indexOf("上次备份")>=0&&h1.indexOf("还没有备份")>=0&&h2.indexOf("两个网址")>=0&&h2.indexOf("还没有备份")<0;}),"origin note + nudge before export, date after");
+T("baseline fixture upgrades",safeT(function(){
+  localStorage.setItem(LS_KEY,FIXTURE);if(!load())return "load failed";
+  const F=JSON.parse(FIXTURE);
+  if(S.students.length!==F.students.length||S.records.length!==F.records.length)return "counts drifted";
+  if(JSON.stringify(S.requests)!==JSON.stringify(F.requests))return "requests mutated";
+  if(JSON.stringify(S.collection)!==JSON.stringify(F.collection))return "collection mutated";
+  if(JSON.stringify(S.rules)!==JSON.stringify(F.rules)||JSON.stringify(S.gifts)!==JSON.stringify(F.gifts))return "catalog mutated";
+  for(const st of S.students){
+    let net=0;let pos=0;
+    for(const r of F.records){if(r.undone)continue;if(!r.studentIds.includes(st.id))continue;net+=r.value;if(r.value>0)pos+=r.value;}
+    let spent=0;for(const q of F.requests)if(q.status==="approved"&&q.studentId===st.id)spent+=q.cost;
+    const oldW=Math.max(0,net-spent-(F.boxSpent[st.id]||0));
+    if(walletOf(st)!==oldW)return "wallet "+st.id+": "+walletOf(st)+" vs "+oldW;
+    let oi=0;for(let k=0;k<LEVELS.length;k++)if(net>=LEVELS[k].min)oi=k;
+    const ni=lvlProgress(growthOf(st)).i;
+    if(ni<oi)return "level lowered "+st.id+": "+ni+"<"+oi;
+  }
+  return true;
+}),"students/records/requests/collection/rules/gifts intact; wallets equal; levels never below net-based"),
 T("no missing i18n keys (final)",(globalThis.__gsMissedKeys||[]).length===0,(globalThis.__gsMissedKeys||[]).join(",")||"all present");
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
 '''
-out = stubs + rd('i18n.js') + NL + rd('app-core.js') + NL + rd('landing.js') + NL + tests
+import json
+fix=json.load(io.open('fixture-baseline-state.json',encoding='utf-8'))
+out = stubs + 'const FIXTURE=' + json.dumps(fix,ensure_ascii=False,separators=(',',':')) + ';' + chr(10) + rd('i18n.js') + NL + rd('app-core.js') + NL + rd('landing.js') + NL + tests
 io.open('tmp-test.js', 'w', encoding='utf-8', newline=NL).write(out)
 print('test file written', len(out))
 
