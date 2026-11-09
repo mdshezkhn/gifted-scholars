@@ -170,6 +170,7 @@ function route(){
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
     renderShell(["classroom","records","shop","leaderboard","settings"].includes(tab)?tab:"classroom");
@@ -474,7 +475,15 @@ function viewSettings(){
       <span style="font-size:22px">🎁</span>
       <span style="font-size:14px;line-height:1.5">${t("creditBox")} <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
     </div>
-  </section>
+  
+    <div class="stk" style="padding:16px 18px;margin-top:14px">
+      <h2 style="font-family:var(--font-round);font-size:22px">${t("goalSection")}</h2>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="goalEn" ${((S.settings.goal||{}).enabled)?"checked":""}> ${t("goalEnable")}</label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalName")} <input id="goalLabel" type="text" value="${esc((S.settings.goal||{}).label||"")}" placeholder="${t("goalDefault")}"></label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalTarget")} <input id="goalTarget" type="number" min="1" class="num" style="width:120px" value="${esc(String((S.settings.goal||{}).target||""))}"></label>
+      <div class="btns" style="margin-top:10px"><button class="btn primary" onclick="saveGoal()">${t("saveGoal")}</button></div>
+    </div>
+</section>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("classCol")}</h2>
@@ -569,7 +578,7 @@ function delStudent(id){
   });
 }
 function emptyState(){return {version:1,
-    settings:{className:"",schoolName:"",teacher:"",motion:"auto"},
+    settings:{className:"",schoolName:"",teacher:"",motion:"auto",sound:"off"},
     rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};}
 function startEmptyConfirmed(){withState(()=>{S=emptyState();});sel=new Set();toast(t("startEmpty"));go("#/app/classroom");route();}
