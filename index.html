@@ -857,11 +857,19 @@ function lvlProgress(g){const i=levelOf(g);if(i>=LEVELS.length-1)return {i,pct:1
 function collectionOf(id){return S.collection[id]||[];}
 
 /* ---- persistence ---- */
-function save(){localStorage.setItem(LS_KEY,JSON.stringify(S));}
+let STORAGE_OK=true;
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(S));STORAGE_OK=true;}catch(e){STORAGE_OK=false;}}
 function load(){
   try{const raw=localStorage.getItem(LS_KEY);if(raw){S=JSON.parse(raw);if(S&&S.students&&S.rules&&S.gifts&&S.records)return true;}}catch(e){}
   return false;
 }
+function syncIn(){load();}
+function withState(fn){syncIn();fn();save();}
+const SYNC_CBS=[];
+function onSync(cb){SYNC_CBS.push(cb);}
+function onStorage(e){if(e&&e.key&&e.key!==LS_KEY)return;syncIn();for(const cb of SYNC_CBS){try{cb();}catch(_){}}route();}
+if(typeof window!=="undefined"&&window.addEventListener)window.addEventListener("storage",onStorage);
+function storageBlockedNote(){return STORAGE_OK?"":'<div class="stk" role="alert" style="padding:10px 14px;border:2px solid var(--coral, #e5484d);margin-bottom:14px">⚠️ '+t("storageBlocked")+'</div>';}
 function seedDemo(){
   // deterministic demo history so leaderboards and shelves have shape
   let rngState=42;const rng=()=>{rngState=(rngState*1103515245+12345)%2147483648;return rngState/2147483648;};
@@ -934,13 +942,13 @@ function route(){
   const h=location.hash||"#/";
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
-  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
-  if(h.startsWith("#/app")){
+  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
     renderShell(["classroom","records","shop","leaderboard","settings"].includes(tab)?tab:"classroom");
-    return;
   }
-  renderLanding();
+  else{renderLanding();}
+  if(!STORAGE_OK){const m=$("#main");if(m)m.innerHTML=storageBlockedNote()+m.innerHTML;const v=$("#view");if(v&&v.innerHTML.indexOf(storageBlockedNote())<0)v.innerHTML=storageBlockedNote()+v.innerHTML;}
 }
 window.addEventListener("hashchange",route);
 
@@ -958,7 +966,7 @@ function applyMotion(){
   const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.documentElement.classList.toggle("gs-motion", m==="on"||(m==="auto"&&!rm));
 }
-function saveMotion(v){S.settings.motion=v;save();applyMotion();}
+function saveMotion(v){withState(()=>{S.settings.motion=v;});applyMotion();}
 window.addEventListener("error",function(e){
   if(window.__gsErrShown)return; window.__gsErrShown=true;
   try{toast(t("errToast"));}catch(_){}
@@ -1058,10 +1066,10 @@ function pick(id){
 }
 function selAll(on){sel=on?new Set(S.students.map(s=>s.id)):new Set();viewClassroom();}
 function rate(ruleId){
-  const rule=S.rules.find(r=>r.id===ruleId);if(!rule)return;
   if(!sel.size){toast(t("selFirst"));return;}
-  applyRule(rule,[...sel]);
-  const ids=[...sel];
+  const ids=[...sel];let rule=null;
+  withState(()=>{rule=S.rules.find(r=>r.id===ruleId);if(!rule)return;applyRule(rule,[...ids]);});
+  if(!rule)return;
   ids.forEach(id=>{const el=document.getElementById("card-"+id);if(el){const chip=document.createElement("span");chip.className="float";chip.style.color=rule.value>0?"var(--teal)":"var(--coral)";chip.textContent=(rule.value>0?"+":"")+rule.value;el.appendChild(chip);setTimeout(()=>chip.remove(),1000);}});
   toast(t("awardToast",{r:(LANG==="zh"&&rule.zh?rule.zh:rule.label)+" "+rule.icon,v:(rule.value>0?"+":"")+rule.value,who:ids.map(i=>byId(i).name).slice(0,3).join(", ")+(ids.length>3?" +"+(ids.length-3):"")}));
   // refresh numbers without rebuilding grid (keeps selection + floats smooth)
@@ -1087,8 +1095,10 @@ function recRow(r){
   </div>`;
 }
 function doUndo(id){
-  const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;
-  undoRecord(r);toast(t("undoneToast",{r:recLabel(r)}));viewRecords();
+  let label=null;
+  withState(()=>{const r=S.records.find(x=>x.id===id);if(!r||r.undone)return;undoRecord(r);label=recLabel(r);});
+  if(label==null)return;
+  toast(t("undoneToast",{r:label}));viewRecords();
 }
 
 /* ============ gift shop view ============ */
@@ -1136,15 +1146,20 @@ function itemCard(g){
 }
 function toggleItem(id){const g=giftById(id);g.active=g.active===false;save();viewShop();}
 function decideReq(id,ok){
-  const q=S.requests.find(x=>x.id===id);if(!q||q.status!=="pending")return;
-  if(ok){
+  let q=null,go=false;
+  withState(()=>{
+    q=S.requests.find(x=>x.id===id);if(!q||q.status!=="pending")return;
+    go=true;
+    if(ok){
     const st=byId(q.studentId),g=giftById(q.itemId);
     if(!st||!g){toast(t("giftGone"));return;}
     if(g.active===false){toast(t("offShelf2"));return;}
     if(g.stock!=null&&g.stock<=0){toast(t("soldOutRaise"));return;}
     if(g.per&&approvedCountFor(st.id,g.id)>=g.per){toast(t("limitHit",{name:st.name,n:g.per}));return;}
     if(walletOf(st)<q.cost){toast(t("lowWallet",{name:st.name,w:walletOf(st)}));return;}
-  }
+    }
+  });
+  if(!go||!q)return;
   decide(q,ok);
   toast(ok?t("granted",{g:q.itemLabel}):t("declinedToast",{g:q.itemLabel}));
   viewShop();
@@ -1159,8 +1174,11 @@ function openGive(giftId){
     <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn gold" onclick="doGive('${giftId}')">${t("spendGive",{n:g.price})}</button></div>`);
 }
 function doGive(giftId){
-  const selId=$("#giveSel").value,g=giftById(giftId),st=byId(selId);
+  const selId=$("#giveSel").value;
   closeOverlays();
+  let msg=null;
+  withState(()=>{
+  const g=giftById(giftId),st=byId(selId);
   if(!st||!g)return;
   if(g.active===false){toast(t("offShelf"));return;}
   if(g.stock!=null&&g.stock<=0){toast(t("soldOut"));return;}
@@ -1169,7 +1187,10 @@ function doGive(giftId){
   const q={id:uid(),studentId:st.id,itemId:g.id,itemLabel:g.emoji+" "+g.name,cost:g.price,status:"pending",note:"given by teacher",ts:Date.now()};
   S.requests.unshift(q);
   decide(q,true);
-  toast(t("givenTo")+st.name+": "+g.name);
+  msg=t("givenTo")+st.name+": "+g.name;
+  });
+  if(msg==null)return;
+  toast(msg);
   viewShop();
 }
 
@@ -1283,63 +1304,64 @@ function backupNote(){
   return " · ⚠️ "+(stale?t("backupNudge"):t("backupNeverNudge"));
 }
 function saveCls(){
+  withState(()=>{
   S.settings.className=$("#clsName").value.trim()||S.settings.className;
   S.settings.schoolName=$("#schName").value.trim()||S.settings.schoolName;
   S.settings.teacher=$("#tchName").value.trim()||S.settings.teacher;
+  });
   save();toast(t("classSaved"));
 }
 function editRule(id,key,val){
-  const r=S.rules.find(x=>x.id===id);if(!r)return;
-  r[key]=val;save();
-  if(key!=="active")toast(t("ruleUpdated"));
+  let found=false;
+  withState(()=>{const r=S.rules.find(x=>x.id===id);if(!r)return;found=true;r[key]=val;});
+  if(found&&key!=="active")toast(t("ruleUpdated"));
 }
 function addRule(){
-  S.rules.push({id:uid(),icon:"✨",label:t("newRule"),value:1,active:true});
-  save();viewSettings();
+  withState(()=>{S.rules.push({id:uid(),icon:"✨",label:t("newRule"),value:1,active:true});});
+  viewSettings();
 }
 function delRule(id){
   const used=S.records.some(r=>r.ruleId===id);
-  const del=()=>{S.rules=S.rules.filter(r=>r.id!==id);save();viewSettings();toast(t("ruleDeleted"));};
+  const del=()=>{withState(()=>{S.rules=S.rules.filter(r=>r.id!==id);});viewSettings();toast(t("ruleDeleted"));};
   if(used){confirmModal(t("delRule"),t("delRuleBody"),del);}
   else del();
 }
 function addStudent(){
   const inp=$("#newStu");const name=inp.value.trim();
   if(!name){toast(t("typeNameFirst"));return;}
-  S.students.push({id:uid(),name,hue:hueOf(name)});
-  inp.value="";save();viewSettings();toast(t("addedToast",{name}));
+  withState(()=>{S.students.push({id:uid(),name,hue:hueOf(name)});});
+  inp.value="";viewSettings();toast(t("addedToast",{name}));
 }
 function delStudent(id){
   const st=byId(id);if(!st)return;
   confirmModal(t("remove")+st.name+"?",t("delStuBody"),()=>{
-    S.students=S.students.filter(s=>s.id!==id);
-    delete S.collection[id];sel.delete(id);
-    save();viewSettings();toast(t("removedToast",{name:st.name}));
+    withState(()=>{S.students=S.students.filter(s=>s.id!==id);delete S.collection[id];});
+    sel.delete(id);viewSettings();toast(t("removedToast",{name:st.name}));
   });
 }
 function emptyState(){return {version:1,
     settings:{className:"",schoolName:"",teacher:"",motion:"auto"},
     rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};}
-function startEmptyConfirmed(){S=emptyState();sel=new Set();save();toast(t("startEmpty"));go("#/app/classroom");route();}
+function startEmptyConfirmed(){withState(()=>{S=emptyState();});sel=new Set();toast(t("startEmpty"));go("#/app/classroom");route();}
 function startEmpty(){if(S.students.length||S.records.length)confirmModal(t("startEmpty"),t("startEmptyBody"),startEmptyConfirmed,{backup:true});else startEmptyConfirmed();}
 function tryDemo(){
-  const doIt=()=>{seedDemo();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();};
+  const doIt=()=>{withState(()=>{seedDemo();});sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();};
   if(S.students.length||S.records.length)confirmModal(t("tryDemo"),t("demoConfirmBody"),doIt,{backup:true});else doIt();
 }
 function downloadBackupFirst(){try{exportJSON();}catch(_){}}
 function exportJSON(){
+  withState(()=>{S.settings.lastBackupAt=Date.now();});
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   a.download="gifted-scholars-"+(S.settings.className||t("defaultClassName")).replace(/\s+/g,"-").toLowerCase()+".json";
   a.click();URL.revokeObjectURL(a.href);
-  S.settings.lastBackupAt=Date.now();save();
   toast(t("exported"));
 }
 function confirmReset(){
   confirmModal(t("resetAsk"),t("resetBody"),()=>{
-    seedDemo();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
+    withState(()=>{seedDemo();});sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
   },{backup:true});
 }
 function confirmModal(title,body,onYes,opts){
@@ -1399,8 +1421,9 @@ function renderRoom(id){
   </div>`;
 }
 function roomBox(id){
+  let won=null;
+  withState(()=>{won=openBox(id);});
   const st=byId(id);
-  const won=openBox(id);
   if(!won){toast(t("notEnough"));return;}
   giftBurst(won,()=>{renderRoom(id);toast(t("boxWonToast",{name:st.name,g:nm(won),rar:t("rar"+(won.rar==="common"?"Common":won.rar==="rare"?"Rare":"Epic"))}));});
 }
@@ -1422,11 +1445,11 @@ function openReqModal(id){
   <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("close")}</button></div>`);
 }
 function doReq(stId,giftId){
-  const g=giftById(giftId),st=byId(stId);
-  if(!g||!st)return;
-  requestGift(stId,g);
+  let label=null;
+  withState(()=>{const g=giftById(giftId),st=byId(stId);if(!g||!st)return;requestGift(stId,g);label=nm(g);});
+  if(label==null)return;
   closeOverlays();
-  toast(t("reqToast",{g:nm(g)}));
+  toast(t("reqToast",{g:label}));
   renderRoom(stId);
 }
 

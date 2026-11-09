@@ -199,8 +199,9 @@ T("undo after storage event",safeT(function(){
 T("approve after storage event",safeT(function(){
   seedDemo();const stale=JSON.parse(localStorage.getItem(LS_KEY));
   withState(function(){doReq("s1",S.gifts.find(g=>g.price<=walletOf(byId("s1"))).id);});
+  const reqId=S.requests[0].id;
   S=stale;onStorage({key:LS_KEY});
-  decideReq(S.requests[S.requests.length-1].id,true);
+  decideReq(reqId,true);
   return JSON.parse(localStorage.getItem(LS_KEY)).requests.every(q=>q.status!=="pending"||true)&&JSON.parse(localStorage.getItem(LS_KEY)).requests.some(q=>q.status==="approved"&&q.studentId==="s1"&&q.decidedTs);
 }),"approve uses fresh request"),
 T("storage event rerenders",safeT(function(){
