@@ -1,5 +1,6 @@
 'use strict';
 /* ---- i18n: English + 中文 ---- */
+if(window.__GS_BLOCKED){throw new Error("GS-UNSUPPORTED-BROWSER");}
 const I18N = {
 en:{
  docTitle:"Gifted Scholars — little stars. big smiles.",
@@ -307,6 +308,7 @@ Object.assign(I18N.en,{
  licOwn:"<b>Ownership.</b> The site, its code, design and artwork remain the property of the author. Donating it to the school does not transfer copyright. The school may keep using it for everyday school life, free of charge, even after the author moves on.",
  licFonts:"Fonts: Instrument Serif &amp; Azeret Mono (SIL Open Font License). Provided \"as is\", without warranty of any kind.",
  startEmptyBody:"This wipes ALL class data in this browser (students, records, requests, collections). Export a backup first.",demoClass:"Class 4B",demoSchool:"Maple Grove Primary",demoTeacher:"Ms. Rivera",demoNames:"Amelia, Bhavya, Chen, Dina, Emeka, Farah, Gabriel, Hana, Ibrahim, Jade, Kofi, Lena, Mateo, Nia, Omar, Priya",oneOrigin:"Always open this site from the same address — the two addresses keep separate data.",backupFirst:"Download backup first",backupNeverNudge:"No backup yet — export one now.",goSetup:"Add students", tryDemo:"Try demo",demoConfirmBody:"This replaces your current class with the demo class. Continue?",
+dataLocalNote:"Data lives only in this browser (localStorage). Nothing is uploaded. If the school computer is set to restore itself on restart (restore card / Deep Freeze), this data may be wiped. Export a backup every week and keep it somewhere safe.",
  startEmpty:"Start empty",emptyHint:"Add students in Setup",defaultClassName:"My class",
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
@@ -354,6 +356,7 @@ Object.assign(I18N.zh,{
  licOwn:"<b>版权归属。</b> 本网站的代码、设计与美术作品仍归作者所有；赠予学校不意味着转让版权。学校可以永久免费地继续在日常校园生活中使用，即使作者日后离开。",
  licFonts:"字体：Instrument Serif 与 Azeret Mono（SIL 开源字体授权）。按“现状”提供，不作任何担保。",
  startEmptyBody:"这会清空这台浏览器里的全部班级数据（学生、记录、申请、收藏）。建议先导出一份备份。",demoClass:"三年二班",demoSchool:"枫叶小学",demoTeacher:"李老师",demoNames:"王小雨,李思远,张乐乐,陈静怡,杨帆,赵子墨,孙悦,周芷萱,吴一凡,郑好,黄晨曦,林嘉树,高小满,徐天佑,马欣然,罗云帆",oneOrigin:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",backupFirst:"先下载备份",backupNeverNudge:"还没有备份过——导出一份吧。",goSetup:"去添加学生", tryDemo:"试试演示",demoConfirmBody:"这将用演示班级替换你现在的班级。继续吗？",
+dataLocalNote:"所有数据只保存在这台电脑的当前浏览器里（localStorage），不会上传到任何地方。如果学校电脑设置了重启自动还原（还原卡／冰点还原），重启后浏览器里的数据可能被清空。建议每周导出一份备份，保存到 U 盘或你自己的电脑上。",
  startEmpty:"清空重来",emptyHint:"先在「设置」里添加学生",defaultClassName:"我的班级",
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",

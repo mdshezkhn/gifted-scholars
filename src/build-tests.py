@@ -443,8 +443,7 @@ T("sound chip appears until unlocked",safeT(function(){
 T("drawer two-tap award",safeT(function(){
   seedDemo();location.hash="#/screen";route();
   openDrawer();
-  const panel=document.querySelector("#drwPanel");
-  if(!panel)return "no drawer panel";
+  if(!drawerIsOpen())return "no drawer panel";
   drawerToggle(S.students[0].id);drawerToggle(S.students[2].id);
   const rule=S.rules.find(r=>r.value>0);
   const n0=S.records.length;
@@ -488,7 +487,7 @@ T("shortcut guards",safeT(function(){
   seedDemo();location.hash="#/screen";route();
   if(typeof scrKeydown!=="function")return "no scrKeydown";
   scrKeydown({key:"a",target:{tagName:"BODY"}});
-  if(!document.querySelector("#drwPanel"))return "A should open drawer";
+  if(!drawerIsOpen())return "A should open drawer";
   scrKeydown({key:"a",ctrlKey:true,target:{tagName:"BODY"}});
   closeDrawer();
   scrKeydown({key:"a",target:{tagName:"INPUT",type:"text"}});
@@ -498,7 +497,7 @@ T("shortcut guards",safeT(function(){
   scrKeydown({key:"a",target:{tagName:"SELECT"}});
   if(drawerIsOpen())return "A must ignore select";
   scrKeydown({key:"a",target:{tagName:"INPUT",type:"checkbox"}});
-  if(!document.querySelector("#drwPanel"))return "checkbox is not typing";
+  if(!drawerIsOpen())return "checkbox is not typing";
   closeDrawer();
   scrKeydown({key:"a",isComposing:true,target:{tagName:"BODY"}});
   if(drawerIsOpen())return "A must ignore IME composition";
