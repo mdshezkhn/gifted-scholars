@@ -19,7 +19,10 @@ globalThis.requestAnimationFrame=fn=>0;globalThis.setTimeout=fn=>0;globalThis.cl
 globalThis.Blob=class{constructor(){}};globalThis.URL={createObjectURL:()=>"blob:x",revokeObjectURL:noop};
 '''
 tests = '''
-let fails=0;const T=(n,c,i)=>{console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
+let fails=0;const T=(n,c,i)=>{if(typeof c==="function"){try{c=c();}catch(e){c=false;i="THREW "+(e&&e.message||e);}}console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
+/* harness self-tests (teacher 2026-11-09): a false and a throwing test must each record FAIL */
+T("selftest harness failing",(()=>{const _l=console.log;console.log=()=>{};const f0=fails;T("__sfx",false,"x");const inc=fails-f0===1;fails=f0;console.log=_l;return inc;})(),"false condition records FAIL");
+T("selftest harness throwing",(()=>{const _l=console.log;console.log=()=>{};const f0=fails;T("__sth",()=>{throw new Error("boom")},"x");const inc=fails-f0===1;fails=f0;console.log=_l;return inc;})(),"throwing test records FAIL, not pass");
 /* core engine */
 T("seed loads",(seedDemo(),load()),true);
 T("16 students",S.students.length===16,String(S.students.length));
@@ -223,6 +226,35 @@ T("storage blocked banner",safeT(function(){
   return h.indexOf("这台浏览器")>=0||h.indexOf("阻止了")>=0;
 }),"warns when localStorage fails"),
 T("no missing i18n keys (final)",(globalThis.__gsMissedKeys||[]).length===0,(globalThis.__gsMissedKeys||[]).join(",")||"all present");
+/* item 1 (teacher 2026-11-09): every save() call site must be allow-listed below.
+   ALLOW maps exact stripped line -> (max occurrences, reason). A new save() anywhere,
+   or more occurrences than documented, fails the test. Extend the list CONSCIOUSLY. */
+const _ALLOW={
+ "function withState(fn){syncIn();fn();save();}":[1,"the withState wrapper itself"],
+ "save();":[6,"tails of mutation helpers invoked ONLY inside withState callbacks (applyRule,requestGift,decide,openBox,seedDemo) + landing init bootstrap (persists emptyState on first run)"],
+ "function undoRecord(rec){rec.undone=true;save();}":[1,"undoRecord - called only via doUndo inside withState"],
+ "save();toast(t('classSaved'));":[1,"saveCls - inside its own withState callback"],
+ "save();return won;":[1,"openBox tail - called only via roomBox inside withState"],
+};
+const _sites=[];
+for(const _f of ["app-core.js","landing.js"]){
+  const _src=require("fs").readFileSync(_f,"utf8").split(String.fromCharCode(10));
+  _src.forEach((_l,_i)=>{const _t=_l.trim();
+    if(_t.includes("save(")&&!_t.startsWith("function save")&&!_t.startsWith("*")&&!_t.startsWith("//")){
+      _sites.push(_f+":"+(_i+1)+" "+_t.replace(/"/g,String.fromCharCode(39)));}});
+}
+const _viol=[];
+for(const _s of _sites){
+  const _k=_s.slice(_s.indexOf(" ")+1);
+  const _a=_ALLOW[_k];
+  if(!_a)_viol.push("NOT ALLOWED: "+_s);
+}
+for(const _k in _ALLOW){
+  const _n=_sites.filter(_s=>_s.slice(_s.indexOf(" ")+1)===_k).length;
+  if(_n>_ALLOW[_k][0])_viol.push("COUNT "+_n+">"+_ALLOW[_k][0]+" for: "+_k);
+}
+T("savecalls inside withstate",_viol.length===0,_viol.join(" || ")||("clean ("+_sites.length+" sites)"));
+
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
 '''

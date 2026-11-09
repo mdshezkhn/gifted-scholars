@@ -371,7 +371,7 @@ function itemCard(g){
     </div>
   </div>`;
 }
-function toggleItem(id){const g=giftById(id);g.active=g.active===false;save();viewShop();}
+function toggleItem(id){withState(()=>{const g=giftById(id);if(g)g.active=g.active===false;});viewShop();}
 function decideReq(id,ok){
   let q=null,go=false;
   withState(()=>{
