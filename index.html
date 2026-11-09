@@ -207,6 +207,64 @@ label{font-weight:700;font-size:14px}
   .roomhead .bigav{margin:0 auto}
   .podium{grid-template-columns:1fr}
 }
+/* ============ Big Screen (#/screen) — WP5 ============ */
+/* Binding 8-metre type scale (spec §6.1 / amendment 4). Tiles refine in Task 9. */
+:root{
+  --scr-name:32px;
+  --scr-pts:44px;
+  --scr-lv:24px;
+  --scr-goal:32px;
+}
+.screen-root{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--paper);color:var(--ink);
+}
+.scr-top{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:18px;
+  padding:20px 26px 14px;
+  border-bottom:var(--bd);
+}
+.scr-class{font-size:var(--scr-goal);font-family:var(--font-round);line-height:1.1;display:block;}
+.scr-goal{margin-top:12px;max-width:640px;}
+.scr-goal-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;}
+.scr-goal-label{font-size:22px;font-family:var(--font-round);}
+.scr-goal-nums{font-size:20px;}
+.scr-track{
+  position:relative;height:20px;margin-top:8px;
+  border:2px solid var(--ink);border-radius:999px;background:var(--white);
+}
+.scr-track i{display:block;height:100%;background:var(--coral);border-radius:999px;transition:width .7s cubic-bezier(.22,1,.36,1);}
+.scr-rocket{position:absolute;top:-16px;font-size:28px;transition:left .7s cubic-bezier(.22,1,.36,1);}
+.scr-btns{display:flex;gap:10px;flex-shrink:0;}
+.scr-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:52px;padding:10px 18px;
+  font-size:20px;font-family:var(--font-body);
+  border:var(--bd);border-radius:14px;background:var(--white);color:var(--ink);
+  cursor:pointer;text-decoration:none;
+}
+.scr-btn:hover{background:var(--paper-2);}
+.scr-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:16px;padding:22px 26px;
+  align-content:start;flex:1;
+}
+.scr-tile{
+  border:var(--bd);border-radius:18px;background:var(--white);
+  padding:16px 18px;display:flex;flex-direction:column;gap:6px;
+}
+.scr-name{font-size:var(--scr-name);font-weight:700;font-family:var(--font-round);line-height:1.15;}
+.scr-pts{font-size:var(--scr-pts);font-weight:700;}
+.scr-lv{font-size:var(--scr-lv);color:var(--ink-soft);}
+.scr-bar{height:12px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);overflow:hidden;}
+.scr-bar i{display:block;height:100%;background:var(--teal);border-radius:999px;}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+#scrChip{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);}
+@media (prefers-reduced-motion: reduce){
+  .scr-track i,.scr-rocket{transition:none;}
+}
+
 /* ================================================================
    Gifted Scholars — studio landing (warm editorial system)
    ground #E7E3DA · secondary #DCD7CB · ink #1A1917 · pigment #9B3418
@@ -721,7 +779,7 @@ Object.assign(I18N.en,{
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
  backupNudge:"It has been over a week — export a fresh backup.",
- storageBlocked:"This browser is blocking storage — data will not survive a reload."
+ screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
 });
 Object.assign(I18N.zh,{
  errToast:"出了点小问题，但你的数据是安全的。",
@@ -768,7 +826,7 @@ Object.assign(I18N.zh,{
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",
  backupNudge:"已经超过一周了——导出一份新备份吧。",
- storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
+ screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
 });
 
 "use strict";
@@ -943,6 +1001,7 @@ function route(){
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
     renderShell(["classroom","records","shop","leaderboard","settings"].includes(tab)?tab:"classroom");
@@ -1247,7 +1306,15 @@ function viewSettings(){
       <span style="font-size:22px">🎁</span>
       <span style="font-size:14px;line-height:1.5">${t("creditBox")} <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
     </div>
-  </section>
+  
+    <div class="stk" style="padding:16px 18px;margin-top:14px">
+      <h2 style="font-family:var(--font-round);font-size:22px">${t("goalSection")}</h2>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="goalEn" ${((S.settings.goal||{}).enabled)?"checked":""}> ${t("goalEnable")}</label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalName")} <input id="goalLabel" type="text" value="${esc((S.settings.goal||{}).label||"")}" placeholder="${t("goalDefault")}"></label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalTarget")} <input id="goalTarget" type="number" min="1" class="num" style="width:120px" value="${esc(String((S.settings.goal||{}).target||""))}"></label>
+      <div class="btns" style="margin-top:10px"><button class="btn primary" onclick="saveGoal()">${t("saveGoal")}</button></div>
+    </div>
+</section>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("classCol")}</h2>
@@ -1342,7 +1409,7 @@ function delStudent(id){
   });
 }
 function emptyState(){return {version:1,
-    settings:{className:"",schoolName:"",teacher:"",motion:"auto"},
+    settings:{className:"",schoolName:"",teacher:"",motion:"auto",sound:"off"},
     rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};}
 function startEmptyConfirmed(){withState(()=>{S=emptyState();});sel=new Set();toast(t("startEmpty"));go("#/app/classroom");route();}
@@ -1457,6 +1524,97 @@ function doReq(stId,giftId){
 
 /* init moved to the very end of the script bundle (after landing.js),
    because route()->renderLanding() needs landing.js consts (TDZ fix) */
+
+/* ============ Big Screen mode (#/screen) — WP5 ============ */
+/* Task 8 slice: shell, top bar, class goal. Tiles upgrade in Task 9; pops Task 10;
+   drawer Task 11; keyboard Task 12. */
+
+function classPosSince(fromTs){
+  let n=0;
+  for(const r of S.records){
+    if(r.undone||r.value<=0)continue;
+    if(fromTs&&r.ts<fromTs)continue;
+    n+=r.value;
+  }
+  return n;
+}
+
+/* goalState — earned = lifetime-positive rules since Monday weekStart.
+   Weekly basis (spec §6.1 flagged call): goal resets every Monday. */
+function goalState(){
+  const g=S.settings.goal||{};
+  const enabled=g.enabled===true&&(+g.target>0);
+  const ws=weekStart(Date.now(),0);
+  const earned=classPosSince(ws);
+  const target=+g.target||0;
+  const pct=target>0?Math.min(100,Math.round(earned/target*100)):0;
+  return {enabled,label:g.label||t("goalDefault"),target,earned,pct,left:Math.max(0,target-earned)};
+}
+
+function setSound(on){
+  withState(()=>{S.settings.sound=on?"on":"off";});
+  if(location.hash==="#/screen")renderScreen();
+}
+
+function toggleFullscreen(){
+  try{
+    if(document.fullscreenElement){if(document.exitFullscreen)document.exitFullscreen();}
+    else if(document.documentElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();
+  }catch(_){}
+}
+
+function saveGoal(){
+  withState(()=>{
+    S.settings.goal=S.settings.goal||{};
+    S.settings.goal.enabled=!!($("#goalEn")&&$("#goalEn").checked);
+    S.settings.goal.label=(($("#goalLabel")&&$("#goalLabel").value)||"").trim();
+    S.settings.goal.target=Math.max(0,parseInt(($("#goalTarget")&&$("#goalTarget").value)||"0",10)||0);
+  });
+  toast(t("goalSaved"));
+  if(location.hash==="#/app/settings")viewSettings();
+}
+
+/* Task 11 fills this in; stub exists so the button is never a dead link. */
+function openDrawer(){/* quick-award drawer (Task 11) */}
+
+function renderScreen(){
+  const G=goalState();
+  const soundOn=(S.settings.sound||"off")==="on";
+  const full=typeof document!=="undefined"&&document.fullscreenElement?"true":"false";
+  const cls=S.settings.className||t("defaultClassName");
+  const goal=G.enabled?`
+    <div class="scr-goal">
+      <div class="scr-goal-head"><span class="scr-goal-label">${esc(G.label)}</span><span class="scr-goal-nums num">${t("goalNums",{e:G.earned,t2:G.target,l:G.left})}</span></div>
+      <div class="scr-track" role="progressbar" aria-label="${t("ariGoal")}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${G.pct}"><i style="width:${G.pct}%"></i><b class="scr-rocket" style="left:calc(${G.pct}% - 20px)">🚀</b></div>
+    </div>`:"";
+  $("#view").innerHTML=`
+  <div class="screen-root">
+    <header class="scr-top">
+      <div class="scr-id"><b class="scr-class">${esc(cls)}</b>${goal}</div>
+      <div class="scr-btns">
+        <button class="scr-btn" id="scrMute" aria-pressed="${soundOn}" aria-label="${t("ariSound")}" onclick="setSound(${!soundOn})">${soundOn?"🔊":"🔇"}</button>
+        <button class="scr-btn" id="scrFull" aria-pressed="${full}" aria-label="${t("ariFull")}" onclick="toggleFullscreen()">⛶</button>
+        <button class="scr-btn" id="scrDrawer" aria-label="${t("ariDrawer")}" onclick="openDrawer()">✨ ${t("screenDrawer")}</button>
+        <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
+      </div>
+    </header>
+    <main class="scr-grid" id="scrGrid">${S.students.map(st=>`
+      <div class="scr-tile" style="--h:${st.hue||200}">
+        <span class="scr-name">${esc(st.name)}</span>
+        <span class="scr-lv" id="scrlv-${esc(st.id)}"></span>
+        <span class="scr-pts num" id="scrpts-${esc(st.id)}"></span>
+        <div class="scr-bar"><i></i></div>
+      </div>`).join("")}</main>
+    <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
+    <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
+  </div>`;
+}
+
+try{
+  document.addEventListener("fullscreenchange",()=>{
+    if(location.hash==="#/screen"){const b=$("#scrFull");if(b)b.setAttribute("aria-pressed",document.fullscreenElement?"true":"false");}
+  });
+}catch(_){}
 
 /* ======================================================================
    Gifted Scholars — studio landing (warm editorial system)

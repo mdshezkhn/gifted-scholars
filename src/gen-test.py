@@ -83,8 +83,8 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
 (function(){
   setLang("zh");seedDemo();globalThis.__gsMissedKeys=[];
   const RAWKEY=/[a-z]{3,}_[a-z]{3,}/;
-  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard"];
-  const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard","Quick award"];
+  const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1","#/screen"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
     const mk=(RAWKEY.exec(h)||[])[0];if(mk)hits.push(v+" :: rawkey:"+mk);
@@ -226,6 +226,48 @@ T("storage blocked banner",safeT(function(){
   return h.indexOf("这台浏览器")>=0||h.indexOf("阻止了")>=0;
 }),"warns when localStorage fails"),
 T("no missing i18n keys (final)",(globalThis.__gsMissedKeys||[]).length===0,(globalThis.__gsMissedKeys||[]).join(",")||"all present");
+/* Task 8: #/screen shell + class goal (WP5) */
+T("screen route renders",safeT(function(){
+  seedDemo();S.students=S.students.slice(0,3);S.records=[];S.settings.goal=null;save();
+  (location.hash="#/screen",route());
+  const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+  const tiles=(h.match(/scr-tile/g)||[]).length;
+  return h.indexOf("scrGrid")>=0&&tiles===3&&h.indexOf("scr-goal")<0&&h.indexOf("#/app/classroom")>=0&&h.indexOf("scrLive")>=0;
+}),"topbar + 3 tiles + exit link + live region; goal hidden by default"),
+T("goal math",safeT(function(){
+  const w0=weekStart(Date.now(),0),w1=weekStart(Date.now(),1);
+  S.settings.goal={enabled:true,target:40,label:""};
+  S.records=[
+    {id:"g1",ts:w0+2*36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:6,undone:false},
+    {id:"g2",ts:w0+5*36e5,studentIds:["s2"],ruleId:"r1",ruleLabel:"x",value:4,undone:false},
+    {id:"g3",ts:w1+36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:99,undone:false},
+    {id:"g4",ts:w0+6*36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:5,undone:true}];
+  const G=goalState();
+  return G.enabled===true&&G.earned===10&&G.pct===25&&G.left===30;
+}),"earned=10 (this week only, undone excluded), pct=25, left=30"),
+T("week boundaries",safeT(function(){
+  const w0=weekStart(Date.now(),0);
+  S.settings.goal={enabled:true,target:40,label:""};
+  S.records=[
+    {id:"b1",ts:w0,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:3,undone:false},
+    {id:"b2",ts:w0-36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:50,undone:false},
+    {id:"b3",ts:w0+36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:4,undone:false}];
+  return goalState().earned===7;
+}),"Monday 00:00 (w0) included; Sunday 23:59 (w0-1h) belongs to last week"),
+T("screen aria",safeT(function(){
+  const w0=weekStart(Date.now(),0);
+  S.settings.goal={enabled:true,target:40,label:""};
+  S.records=[{id:"a1",ts:w0+36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:10,undone:false}];
+  (location.hash="#/screen",route());
+  const h=document.querySelector("#view").innerHTML;
+  return h.indexOf('role="progressbar"')>=0&&h.indexOf('aria-valuemin="0"')>=0&&h.indexOf('aria-valuemax="100"')>=0&&h.indexOf('aria-valuenow="25"')>=0&&h.indexOf('aria-live="polite"')>=0&&h.indexOf('aria-pressed=')>=0&&h.indexOf('aria-label=')>=0;
+}),"progressbar + live region + pressed/label on buttons"),
+T("sound default off",safeT(function(){
+  S=emptyState();
+  if(S.settings.sound!=="off")return false;
+  setSound(true);
+  return S.settings.sound==="on"&&JSON.parse(localStorage.getItem(LS_KEY)).settings.sound==="on"&&typeof saveGoal==="function";
+}),"emptyState defaults off; setSound persists via withState; saveGoal exists");
 /* item 1 (teacher 2026-11-09): every save() call site must be allow-listed below.
    ALLOW maps exact stripped line -> (max occurrences, reason). A new save() anywhere,
    or more occurrences than documented, fails the test. Extend the list CONSCIOUSLY. */
@@ -237,7 +279,7 @@ const _ALLOW={
  "save();return won;":[1,"openBox tail - called only via roomBox inside withState"],
 };
 const _sites=[];
-for(const _f of ["app-core.js","landing.js"]){
+for(const _f of ["app-core.js","landing.js","screen.js"]){
   const _src=require("fs").readFileSync(_f,"utf8").split(String.fromCharCode(10));
   _src.forEach((_l,_i)=>{const _t=_l.trim();
     if(_t.includes("save(")&&!_t.startsWith("function save")&&!_t.startsWith("*")&&!_t.startsWith("//")){
@@ -260,7 +302,7 @@ process.exit(fails===0?0:1);
 '''
 import json
 fix=json.load(io.open('fixture-baseline-state.json',encoding='utf-8'))
-out = stubs + 'const FIXTURE=' + json.dumps(fix,ensure_ascii=False,separators=(',',':')) + ';' + chr(10) + rd('i18n.js') + NL + rd('app-core.js') + NL + rd('landing.js') + NL + tests
+out = stubs + 'const FIXTURE=' + json.dumps(fix,ensure_ascii=False,separators=(',',':')) + ';' + chr(10) + rd('i18n.js') + NL + rd('app-core.js') + NL + rd('screen.js') + NL + rd('landing.js') + NL + tests
 io.open('tmp-test.js', 'w', encoding='utf-8', newline=NL).write(out)
 print('test file written', len(out))
 

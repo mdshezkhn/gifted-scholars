@@ -328,7 +328,7 @@ Object.assign(I18N.en,{
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
  backupNudge:"It has been over a week — export a fresh backup.",
- storageBlocked:"This browser is blocking storage — data will not survive a reload."
+ screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
 });
 Object.assign(I18N.zh,{
  errToast:"出了点小问题，但你的数据是安全的。",
@@ -375,7 +375,7 @@ Object.assign(I18N.zh,{
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",
  backupNudge:"已经超过一周了——导出一份新备份吧。",
- storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
+ screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
 });
 
 "use strict";
@@ -550,6 +550,7 @@ function route(){
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
     renderShell(["classroom","records","shop","leaderboard","settings"].includes(tab)?tab:"classroom");
@@ -854,7 +855,15 @@ function viewSettings(){
       <span style="font-size:22px">🎁</span>
       <span style="font-size:14px;line-height:1.5">${t("creditBox")} <a href="#/" onclick="openLicense();return false">${t("aboutGift")}</a></span>
     </div>
-  </section>
+  
+    <div class="stk" style="padding:16px 18px;margin-top:14px">
+      <h2 style="font-family:var(--font-round);font-size:22px">${t("goalSection")}</h2>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="goalEn" ${((S.settings.goal||{}).enabled)?"checked":""}> ${t("goalEnable")}</label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalName")} <input id="goalLabel" type="text" value="${esc((S.settings.goal||{}).label||"")}" placeholder="${t("goalDefault")}"></label>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:8px">${t("goalTarget")} <input id="goalTarget" type="number" min="1" class="num" style="width:120px" value="${esc(String((S.settings.goal||{}).target||""))}"></label>
+      <div class="btns" style="margin-top:10px"><button class="btn primary" onclick="saveGoal()">${t("saveGoal")}</button></div>
+    </div>
+</section>
 
   <section style="margin-bottom:30px">
     <h2 style="font-size:19px;margin-bottom:10px">${t("classCol")}</h2>
@@ -949,7 +958,7 @@ function delStudent(id){
   });
 }
 function emptyState(){return {version:1,
-    settings:{className:"",schoolName:"",teacher:"",motion:"auto"},
+    settings:{className:"",schoolName:"",teacher:"",motion:"auto",sound:"off"},
     rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};}
 function startEmptyConfirmed(){withState(()=>{S=emptyState();});sel=new Set();toast(t("startEmpty"));go("#/app/classroom");route();}
@@ -1064,6 +1073,97 @@ function doReq(stId,giftId){
 
 /* init moved to the very end of the script bundle (after landing.js),
    because route()->renderLanding() needs landing.js consts (TDZ fix) */
+
+/* ============ Big Screen mode (#/screen) — WP5 ============ */
+/* Task 8 slice: shell, top bar, class goal. Tiles upgrade in Task 9; pops Task 10;
+   drawer Task 11; keyboard Task 12. */
+
+function classPosSince(fromTs){
+  let n=0;
+  for(const r of S.records){
+    if(r.undone||r.value<=0)continue;
+    if(fromTs&&r.ts<fromTs)continue;
+    n+=r.value;
+  }
+  return n;
+}
+
+/* goalState — earned = lifetime-positive rules since Monday weekStart.
+   Weekly basis (spec §6.1 flagged call): goal resets every Monday. */
+function goalState(){
+  const g=S.settings.goal||{};
+  const enabled=g.enabled===true&&(+g.target>0);
+  const ws=weekStart(Date.now(),0);
+  const earned=classPosSince(ws);
+  const target=+g.target||0;
+  const pct=target>0?Math.min(100,Math.round(earned/target*100)):0;
+  return {enabled,label:g.label||t("goalDefault"),target,earned,pct,left:Math.max(0,target-earned)};
+}
+
+function setSound(on){
+  withState(()=>{S.settings.sound=on?"on":"off";});
+  if(location.hash==="#/screen")renderScreen();
+}
+
+function toggleFullscreen(){
+  try{
+    if(document.fullscreenElement){if(document.exitFullscreen)document.exitFullscreen();}
+    else if(document.documentElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();
+  }catch(_){}
+}
+
+function saveGoal(){
+  withState(()=>{
+    S.settings.goal=S.settings.goal||{};
+    S.settings.goal.enabled=!!($("#goalEn")&&$("#goalEn").checked);
+    S.settings.goal.label=(($("#goalLabel")&&$("#goalLabel").value)||"").trim();
+    S.settings.goal.target=Math.max(0,parseInt(($("#goalTarget")&&$("#goalTarget").value)||"0",10)||0);
+  });
+  toast(t("goalSaved"));
+  if(location.hash==="#/app/settings")viewSettings();
+}
+
+/* Task 11 fills this in; stub exists so the button is never a dead link. */
+function openDrawer(){/* quick-award drawer (Task 11) */}
+
+function renderScreen(){
+  const G=goalState();
+  const soundOn=(S.settings.sound||"off")==="on";
+  const full=typeof document!=="undefined"&&document.fullscreenElement?"true":"false";
+  const cls=S.settings.className||t("defaultClassName");
+  const goal=G.enabled?`
+    <div class="scr-goal">
+      <div class="scr-goal-head"><span class="scr-goal-label">${esc(G.label)}</span><span class="scr-goal-nums num">${t("goalNums",{e:G.earned,t2:G.target,l:G.left})}</span></div>
+      <div class="scr-track" role="progressbar" aria-label="${t("ariGoal")}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${G.pct}"><i style="width:${G.pct}%"></i><b class="scr-rocket" style="left:calc(${G.pct}% - 20px)">🚀</b></div>
+    </div>`:"";
+  $("#view").innerHTML=`
+  <div class="screen-root">
+    <header class="scr-top">
+      <div class="scr-id"><b class="scr-class">${esc(cls)}</b>${goal}</div>
+      <div class="scr-btns">
+        <button class="scr-btn" id="scrMute" aria-pressed="${soundOn}" aria-label="${t("ariSound")}" onclick="setSound(${!soundOn})">${soundOn?"🔊":"🔇"}</button>
+        <button class="scr-btn" id="scrFull" aria-pressed="${full}" aria-label="${t("ariFull")}" onclick="toggleFullscreen()">⛶</button>
+        <button class="scr-btn" id="scrDrawer" aria-label="${t("ariDrawer")}" onclick="openDrawer()">✨ ${t("screenDrawer")}</button>
+        <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
+      </div>
+    </header>
+    <main class="scr-grid" id="scrGrid">${S.students.map(st=>`
+      <div class="scr-tile" style="--h:${st.hue||200}">
+        <span class="scr-name">${esc(st.name)}</span>
+        <span class="scr-lv" id="scrlv-${esc(st.id)}"></span>
+        <span class="scr-pts num" id="scrpts-${esc(st.id)}"></span>
+        <div class="scr-bar"><i></i></div>
+      </div>`).join("")}</main>
+    <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
+    <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
+  </div>`;
+}
+
+try{
+  document.addEventListener("fullscreenchange",()=>{
+    if(location.hash==="#/screen"){const b=$("#scrFull");if(b)b.setAttribute("aria-pressed",document.fullscreenElement?"true":"false");}
+  });
+}catch(_){}
 
 /* ======================================================================
    Gifted Scholars — studio landing (warm editorial system)
@@ -1484,8 +1584,8 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
 (function(){
   setLang("zh");seedDemo();globalThis.__gsMissedKeys=[];
   const RAWKEY=/[a-z]{3,}_[a-z]{3,}/;
-  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard"];
-  const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard","Quick award"];
+  const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1","#/screen"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
     const mk=(RAWKEY.exec(h)||[])[0];if(mk)hits.push(v+" :: rawkey:"+mk);
@@ -1627,6 +1727,48 @@ T("storage blocked banner",safeT(function(){
   return h.indexOf("这台浏览器")>=0||h.indexOf("阻止了")>=0;
 }),"warns when localStorage fails"),
 T("no missing i18n keys (final)",(globalThis.__gsMissedKeys||[]).length===0,(globalThis.__gsMissedKeys||[]).join(",")||"all present");
+/* Task 8: #/screen shell + class goal (WP5) */
+T("screen route renders",safeT(function(){
+  seedDemo();S.students=S.students.slice(0,3);S.records=[];S.settings.goal=null;save();
+  (location.hash="#/screen",route());
+  const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+  const tiles=(h.match(/scr-tile/g)||[]).length;
+  return h.indexOf("scrGrid")>=0&&tiles===3&&h.indexOf("scr-goal")<0&&h.indexOf("#/app/classroom")>=0&&h.indexOf("scrLive")>=0;
+}),"topbar + 3 tiles + exit link + live region; goal hidden by default"),
+T("goal math",safeT(function(){
+  const w0=weekStart(Date.now(),0),w1=weekStart(Date.now(),1);
+  S.settings.goal={enabled:true,target:40,label:""};
+  S.records=[
+    {id:"g1",ts:w0+2*36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:6,undone:false},
+    {id:"g2",ts:w0+5*36e5,studentIds:["s2"],ruleId:"r1",ruleLabel:"x",value:4,undone:false},
+    {id:"g3",ts:w1+36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:99,undone:false},
+    {id:"g4",ts:w0+6*36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:5,undone:true}];
+  const G=goalState();
+  return G.enabled===true&&G.earned===10&&G.pct===25&&G.left===30;
+}),"earned=10 (this week only, undone excluded), pct=25, left=30"),
+T("week boundaries",safeT(function(){
+  const w0=weekStart(Date.now(),0);
+  S.settings.goal={enabled:true,target:40,label:""};
+  S.records=[
+    {id:"b1",ts:w0,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:3,undone:false},
+    {id:"b2",ts:w0-36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:50,undone:false},
+    {id:"b3",ts:w0+36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:4,undone:false}];
+  return goalState().earned===7;
+}),"Monday 00:00 (w0) included; Sunday 23:59 (w0-1h) belongs to last week"),
+T("screen aria",safeT(function(){
+  const w0=weekStart(Date.now(),0);
+  S.settings.goal={enabled:true,target:40,label:""};
+  S.records=[{id:"a1",ts:w0+36e5,studentIds:["s1"],ruleId:"r1",ruleLabel:"x",value:10,undone:false}];
+  (location.hash="#/screen",route());
+  const h=document.querySelector("#view").innerHTML;
+  return h.indexOf('role="progressbar"')>=0&&h.indexOf('aria-valuemin="0"')>=0&&h.indexOf('aria-valuemax="100"')>=0&&h.indexOf('aria-valuenow="25"')>=0&&h.indexOf('aria-live="polite"')>=0&&h.indexOf('aria-pressed=')>=0&&h.indexOf('aria-label=')>=0;
+}),"progressbar + live region + pressed/label on buttons"),
+T("sound default off",safeT(function(){
+  S=emptyState();
+  if(S.settings.sound!=="off")return false;
+  setSound(true);
+  return S.settings.sound==="on"&&JSON.parse(localStorage.getItem(LS_KEY)).settings.sound==="on"&&typeof saveGoal==="function";
+}),"emptyState defaults off; setSound persists via withState; saveGoal exists");
 /* item 1 (teacher 2026-11-09): every save() call site must be allow-listed below.
    ALLOW maps exact stripped line -> (max occurrences, reason). A new save() anywhere,
    or more occurrences than documented, fails the test. Extend the list CONSCIOUSLY. */
@@ -1638,7 +1780,7 @@ const _ALLOW={
  "save();return won;":[1,"openBox tail - called only via roomBox inside withState"],
 };
 const _sites=[];
-for(const _f of ["app-core.js","landing.js"]){
+for(const _f of ["app-core.js","landing.js","screen.js"]){
   const _src=require("fs").readFileSync(_f,"utf8").split(String.fromCharCode(10));
   _src.forEach((_l,_i)=>{const _t=_l.trim();
     if(_t.includes("save(")&&!_t.startsWith("function save")&&!_t.startsWith("*")&&!_t.startsWith("//")){
