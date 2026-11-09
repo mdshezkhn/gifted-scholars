@@ -240,6 +240,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - [ ] **Step 1: Write the failing tests**
 
 `test_pop_diff` — award via `applyRule` ⇒ `diffPops(prevSeen)` returns `{sid, kind from value sign, n, leveled}`; calling again with the updated seen-set returns `[]`; level-crossing award ⇒ `leveled:true`. `test_pop_ignores_spending` — approve a gift request and open the mystery box ⇒ wallet drops but NO new pop entries (spending is not an award). `test_pop_at_wallet_zero` — student whose wallet is 0 (all spent) gets a +2 award ⇒ pos pop still fires. `test_pop_when_negatives_exceed` — negatives > positives (wallet floored at 0): +2 award ⇒ pos pop; −1 award ⇒ neg pop. `test_undo_no_pop` — `undoRecord(id)` of a previously-seen positive record ⇒ no new pop. `test_hide_neg` — `screenHideNeg=true` ⇒ negative produces no chip (diff still computed). `test_sound_chip_logic` — sound off ⇒ no chip, no chime; sound on + suspended ctx ⇒ chip visible; after resume ⇒ chip flag false for session. `test_reduced_motion_pops` — `motionOK()===false` ⇒ pop path renders static badge class, zero confetti nodes created.
+**Teacher amendments (2026-11-09, binding):**
+- **Seen-set init**: `seenIds()` starts EMPTY and is populated at FIRST render (and after any reload) with every existing non-undone record id — old awards NEVER replay on load/reload; only records that arrive afterwards (direct award or storage event) pop.
+- **Freshness window**: pops ignore records older than ~10 s (`Date.now()-rec.ts>10000` ⇒ no pop) — a tab opened late, or a sync catching up, stays quiet.
+- **Confetti cap**: total live particles across all pops ≤ ~150; beyond the cap `popTile` falls back to the badge-only animation (no confetti nodes). Enforced by a module-level live-particle counter.
+- Tests to add alongside Step 1: `test_seen_init_no_replay` (seed records → first render marks all seen → zero pops) and `test_pop_cap` (simulate >150 particles → confetti node count ≤150, badge fallback class present on the overflow pop).
 
 - [ ] **Step 2: Run to verify they fail** — Expected: FAIL.
 - [ ] **Step 3: Implement** — WebAudio ctx created lazily on first gesture; all timers `setTimeout`-owned and cleared on re-render.
