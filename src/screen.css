@@ -1,0 +1,57 @@
+/* ============ Big Screen (#/screen) — WP5 ============ */
+/* Binding 8-metre type scale (spec §6.1 / amendment 4). Tiles refine in Task 9. */
+:root{
+  --scr-name:32px;
+  --scr-pts:44px;
+  --scr-lv:24px;
+  --scr-goal:32px;
+}
+.screen-root{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--paper);color:var(--ink);
+}
+.scr-top{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:18px;
+  padding:20px 26px 14px;
+  border-bottom:var(--bd);
+}
+.scr-class{font-size:var(--scr-goal);font-family:var(--font-round);line-height:1.1;display:block;}
+.scr-goal{margin-top:12px;max-width:640px;}
+.scr-goal-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;}
+.scr-goal-label{font-size:22px;font-family:var(--font-round);}
+.scr-goal-nums{font-size:20px;}
+.scr-track{
+  position:relative;height:20px;margin-top:8px;
+  border:2px solid var(--ink);border-radius:999px;background:var(--white);
+}
+.scr-track i{display:block;height:100%;background:var(--coral);border-radius:999px;transition:width .7s cubic-bezier(.22,1,.36,1);}
+.scr-rocket{position:absolute;top:-16px;font-size:28px;transition:left .7s cubic-bezier(.22,1,.36,1);}
+.scr-btns{display:flex;gap:10px;flex-shrink:0;}
+.scr-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:52px;padding:10px 18px;
+  font-size:20px;font-family:var(--font-body);
+  border:var(--bd);border-radius:14px;background:var(--white);color:var(--ink);
+  cursor:pointer;text-decoration:none;
+}
+.scr-btn:hover{background:var(--paper-2);}
+.scr-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:16px;padding:22px 26px;
+  align-content:start;flex:1;
+}
+.scr-tile{
+  border:var(--bd);border-radius:18px;background:var(--white);
+  padding:16px 18px;display:flex;flex-direction:column;gap:6px;
+}
+.scr-name{font-size:var(--scr-name);font-weight:700;font-family:var(--font-round);line-height:1.15;}
+.scr-pts{font-size:var(--scr-pts);font-weight:700;}
+.scr-lv{font-size:var(--scr-lv);color:var(--ink-soft);}
+.scr-bar{height:12px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);overflow:hidden;}
+.scr-bar i{display:block;height:100%;background:var(--teal);border-radius:999px;}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+#scrChip{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);}
+@media (prefers-reduced-motion: reduce){
+  .scr-track i,.scr-rocket{transition:none;}
+}
