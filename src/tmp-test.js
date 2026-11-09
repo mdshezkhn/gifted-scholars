@@ -82,7 +82,7 @@ zh:{
  addStudent:"输入名字添加学生",
  shelf:"礼物架",askGift:"申请礼物",myRequests:"我的申请",waiting:"待审批",
  noReqs:"暂无待批申请。",approve:"批准",decline:"婉拒",giveNow:"立即赠送",backShelf:"放回架子",takeOff:"取下架子",
- aboutGift:"礼物介绍",openRoom:"打开小屋",givenToday:"今日已送出",soldOut:"已送完",pending:"待批准",undone:"已撤销",empty:"空",
+ aboutGift:"礼物介绍",openRoom:"打开小屋",givenToday:"今日已送出",soldOut:"已送完",pending:"等老师点头",undone:"已撤销",empty:"空",
  wallet:"星星钱包",toNext:"距下一级",topLevel:"已到最高等级，了不起的一年。",
  perLimit:" · 每人限 {n} 份",givenTo:"送给了 ",offShelf:"礼物已不在架上",offShelf2:"礼物已不在架上，请先放回。",
  notEnough:"星星还不够哦",roomTitle:"礼物小屋",roomOpen:"礼物小屋 · ",headTo:"去往 ",
@@ -314,7 +314,7 @@ Object.assign(I18N.en,{
  openBoxBtn:"🎁 Open a mystery box · ★ {n}",needStars:"Needs ★ {n}",
  shelfSub:"Collected gifts stay here all year. Rare finds have a teal frame, epic finds a golden glow.",
  noReqsRoom:"No requests yet. Ask for a gift and it waits for the teacher's yes.",
- approved:"approved",boxWonToast:"{name} got: {g} ({rar})",
+ approved:"approved",reqDeclined:"not this time",boxWonToast:"{name} got: {g} ({rar})",
  rarCommon:"common",rarRare:"rare",rarEpic:"epic",
  askTitle:"Ask for a gift, {name}",
  askBlurb:"Requests wait for the teacher's approval. Only affordable gifts are enabled. You have <b class=\"num\">★ {w}</b>.",
@@ -354,15 +354,15 @@ Object.assign(I18N.zh,{
  ruleUpdated:"规则已更新",ruleDeleted:"规则已删除",
  delRuleBody:"过去的记录仍保留原值，但它不再出现在评分页面上。",
  typeNameFirst:"请先输入名字",addedToast:"已添加 {name}",
- delStuBody:"评分记录会保留，但 TA 的礼物小屋和礼物架数据将被删除。",
+ delStuBody:"评分记录会保留，但这位学生的礼物小屋和礼物架数据将被删除。",
  resetBody:"这会清空这台浏览器里的所有数据，并重新生成演示班级：16 名学生、十天的评分记录和默认礼物目录。",
- backClass:"← 返回教室",stuGone:"查无此学生，可能已被移除。",
- roomOf:"{name} 的礼物小屋",growthLine:"成长 {g} · 还差 {need} 到 {b}",
+ backClass:"← 返回教室",stuGone:"找不到这位学生，可能已被移除。",
+ roomOf:"{name} 的礼物小屋",growthLine:"成长 {g} · 还差 {need} 分升到 {b}",
  openBoxBtn:"🎁 开一个盲盒 · ★ {n}",needStars:"需要 ★ {n}",
  shelfSub:"收集到的礼物会在这里放一整年。稀有礼物有青色边框，史诗礼物有金色光晕。",
  noReqsRoom:"还没有申请。申请一份礼物，等老师点头吧。",
- approved:"已批准",boxWonToast:"{name} 开到了：{g}（{rar}）",
- rarCommon:"常见",rarRare:"稀有",rarEpic:"史诗",
+ approved:"已批准",reqDeclined:"这次没通过",boxWonToast:"{name} 开到了：{g}（{rar}）",
+ rarCommon:"普通",rarRare:"稀有",rarEpic:"史诗",
  askTitle:"{name}，申请一份礼物吧",
  askBlurb:"申请会等待老师批准，只有买得起的礼物可以点。你现在有 <b class=\"num\">★ {w}</b>。",
  askBtn:"申请",reqToast:"已申请：{g}。等待老师批准。",
@@ -970,7 +970,7 @@ function renderRoom(id){
         <div class="row stk">
           <span class="who">${esc(q.itemLabel)} · <b class="num">★ ${q.cost}</b></span>
           <span class="meta num">${fmtDT(q.ts)}</span>
-          <span class="pill ${q.status}">${q.status==="pending"?t("pending"):q.status==="approved"?t("approved"):t("decline")}</span>
+          <span class="pill ${q.status}">${q.status==="pending"?t("pending"):q.status==="approved"?t("approved"):t("reqDeclined")}</span>
         </div>`).join("")}</div>`:
         `<div class="empty stk"><span class="big">📮</span>${t("noReqsRoom")}</div>`}
     </section>
@@ -1425,7 +1425,7 @@ T("i18n parity",(function(){const a=Object.keys(I18N.en).sort(),b=Object.keys(I1
 T("zh default lang",(function(){if(typeof detectLang!=="function")return false;localStorage.removeItem("gs-lang");setLang(detectLang());return detectLang()==="zh"&&LANG==="zh";})(),"detectLang="+typeof detectLang);
 (function(){
   setLang("zh");seed();
-  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift"];
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<"];
   const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;

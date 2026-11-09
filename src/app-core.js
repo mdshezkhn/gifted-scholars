@@ -591,7 +591,7 @@ function renderRoom(id){
         <div class="row stk">
           <span class="who">${esc(q.itemLabel)} · <b class="num">★ ${q.cost}</b></span>
           <span class="meta num">${fmtDT(q.ts)}</span>
-          <span class="pill ${q.status}">${q.status==="pending"?t("pending"):q.status==="approved"?t("approved"):t("decline")}</span>
+          <span class="pill ${q.status}">${q.status==="pending"?t("pending"):q.status==="approved"?t("approved"):t("reqDeclined")}</span>
         </div>`).join("")}</div>`:
         `<div class="empty stk"><span class="big">📮</span>${t("noReqsRoom")}</div>`}
     </section>
