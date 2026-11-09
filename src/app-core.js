@@ -56,7 +56,6 @@ const DEFAULT_GIFTS = [
   {id:"g10",emoji:"🧰",name:"Treasure box pick",zh:"百宝箱", desc:"One pick from the real treasure box",price:15,stock:5,per:1},
   {id:"g11",emoji:"🎲",name:"Board game Friday",zh:"桌游周五", desc:"Bring a board game for Friday choice time",price:20,stock:null,per:1}
 ];
-const SEED_STUDENTS = ["Amelia","Bhavya","Chen","Dina","Emeka","Farah","Gabriel","Hana","Ibrahim","Jade","Kofi","Lena","Mateo","Nia","Omar","Priya"];
 
 let S = null;                 // app state
 let sel = new Set();          // classroom multi-select
@@ -90,15 +89,15 @@ function load(){
   try{const raw=localStorage.getItem(LS_KEY);if(raw){S=JSON.parse(raw);if(S&&S.students&&S.rules&&S.gifts&&S.records)return true;}}catch(e){}
   return false;
 }
-function seed(){
+function seedDemo(){
   // deterministic demo history so leaderboards and shelves have shape
   let rngState=42;const rng=()=>{rngState=(rngState*1103515245+12345)%2147483648;return rngState/2147483648;};
   S={version:1,
-    settings:{className:"Class 4B",schoolName:"Maple Grove Primary",teacher:"Ms. Rivera",motion:"auto"},
+    settings:{className:t("demoClass"),schoolName:t("demoSchool"),teacher:t("demoTeacher"),motion:"auto"},
     rules:DEFAULT_RULES.map(r=>({...r})),
     gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};
-  SEED_STUDENTS.forEach((n,i)=>S.students.push({id:"s"+(i+1),name:n,hue:HUES[i%HUES.length]}));
+  t("demoNames").split(/[,，]\s*/).forEach((n,i)=>S.students.push({id:"s"+(i+1),name:n.trim(),hue:HUES[i%HUES.length]}));
   const now=Date.now(),day=864e5;
   for(let d=9;d>=0;d--){                       // ten school days of history
     const nEv=6+Math.floor(rng()*8);
@@ -232,7 +231,7 @@ function renderShell(tab){
     <nav class="rail" aria-label="${t("appSections")}">
       <a class="logo" href="#/">${logoSVG()} Gifted Scholars</a>
       ${TABS.map(tb=>'<a class="tab" href="#/app/'+t.id+'"'+(t.id===tab?' aria-current="page"':'')+'><span>'+t.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}
-      <div class="foot">${esc(S.settings.className)}<br>${esc(S.settings.schoolName)}</div>
+      <div class="foot">${esc(S.settings.className||t("defaultClassName"))}<br>${esc(S.settings.schoolName||"")}</div>
     </nav>
     <main class="main" id="main"></main>
   </div>`;
@@ -247,8 +246,13 @@ function renderShell(tab){
 /* ============ classroom view ============ */
 function viewClassroom(){
   const rules=S.rules.filter(r=>r.active!==false);
+  if(!S.students.length){$("#main").innerHTML=`
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className||t("defaultClassName"))})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
+  <div class="empty stk" style="margin-top:26px"><span class="big">🌱</span>${t("emptyHint")}<br>
+    <div class="btns" style="margin-top:12px;justify-content:center"><a class="btn primary" href="#/app/settings">${t("goSetup")}</a>
+    <button class="btn ghost" onclick="tryDemo()">${t("tryDemo")}</button></div></div>`;return;}
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className)})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className||t("defaultClassName"))})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
   <div class="toolbar">
     <button class="btn sm" onclick="selAll(true)">${t("selectAll")}</button>
     <button class="btn sm" onclick="selAll(false)">${t("clear")}</button>
@@ -492,9 +496,18 @@ function viewSettings(){
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn" onclick="exportJSON()">${t("exportJSON")}</button>
       <button class="btn danger" onclick="confirmReset()">${t("resetDemo")}</button>
+      <button class="btn danger" onclick="startEmpty()">${t("startEmpty")}</button>
     </div>
     <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">${t("dataBlurb")}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">${S.settings.lastBackupAt?esc(t("backupOn",{date:fmtDT(S.settings.lastBackupAt)})):t("backupNever")}${backupNote()}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">⚠️ ${t("oneOrigin")}</p>
   </section>`;
+}
+function backupNote(){
+  const has=S.students.length||S.records.length,lb=S.settings.lastBackupAt;
+  const stale=lb&&(Date.now()-lb)>7*864e5,none=has&&!lb;
+  if(!(stale||none))return "";
+  return " · ⚠️ "+(stale?t("backupNudge"):t("backupNeverNudge"));
 }
 function saveCls(){
   S.settings.className=$("#clsName").value.trim()||S.settings.className;
@@ -531,22 +544,34 @@ function delStudent(id){
     save();viewSettings();toast(t("removedToast",{name:st.name}));
   });
 }
+function emptyState(){return {version:1,
+    settings:{className:"",schoolName:"",teacher:"",motion:"auto"},
+    rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
+    students:[],records:[],requests:[],collection:{},boxSpent:{}};}
+function startEmptyConfirmed(){S=emptyState();sel=new Set();save();toast(t("startEmpty"));go("#/app/classroom");route();}
+function startEmpty(){if(S.students.length||S.records.length)confirmModal(t("startEmpty"),t("startEmptyBody"),startEmptyConfirmed,{backup:true});else startEmptyConfirmed();}
+function tryDemo(){
+  const doIt=()=>{seedDemo();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();};
+  if(S.students.length||S.records.length)confirmModal(t("tryDemo"),t("demoConfirmBody"),doIt,{backup:true});else doIt();
+}
+function downloadBackupFirst(){try{exportJSON();}catch(_){}}
 function exportJSON(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="gifted-scholars-"+S.settings.className.replace(/\s+/g,"-").toLowerCase()+".json";
+  a.download="gifted-scholars-"+(S.settings.className||t("defaultClassName")).replace(/\s+/g,"-").toLowerCase()+".json";
   a.click();URL.revokeObjectURL(a.href);
+  S.settings.lastBackupAt=Date.now();save();
   toast(t("exported"));
 }
 function confirmReset(){
   confirmModal(t("resetAsk"),t("resetBody"),()=>{
-    seed();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
-  });
+    seedDemo();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
+  },{backup:true});
 }
-function confirmModal(title,body,onYes){
+function confirmModal(title,body,onYes,opts){
   modal(`<h2>${esc(title)}</h2><p style="font-size:14px;color:var(--ink-soft)">${esc(body)}</p>
-  <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn danger" id="cfYes">${t("yesDo")}</button></div>`);
+  <div class="btns">${opts&&opts.backup&&(S.students.length||S.records.length)?`<button class="btn ghost" onclick="downloadBackupFirst()">⬇ ${t("backupFirst")}</button>`:""}<button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn danger" id="cfYes">${t("yesDo")}</button></div>`);
   $("#cfYes").addEventListener("click",()=>{closeOverlays();onYes();});
 }
 
@@ -561,7 +586,7 @@ function renderRoom(id){
   document.title=t("roomPre")+st.name;
   $("#view").innerHTML=`
   <div class="room">
-    <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className)}</a></div>
+    <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className||t("defaultClassName"))}</a></div>
     <div class="roomhead stk">
       <div class="bigav">${esc(st.name.slice(0,1))}</div>
       <div>

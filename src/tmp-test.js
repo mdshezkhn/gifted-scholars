@@ -30,7 +30,7 @@ en:{
  openMyRoom:"Open my room",yourName:"Your name",enter:"Enter",nameHint:"Type your name exactly as your teacher wrote it.",
  createdBy:"This site was created by ",
  licenseBody:"The school may use it forever, for free, even if the author moves on. <b>You may not</b> sell, charge for, or relicense this work, and the credit in the footer must stay. The author owns this work and may update it or share it with other schools. If these terms are broken, this license ends automatically.",
- tab_classroom:"Classroom",tab_records:"Records",tab_shop:"Gift shop",tab_board:"Leaderboard",tab_settings:"Setup",
+ tab_classroom:"Classroom",tab_records:"Records",tab_shop:"Gift shop",tab_board:"Leaderboard",tab_leaderboard:"Leaderboard",tab_settings:"Setup",
  selectAll:"Select all",clear:"Clear",rate:"Rate",celebrate:"Celebrate",undo:"Undo",remove:"Remove ",
  noRatings:"No ratings yet.",students:"Students",schoolName:"School name",className:"Class name",teacher:"Teacher",
  ratingRules:"Rating rules",newRule:"New rule",pointsValue:"Points value",catalog:"Catalog",dataSec:"Data",
@@ -67,7 +67,7 @@ zh:{
  openMyRoom:"打开我的礼物小屋",yourName:"你的名字",enter:"进入",nameHint:"请输入老师在名单上写的名字。",
  createdBy:"本网站由 ",
  licenseBody:"学校可以永远免费使用本作品，即使作者日后离开。<b>不得</b>出售、收费或再许可本作品，页脚的署名必须保留。版权归作者所有，作者可以继续更新或分享给其他学校。如违反以上条款，本许可自动终止。",
- tab_classroom:"教室",tab_records:"记录",tab_shop:"礼物小铺",tab_board:"排行榜",tab_settings:"设置",
+ tab_classroom:"教室",tab_records:"记录",tab_shop:"礼物小铺",tab_board:"排行榜",tab_leaderboard:"排行榜",tab_settings:"设置",
  selectAll:"全选",clear:"清除",rate:"评分",celebrate:"表扬",undo:"撤销",remove:"删除 ",
  noRatings:"还没有评分记录。",students:"学生",schoolName:"学校名称",className:"班级名称",teacher:"老师",
  ratingRules:"评分规则",newRule:"新规则",pointsValue:"分值",catalog:"礼物目录",dataSec:"数据",
@@ -322,7 +322,7 @@ Object.assign(I18N.en,{
  licSum:"and donated as a free gift to ZhongFangYuan Bilingual School. It will always be free: no fees, no ads, no tracking, nothing for sale.",
  licOwn:"<b>Ownership.</b> The site, its code, design and artwork remain the property of the author. Donating it to the school does not transfer copyright. The school may keep using it for everyday school life, free of charge, even after the author moves on.",
  licFonts:"Fonts: Instrument Serif &amp; Azeret Mono (SIL Open Font License). Provided \"as is\", without warranty of any kind.",
- tryDemo:"Try demo",demoConfirmBody:"This replaces your current class with the demo class. Continue?",
+ startEmptyBody:"This wipes ALL class data in this browser (students, records, requests, collections). Export a backup first.",demoClass:"Class 4B",demoSchool:"Maple Grove Primary",demoTeacher:"Ms. Rivera",demoNames:"Amelia, Bhavya, Chen, Dina, Emeka, Farah, Gabriel, Hana, Ibrahim, Jade, Kofi, Lena, Mateo, Nia, Omar, Priya",oneOrigin:"Always open this site from the same address — the two addresses keep separate data.",backupFirst:"Download backup first",backupNeverNudge:"No backup yet — export one now.",goSetup:"Add students", tryDemo:"Try demo",demoConfirmBody:"This replaces your current class with the demo class. Continue?",
  startEmpty:"Start empty",emptyHint:"Add students in Setup",defaultClassName:"My class",
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
@@ -369,7 +369,7 @@ Object.assign(I18N.zh,{
  licSum:"并作为一份免费礼物赠予中方园双语学校。它将永远免费：不收费、无广告、无追踪、绝不出售。",
  licOwn:"<b>版权归属。</b> 本网站的代码、设计与美术作品仍归作者所有；赠予学校不意味着转让版权。学校可以永久免费地继续在日常校园生活中使用，即使作者日后离开。",
  licFonts:"字体：Instrument Serif 与 Azeret Mono（SIL 开源字体授权）。按“现状”提供，不作任何担保。",
- tryDemo:"试试演示",demoConfirmBody:"这将用演示班级替换你现在的班级。继续吗？",
+ startEmptyBody:"这会清空这台浏览器里的全部班级数据（学生、记录、申请、收藏）。建议先导出一份备份。",demoClass:"三年二班",demoSchool:"枫叶小学",demoTeacher:"李老师",demoNames:"王小雨,李思远,张乐乐,陈静怡,杨帆,赵子墨,孙悦,周芷萱,吴一凡,郑好,黄晨曦,林嘉树,高小满,徐天佑,马欣然,罗云帆",oneOrigin:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",backupFirst:"先下载备份",backupNeverNudge:"还没有备份过——导出一份吧。",goSetup:"去添加学生", tryDemo:"试试演示",demoConfirmBody:"这将用演示班级替换你现在的班级。继续吗？",
  startEmpty:"清空重来",emptyHint:"先在「设置」里添加学生",defaultClassName:"我的班级",
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",
@@ -435,7 +435,6 @@ const DEFAULT_GIFTS = [
   {id:"g10",emoji:"🧰",name:"Treasure box pick",zh:"百宝箱", desc:"One pick from the real treasure box",price:15,stock:5,per:1},
   {id:"g11",emoji:"🎲",name:"Board game Friday",zh:"桌游周五", desc:"Bring a board game for Friday choice time",price:20,stock:null,per:1}
 ];
-const SEED_STUDENTS = ["Amelia","Bhavya","Chen","Dina","Emeka","Farah","Gabriel","Hana","Ibrahim","Jade","Kofi","Lena","Mateo","Nia","Omar","Priya"];
 
 let S = null;                 // app state
 let sel = new Set();          // classroom multi-select
@@ -469,15 +468,15 @@ function load(){
   try{const raw=localStorage.getItem(LS_KEY);if(raw){S=JSON.parse(raw);if(S&&S.students&&S.rules&&S.gifts&&S.records)return true;}}catch(e){}
   return false;
 }
-function seed(){
+function seedDemo(){
   // deterministic demo history so leaderboards and shelves have shape
   let rngState=42;const rng=()=>{rngState=(rngState*1103515245+12345)%2147483648;return rngState/2147483648;};
   S={version:1,
-    settings:{className:"Class 4B",schoolName:"Maple Grove Primary",teacher:"Ms. Rivera",motion:"auto"},
+    settings:{className:t("demoClass"),schoolName:t("demoSchool"),teacher:t("demoTeacher"),motion:"auto"},
     rules:DEFAULT_RULES.map(r=>({...r})),
     gifts:DEFAULT_GIFTS.map(g=>({...g})),
     students:[],records:[],requests:[],collection:{},boxSpent:{}};
-  SEED_STUDENTS.forEach((n,i)=>S.students.push({id:"s"+(i+1),name:n,hue:HUES[i%HUES.length]}));
+  t("demoNames").split(/[,，]\s*/).forEach((n,i)=>S.students.push({id:"s"+(i+1),name:n.trim(),hue:HUES[i%HUES.length]}));
   const now=Date.now(),day=864e5;
   for(let d=9;d>=0;d--){                       // ten school days of history
     const nEv=6+Math.floor(rng()*8);
@@ -611,7 +610,7 @@ function renderShell(tab){
     <nav class="rail" aria-label="${t("appSections")}">
       <a class="logo" href="#/">${logoSVG()} Gifted Scholars</a>
       ${TABS.map(tb=>'<a class="tab" href="#/app/'+t.id+'"'+(t.id===tab?' aria-current="page"':'')+'><span>'+t.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}
-      <div class="foot">${esc(S.settings.className)}<br>${esc(S.settings.schoolName)}</div>
+      <div class="foot">${esc(S.settings.className||t("defaultClassName"))}<br>${esc(S.settings.schoolName||"")}</div>
     </nav>
     <main class="main" id="main"></main>
   </div>`;
@@ -626,8 +625,13 @@ function renderShell(tab){
 /* ============ classroom view ============ */
 function viewClassroom(){
   const rules=S.rules.filter(r=>r.active!==false);
+  if(!S.students.length){$("#main").innerHTML=`
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className||t("defaultClassName"))})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
+  <div class="empty stk" style="margin-top:26px"><span class="big">🌱</span>${t("emptyHint")}<br>
+    <div class="btns" style="margin-top:12px;justify-content:center"><a class="btn primary" href="#/app/settings">${t("goSetup")}</a>
+    <button class="btn ghost" onclick="tryDemo()">${t("tryDemo")}</button></div></div>`;return;}
   $("#main").innerHTML=`
-  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className)})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
+  <div class="pagehead"><h1>${t("rateClass",{name:esc(S.settings.className||t("defaultClassName"))})}</h1><span class="sub">${t("pickSub",{n:sel.size})}</span></div>
   <div class="toolbar">
     <button class="btn sm" onclick="selAll(true)">${t("selectAll")}</button>
     <button class="btn sm" onclick="selAll(false)">${t("clear")}</button>
@@ -871,9 +875,18 @@ function viewSettings(){
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn" onclick="exportJSON()">${t("exportJSON")}</button>
       <button class="btn danger" onclick="confirmReset()">${t("resetDemo")}</button>
+      <button class="btn danger" onclick="startEmpty()">${t("startEmpty")}</button>
     </div>
     <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">${t("dataBlurb")}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">${S.settings.lastBackupAt?esc(t("backupOn",{date:fmtDT(S.settings.lastBackupAt)})):t("backupNever")}${backupNote()}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">⚠️ ${t("oneOrigin")}</p>
   </section>`;
+}
+function backupNote(){
+  const has=S.students.length||S.records.length,lb=S.settings.lastBackupAt;
+  const stale=lb&&(Date.now()-lb)>7*864e5,none=has&&!lb;
+  if(!(stale||none))return "";
+  return " · ⚠️ "+(stale?t("backupNudge"):t("backupNeverNudge"));
 }
 function saveCls(){
   S.settings.className=$("#clsName").value.trim()||S.settings.className;
@@ -910,22 +923,34 @@ function delStudent(id){
     save();viewSettings();toast(t("removedToast",{name:st.name}));
   });
 }
+function emptyState(){return {version:1,
+    settings:{className:"",schoolName:"",teacher:"",motion:"auto"},
+    rules:DEFAULT_RULES.map(r=>({...r})),gifts:DEFAULT_GIFTS.map(g=>({...g})),
+    students:[],records:[],requests:[],collection:{},boxSpent:{}};}
+function startEmptyConfirmed(){S=emptyState();sel=new Set();save();toast(t("startEmpty"));go("#/app/classroom");route();}
+function startEmpty(){if(S.students.length||S.records.length)confirmModal(t("startEmpty"),t("startEmptyBody"),startEmptyConfirmed,{backup:true});else startEmptyConfirmed();}
+function tryDemo(){
+  const doIt=()=>{seedDemo();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();};
+  if(S.students.length||S.records.length)confirmModal(t("tryDemo"),t("demoConfirmBody"),doIt,{backup:true});else doIt();
+}
+function downloadBackupFirst(){try{exportJSON();}catch(_){}}
 function exportJSON(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="gifted-scholars-"+S.settings.className.replace(/\s+/g,"-").toLowerCase()+".json";
+  a.download="gifted-scholars-"+(S.settings.className||t("defaultClassName")).replace(/\s+/g,"-").toLowerCase()+".json";
   a.click();URL.revokeObjectURL(a.href);
+  S.settings.lastBackupAt=Date.now();save();
   toast(t("exported"));
 }
 function confirmReset(){
   confirmModal(t("resetAsk"),t("resetBody"),()=>{
-    seed();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
-  });
+    seedDemo();sel=new Set();toast(t("demoReset"));go("#/app/classroom");route();
+  },{backup:true});
 }
-function confirmModal(title,body,onYes){
+function confirmModal(title,body,onYes,opts){
   modal(`<h2>${esc(title)}</h2><p style="font-size:14px;color:var(--ink-soft)">${esc(body)}</p>
-  <div class="btns"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn danger" id="cfYes">${t("yesDo")}</button></div>`);
+  <div class="btns">${opts&&opts.backup&&(S.students.length||S.records.length)?`<button class="btn ghost" onclick="downloadBackupFirst()">⬇ ${t("backupFirst")}</button>`:""}<button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn danger" id="cfYes">${t("yesDo")}</button></div>`);
   $("#cfYes").addEventListener("click",()=>{closeOverlays();onYes();});
 }
 
@@ -940,7 +965,7 @@ function renderRoom(id){
   document.title=t("roomPre")+st.name;
   $("#view").innerHTML=`
   <div class="room">
-    <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className)}</a></div>
+    <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className||t("defaultClassName"))}</a></div>
     <div class="roomhead stk">
       <div class="bigav">${esc(st.name.slice(0,1))}</div>
       <div>
@@ -1155,6 +1180,7 @@ function renderLanding(){
         <div class="ctas" data-stagger>
           <a class="gsbtn pig rv" href="#/app/classroom">${t("L_btnEnter")}</a>
           <button class="gsbtn rv" type="button" onclick="openLicense()">${t("L_btnLicense")}</button>
+          <button class="gsbtn rv" type="button" onclick="tryDemo();location.hash='#/app/classroom'">${t("tryDemo")}</button>
         </div>
       </div>
       <p class="corner-cap rv rv-raf">${t("L_caption")}</p>
@@ -1218,7 +1244,7 @@ function renderLanding(){
           <p class="rv">${t("L_pairBody")}</p>
         </div>
         <div class="data" data-stagger>
-          <div class="rv"><span class="k">${t("L_d1")}</span><span class="num">${SEED_STUDENTS.length}</span></div>
+          <div class="rv"><span class="k">${t("L_d1")}</span><span class="num">${t("demoNames").split(/[,，]\s*/).length}</span></div>
           <div class="rv"><span class="k">${t("L_d2")}</span><span class="num">${S.gifts.length}</span></div>
           <div class="rv"><span class="k">${t("L_d3")}</span><span class="num">${LEVELS.length}</span></div>
           <div class="rv"><span class="k">${t("L_d4")}</span><span class="num">${S.rules.length}</span></div>
@@ -1361,7 +1387,7 @@ function openLicense(){
 }
 
 /* ============ init (must run last) ============ */
-if(!load())seed();
+if(!load())S=emptyState();
 save();
 applyMotion();
 try{matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change",applyMotion);}catch(_){}
@@ -1370,12 +1396,12 @@ route();
 
 let fails=0;const T=(n,c,i)=>{console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
 /* core engine */
-T("seed loads",load()||seed(),true);
+T("seed loads",(seedDemo(),load()),true);
 T("16 students",S.students.length===16,String(S.students.length));
 T("rate adds record",(()=>{const st=S.students[0];const before=growthOf(st);sel=new Set([st.id]);rate("r1");return growthOf(st)===before+1;})(),"+1 hand");
 T("wallet math",(()=>{const st=S.students[0];growthOf(st);return walletOf(st)<=growthOf(st);})(),true);
-T("approve flow spends wallet",(()=>{const st=S.students[1];seed();S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.requests=S.requests.filter(q=>q.studentId!==st.id);S.boxSpent[st.id]=0;const g=S.gifts[0];sel=new Set([st.id]);S.rules.find(x=>x.id==="r2");applyRule(S.rules[1],[st.id]);applyRule(S.rules[0],[st.id]);const w0=walletOf(st);requestGift(st.id,g);const q=S.requests[0];decideReq(q.id,true);return walletOf(st)===w0-g.price;})(),"wallet drops by price");
-T("box gating",(()=>{const st=S.students[2];seed();S.boxSpent[st.id]=0;S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.gifts.forEach(g=>{});S.requests=S.requests.filter(q=>q.studentId!==st.id);const w=walletOf(st);return typeof canBox==="function"?canBox(st)===false||true:true;})(),true);
+T("approve flow spends wallet",(()=>{const st=S.students[1];seedDemo();S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.requests=S.requests.filter(q=>q.studentId!==st.id);S.boxSpent[st.id]=0;const g=S.gifts[0];sel=new Set([st.id]);S.rules.find(x=>x.id==="r2");applyRule(S.rules[1],[st.id]);applyRule(S.rules[0],[st.id]);const w0=walletOf(st);requestGift(st.id,g);const q=S.requests[0];decideReq(q.id,true);return walletOf(st)===w0-g.price;})(),"wallet drops by price");
+T("box gating",(()=>{const st=S.students[2];seedDemo();S.boxSpent[st.id]=0;S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.gifts.forEach(g=>{});S.requests=S.requests.filter(q=>q.studentId!==st.id);const w=walletOf(st);return typeof canBox==="function"?canBox(st)===false||true:true;})(),true);
 T("level curve",levelOf(0)===0&&levelOf(4)===0&&levelOf(5)===1&&levelOf(200)===9,"[0,5,12...]");
 T("week start monday",(()=>{const d=new Date(2026,9,21);return weekStart(d.getTime(),0)===weekStart(d.getTime(),0);})(),true);
 T("persistence roundtrip",(()=>{save();const n=JSON.parse(localStorage.getItem(LS_KEY));return n.students.length===S.students.length;})(),true);
@@ -1427,8 +1453,8 @@ T("room zh title",(()=>{setLang("zh");(location.hash="#/room/s1",route());const 
 T("i18n parity",(function(){const a=Object.keys(I18N.en).sort(),b=Object.keys(I18N.zh).sort();return a.length===b.length&&a.every((k,i)=>b[i]===k);})(),Object.keys(I18N.en).length+"/"+Object.keys(I18N.zh).length);
 T("zh default lang",(function(){if(typeof detectLang!=="function")return false;localStorage.removeItem("gs-lang");setLang(detectLang());return detectLang()==="zh"&&LANG==="zh";})(),"detectLang="+typeof detectLang);
 (function(){
-  setLang("zh");seed();
-  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<"];
+  setLang("zh");seedDemo();
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard"];
   const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
@@ -1450,7 +1476,7 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
   setLang("en");
 })();
 /* Task 4: economy re-base (WP2) */
-T("level ignores negatives",(function(){seed();const st=S.students[0];const lv0=levelOf(growthOf(st));
+T("level ignores negatives",(function(){seedDemo();const st=S.students[0];const lv0=levelOf(growthOf(st));
   for(let i=0;i<3;i++)S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t -2",value:-2,undone:false});
   return levelOf(growthOf(st))===lv0;})(),"level must not change on negatives");
 T("undo can lower level",(function(){const st=S.students[0];const g0=growthOf(st);
@@ -1458,7 +1484,7 @@ T("undo can lower level",(function(){const st=S.students[0];const g0=growthOf(st
   const r={id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:nxt,undone:false};
   S.records.unshift(r);const lv1=levelOf(growthOf(st));undoRecord(r);
   return lv1>levelOf(growthOf(st));})(),"undo lowers level");
-T("wallet formula",(function(){seed();const st=S.students[0];
+T("wallet formula",(function(){seedDemo();const st=S.students[0];
   S.records=S.records.filter(r=>!r.studentIds.includes(st.id));
   S.requests=S.requests.filter(q=>q.studentId!==st.id);delete S.boxSpent[st.id];
   S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:20,undone:false});
@@ -1467,7 +1493,7 @@ T("wallet formula",(function(){seed();const st=S.students[0];
   S.boxSpent[st.id]=2;
   return walletOf(st)===3&&growthOf(st)===20;})(),"wallet=pos-neg-spent-box, growth=pos");
 (function(){
-  seed();setLang("en");
+  seedDemo();setLang("en");
   const A=S.students[0],B=S.students[1];
   const now=Date.now(),w0=weekStart(now,1)+36e5,w1=weekStart(now,0)+36e5;
   S.records=[];S.boxSpent={};
@@ -1484,7 +1510,7 @@ T("wallet formula",(function(){seed();const st=S.students[0];
   T("progress board vs last week",pr[0]>=0&&pr[1]>=0&&pr[1]<pr[0],"B(idx "+pr[1]+") must rank above A(idx "+pr[0]+")");
   ui.board="all";
 })();
-T("record label rebinds to rule",(function(){seed();setLang("en");
+T("record label rebinds to rule",(function(){seedDemo();setLang("en");
   const rule=S.rules.find(r=>r.zh)||S.rules[0];const st=S.students[0];
   S.records=[{id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:rule.id,ruleLabel:rule.label+" "+rule.icon,value:2,undone:false}];
   location.hash="#/app/records";route();const en=($("#main").innerHTML.indexOf(rule.label)>=0);
@@ -1492,5 +1518,16 @@ T("record label rebinds to rule",(function(){seed();setLang("en");
   S.rules=S.rules.filter(r=>r.id!==rule.id);route();const fb=($("#main").innerHTML.indexOf(rule.label)>=0);
   return en&&zh&&fb;})(),"en render, zh rebind after lang switch, stored fallback after rule delete");
 
+/* Task 5+6 (WP3): empty start, guarded demo, backup-first, origin + backup note */
+function safeT(f){try{return f();}catch(e){console.log("SAFE-ERR",e.message);return false;}}
+T("fresh start empty",safeT(function(){const E=emptyState();return typeof emptyState==="function"&&E.students.length===0&&E.records.length===0&&E.settings.className===""&&E.rules.length>0;}),"emptyState shape");
+T("classroom onboarding zh",safeT(function(){setLang("zh");S=emptyState();sel=new Set();save();(location.hash="#/app/classroom",route());const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h.indexOf("我的班级")>=0&&h.indexOf("试试演示")>=0&&h.indexOf("设置")>=0;}),"default class name + try demo + hint");
+T("trydemo guard + backup btn",safeT(function(){setLang("zh");seedDemo();const n0=S.students.length;closeOverlays();tryDemo();const m=document.querySelector("#modals").innerHTML;const guarded=S.students.length===n0&&m.indexOf("downloadBackupFirst")>=0&&m.indexOf("演示")>=0;return guarded;}),"confirm + no mutation + backup button");
+T("backup button on all destructive confirms",safeT(function(){seedDemo();let ok=true;[function(){confirmReset();},function(){startEmpty();},function(){tryDemo();}].forEach(f=>{closeOverlays();f();if(document.querySelector("#modals").innerHTML.indexOf("downloadBackupFirst")<0)ok=false;});closeOverlays();S=emptyState();save();confirmReset();const emptyModal=document.querySelector("#modals").innerHTML;if(emptyModal.indexOf("downloadBackupFirst")>=0)ok=false;return ok;}),"present with data, absent without");
+T("trydemo seeds directly when empty",safeT(function(){S=emptyState();save();closeOverlays();tryDemo();return S.students.length===16&&document.querySelector("#modals").innerHTML==="";}),"no confirm when no data");
+T("export stamps lastBackupAt",safeT(function(){seedDemo();exportJSON();return (S.settings.lastBackupAt||0)>0&&JSON.parse(localStorage.getItem(LS_KEY)).settings.lastBackupAt>0;}),"export = backup");
+T("start empty wipes after confirm",safeT(function(){seedDemo();startEmpty();const stayed=S.students.length===16&&document.querySelector("#modals").innerHTML.indexOf("startEmpty")>=0||S.students.length===16;startEmptyConfirmed();return S.students.length===0&&S.records.length===0&&S.settings.className==="";}),"modal first, then wipe");
+T("demo labels localized",safeT(function(){setLang("zh");seedDemo();const zh=S.settings.className==="三年二班"&&S.settings.schoolName==="枫叶小学"&&/[一-鿿]/.test(S.students[0].name);setLang("en");seedDemo();const en=S.settings.className==="Class 4B"&&S.students[0].name==="Amelia";setLang("zh");seedDemo();return zh&&en;}),"zh and en demo classes");
+T("settings origin + backup note",safeT(function(){seedDemo();delete S.settings.lastBackupAt;save();(location.hash="#/app/settings",route());const h1=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;exportJSON();(location.hash="#/app/settings",route());const h2=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h1.indexOf("两个网址")>=0&&h1.indexOf("上次备份")>=0&&h1.indexOf("还没有备份")>=0&&h2.indexOf("两个网址")>=0&&h2.indexOf("还没有备份")<0;}),"origin note + nudge before export, date after");
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);

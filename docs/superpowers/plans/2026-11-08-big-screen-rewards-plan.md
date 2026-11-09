@@ -142,11 +142,11 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - Test: bundle additions
 
 **Interfaces:**
-- Produces: `emptyState() -> S` (default settings, **`className:""` stored empty** — every view that shows the class name renders `S.settings.className || t("defaultClassName")`, zh `我的班级` / en `My class`), zero students/records); `seedDemo() -> void` (existing demo data, unchanged content); `tryDemo()` — no-op with confirm modal when students/records exist, else `seedDemo()`; Settings `startEmpty()` with confirm; i18n keys `tryDemo`, `demoConfirmBody`, `startEmpty`, `emptyHint`, `defaultClassName` (Task 3 reserved).
+- Produces: `emptyState() -> S` (default settings, **`className:""` stored empty** — every view that shows the class name renders `S.settings.className || t("defaultClassName")`, zh `我的班级` / en `My class`), zero students/records); `seedDemo() -> void` (existing demo data, unchanged content); `tryDemo()` — no-op with confirm modal when students/records exist, else `seedDemo()`; Settings `startEmpty()` with confirm; i18n keys `tryDemo`, `demoConfirmBody`, `startEmpty`, `emptyHint`, `defaultClassName` (Task 3 reserved).; **demo seed localizes (teacher, 2026-11-09):** `seedDemo()` takes `className/schoolName/teacher` from new keys `demoClass`/`demoSchool`/`demoTeacher` and the 16-student roster from `demoNames` (comma-separated, zh roster uses Chinese names) — zh mode gets a fully Chinese demo class, en keeps "Class 4B / Maple Grove Primary / Ms. Rivera"; **all three destructive confirms (`Reset to demo`, `Start empty`, `Try demo` overwrite) gain a "Download backup first" ghost button** (`downloadBackupFirst()` → `exportJSON()`, which now stamps `settings.lastBackupAt` and saves; modal stays open) — shown only when students or records exist; `confirmModal` grows an optional 4th arg `{backup:true}`
 
 - [ ] **Step 1: Write the failing tests**
 
-`test_fresh_start_empty` — no stored state ⇒ init yields `emptyState()`, 0 students, stored `className === ""`; classroom renders onboarding card with Try-demo button, and the heading shows the translated default (`我的班级` in zh, `My class` in en). `test_trydemo_guard` — with ≥1 student or record, `tryDemo()` shows confirm (mock `confirmModal` records call) and does NOT mutate until confirmed. `test_start_empty_wipes` — `startEmpty()` after confirm ⇒ 0 students, settings defaults.
+`test_fresh_start_empty` — no stored state ⇒ init yields `emptyState()`, 0 students, stored `className === ""`; classroom renders onboarding card with Try-demo button, and the heading shows the translated default (`我的班级` in zh, `My class` in en). `test_trydemo_guard` — with ≥1 student or record, `tryDemo()` shows confirm (mock `confirmModal` records call) and does NOT mutate until confirmed. `test_start_empty_wipes` — `startEmpty()` after confirm ⇒ 0 students, settings defaults. `test_backup_first_button` — with demo data, opening each of the three confirms puts a `downloadBackupFirst()` button in `#modals`; with zero students AND zero records it is absent (and `tryDemo()` seeds with no confirm at all); `exportJSON()` sets `S.settings.lastBackupAt` and saves. `test_demo_labels_localized` — zh `seedDemo()` ⇒ `className === t("demoClass")` (三年二班) and student names are Chinese; en seed ⇒ "Class 4B" + English roster.
 
 - [ ] **Step 2: Run to verify they fail** — Run: `python3 src/gen-test.py && node src/tmp-test.js` — Expected: FAIL.
 - [ ] **Step 3: Implement** — as interfaces above; landing enter flow gains one "Try demo" tertiary button calling `tryDemo()`.
@@ -186,7 +186,10 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 - [ ] **Step 3: Implement** — as interfaces. Rerender = call current route renderer; on `#/screen` the handler also feeds the pop differ (Task 10 consumes via a registered hook `onSync(cb)`; Task 7 defines `onSync(cb)` registry, calls callbacks after S replacement).
 - [ ] **Step 4: Pass; commit** — `git commit -m "feat(state): re-read before mutation + storage-event sync (WP4)"`
 
+**Teacher additions (2026-11-09, binding):** the three confirm dialogs (Start empty / Reset to demo / Try demo-overwrite) include a **"Download backup first"** button — shown whenever `S.students.length || S.records.length` — that reuses `exportJSON()` and stamps `S.settings.lastBackupAt` (tested for all three dialogs, incl. records-only and empty cases). Demo seed labels (class/school/teacher) come from `t()` and the zh demo uses Chinese student names (test asserts CJK names + zh labels; en demo unchanged).
+
 ### Task 8: Big Screen shell + class goal (§6.1)
+> Teacher note (2026-11-09): goal-week tests must be **weekday-independent** (derive all fixtures from `weekStart(Date.now(),n)` ± hours, never `now − N days`) and must cover both boundaries: **Monday 00:00** (this week starts; last week ended hours ago) and **Sunday 23:59** (still inside the same week).
 
 **Files:**
 - Create: `src/screen.js`, `src/screen.css`
@@ -196,6 +199,8 @@ git add -A src/ index.html && git commit -m "feat(economy): levels on lifetime p
 **Interfaces:**
 - Consumes: `withState`, `onSync`, `t`, `esc`, `hueOf`, `LEVELS`, `growthOf`, `walletOf`, `lvlProgress`.
 - Produces: `renderScreen() -> String` (full view: top bar [class+goal, mute, fullscreen, drawer, exit] + `<main id=scrGrid>` + live region + sound chip mount); `goalState() -> {enabled,label,target,earned,pct,left}` where `earned` = positives since Monday-`weekStart()`; `toggleFullscreen()`, `setSound(on)` persisting `S.settings.sound` (default `"off"`); route `#/screen`; screen type sizes as CSS custom properties `--scr-name:32px; --scr-pts:44px; --scr-lv:24px; --scr-goal:32px;` (BINDING values from §6.1).
+
+**Teacher note (2026-11-09):** goal-week tests MUST be weekday-independent (no `Date.now()-N*d` assumptions — see the Task 4 Monday-tie lesson) and must cover the Monday 00:00 and Sunday 23:59 boundaries of `weekStart()`.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -309,6 +314,8 @@ Expected: byte-diff clean, tests PASS, old artifact gone. Validate `ci.yml` by i
 
 - [ ] **Step 3: Commit** — `git commit -m "chore: rename test files, add CI, rewrite README (WP7)"`
 
+**Final summary MUST state (teacher, 2026-11-09):** (a) the all-time board ignores negatives BY DESIGN (it ranks lifetime positives); (b) renaming a rule updates how past records read (labels rebind at render time); (c) every legacy test edited during the project.
+
 ### Task 15: Final verification — §8 as amended (WP8, no commit until teacher sees results)
 
 **Files:**
@@ -316,7 +323,7 @@ Expected: byte-diff clean, tests PASS, old artifact gone. Validate `ci.yml` by i
 
 - [ ] **Step 1: Run the headless suite** — routes × {zh,en} console/page errors = 0; `#/screen` at 1920×1080: computed styles meet the binding type minimums, 30-tile class has no grid overflow, 40-tile scrolls; drawer award updates instantly; two-window `storage` update < 200 ms; reload restores numbers; `A`/`F`/`Esc` inert while typing; reduced-motion pass creates zero confetti/transform nodes; sound chip lifecycle; no network requests (route interception log empty); `wc -c index.html` ≤ baseline +20 KB.
 - [ ] **Step 2: Screenshots** — classroom/screen/drawer/landing × zh+en; landing compared by eye to pre-theme shot for zero drift.
-- [ ] **Step 3: Report** — numbers + screenshots + list of legacy tests edited (Task 4) + what remains; remind the teacher of the §9 manual check (project it in the real classroom, 8 m readability, two-tab setup on the school computer) before sign-off; ask about push/deploy. Commit QA rig: `git commit -m "test: headless QA rig for big-screen release"`.
+- [ ] **Step 3: Report** — numbers + screenshots + list of legacy tests edited (Task 4) + what remains; remind the teacher of the §9 manual check (project it in the real classroom, 8 m readability, two-tab setup on the school computer) before sign-off; ask about push/deploy. Commit QA rig: `git commit -m "test: headless QA rig for big-screen release"`. — the summary MUST state, in plain words: (a) the all-time board now ignores negative points BY DESIGN (levels ride lifetime positives), and (b) renaming a rule updates how past records read (labels rebind at render time), plus the full list of legacy tests edited.
 
 ---
 

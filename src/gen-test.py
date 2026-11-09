@@ -21,12 +21,12 @@ globalThis.Blob=class{constructor(){}};globalThis.URL={createObjectURL:()=>"blob
 tests = '''
 let fails=0;const T=(n,c,i)=>{console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
 /* core engine */
-T("seed loads",load()||seed(),true);
+T("seed loads",(seedDemo(),load()),true);
 T("16 students",S.students.length===16,String(S.students.length));
 T("rate adds record",(()=>{const st=S.students[0];const before=growthOf(st);sel=new Set([st.id]);rate("r1");return growthOf(st)===before+1;})(),"+1 hand");
 T("wallet math",(()=>{const st=S.students[0];growthOf(st);return walletOf(st)<=growthOf(st);})(),true);
-T("approve flow spends wallet",(()=>{const st=S.students[1];seed();S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.requests=S.requests.filter(q=>q.studentId!==st.id);S.boxSpent[st.id]=0;const g=S.gifts[0];sel=new Set([st.id]);S.rules.find(x=>x.id==="r2");applyRule(S.rules[1],[st.id]);applyRule(S.rules[0],[st.id]);const w0=walletOf(st);requestGift(st.id,g);const q=S.requests[0];decideReq(q.id,true);return walletOf(st)===w0-g.price;})(),"wallet drops by price");
-T("box gating",(()=>{const st=S.students[2];seed();S.boxSpent[st.id]=0;S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.gifts.forEach(g=>{});S.requests=S.requests.filter(q=>q.studentId!==st.id);const w=walletOf(st);return typeof canBox==="function"?canBox(st)===false||true:true;})(),true);
+T("approve flow spends wallet",(()=>{const st=S.students[1];seedDemo();S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.requests=S.requests.filter(q=>q.studentId!==st.id);S.boxSpent[st.id]=0;const g=S.gifts[0];sel=new Set([st.id]);S.rules.find(x=>x.id==="r2");applyRule(S.rules[1],[st.id]);applyRule(S.rules[0],[st.id]);const w0=walletOf(st);requestGift(st.id,g);const q=S.requests[0];decideReq(q.id,true);return walletOf(st)===w0-g.price;})(),"wallet drops by price");
+T("box gating",(()=>{const st=S.students[2];seedDemo();S.boxSpent[st.id]=0;S.records=S.records.filter(r=>!r.studentIds.includes(st.id));S.gifts.forEach(g=>{});S.requests=S.requests.filter(q=>q.studentId!==st.id);const w=walletOf(st);return typeof canBox==="function"?canBox(st)===false||true:true;})(),true);
 T("level curve",levelOf(0)===0&&levelOf(4)===0&&levelOf(5)===1&&levelOf(200)===9,"[0,5,12...]");
 T("week start monday",(()=>{const d=new Date(2026,9,21);return weekStart(d.getTime(),0)===weekStart(d.getTime(),0);})(),true);
 T("persistence roundtrip",(()=>{save();const n=JSON.parse(localStorage.getItem(LS_KEY));return n.students.length===S.students.length;})(),true);
@@ -78,8 +78,8 @@ T("room zh title",(()=>{setLang("zh");(location.hash="#/room/s1",route());const 
 T("i18n parity",(function(){const a=Object.keys(I18N.en).sort(),b=Object.keys(I18N.zh).sort();return a.length===b.length&&a.every((k,i)=>b[i]===k);})(),Object.keys(I18N.en).length+"/"+Object.keys(I18N.zh).length);
 T("zh default lang",(function(){if(typeof detectLang!=="function")return false;localStorage.removeItem("gs-lang");setLang(detectLang());return detectLang()==="zh"&&LANG==="zh";})(),"detectLang="+typeof detectLang);
 (function(){
-  setLang("zh");seed();
-  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<"];
+  setLang("zh");seedDemo();
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard"];
   const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
@@ -101,7 +101,7 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
   setLang("en");
 })();
 /* Task 4: economy re-base (WP2) */
-T("level ignores negatives",(function(){seed();const st=S.students[0];const lv0=levelOf(growthOf(st));
+T("level ignores negatives",(function(){seedDemo();const st=S.students[0];const lv0=levelOf(growthOf(st));
   for(let i=0;i<3;i++)S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t -2",value:-2,undone:false});
   return levelOf(growthOf(st))===lv0;})(),"level must not change on negatives");
 T("undo can lower level",(function(){const st=S.students[0];const g0=growthOf(st);
@@ -109,7 +109,7 @@ T("undo can lower level",(function(){const st=S.students[0];const g0=growthOf(st
   const r={id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:nxt,undone:false};
   S.records.unshift(r);const lv1=levelOf(growthOf(st));undoRecord(r);
   return lv1>levelOf(growthOf(st));})(),"undo lowers level");
-T("wallet formula",(function(){seed();const st=S.students[0];
+T("wallet formula",(function(){seedDemo();const st=S.students[0];
   S.records=S.records.filter(r=>!r.studentIds.includes(st.id));
   S.requests=S.requests.filter(q=>q.studentId!==st.id);delete S.boxSpent[st.id];
   S.records.unshift({id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:S.rules[0].id,ruleLabel:"t",value:20,undone:false});
@@ -118,7 +118,7 @@ T("wallet formula",(function(){seed();const st=S.students[0];
   S.boxSpent[st.id]=2;
   return walletOf(st)===3&&growthOf(st)===20;})(),"wallet=pos-neg-spent-box, growth=pos");
 (function(){
-  seed();setLang("en");
+  seedDemo();setLang("en");
   const A=S.students[0],B=S.students[1];
   const now=Date.now(),w0=weekStart(now,1)+36e5,w1=weekStart(now,0)+36e5;
   S.records=[];S.boxSpent={};
@@ -135,7 +135,7 @@ T("wallet formula",(function(){seed();const st=S.students[0];
   T("progress board vs last week",pr[0]>=0&&pr[1]>=0&&pr[1]<pr[0],"B(idx "+pr[1]+") must rank above A(idx "+pr[0]+")");
   ui.board="all";
 })();
-T("record label rebinds to rule",(function(){seed();setLang("en");
+T("record label rebinds to rule",(function(){seedDemo();setLang("en");
   const rule=S.rules.find(r=>r.zh)||S.rules[0];const st=S.students[0];
   S.records=[{id:uid(),ts:Date.now(),studentIds:[st.id],ruleId:rule.id,ruleLabel:rule.label+" "+rule.icon,value:2,undone:false}];
   location.hash="#/app/records";route();const en=($("#main").innerHTML.indexOf(rule.label)>=0);
@@ -143,6 +143,17 @@ T("record label rebinds to rule",(function(){seed();setLang("en");
   S.rules=S.rules.filter(r=>r.id!==rule.id);route();const fb=($("#main").innerHTML.indexOf(rule.label)>=0);
   return en&&zh&&fb;})(),"en render, zh rebind after lang switch, stored fallback after rule delete");
 
+/* Task 5+6 (WP3): empty start, guarded demo, backup-first, origin + backup note */
+function safeT(f){try{return f();}catch(e){console.log("SAFE-ERR",e.message);return false;}}
+T("fresh start empty",safeT(function(){const E=emptyState();return typeof emptyState==="function"&&E.students.length===0&&E.records.length===0&&E.settings.className===""&&E.rules.length>0;}),"emptyState shape");
+T("classroom onboarding zh",safeT(function(){setLang("zh");S=emptyState();sel=new Set();save();(location.hash="#/app/classroom",route());const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h.indexOf("我的班级")>=0&&h.indexOf("试试演示")>=0&&h.indexOf("设置")>=0;}),"default class name + try demo + hint");
+T("trydemo guard + backup btn",safeT(function(){setLang("zh");seedDemo();const n0=S.students.length;closeOverlays();tryDemo();const m=document.querySelector("#modals").innerHTML;const guarded=S.students.length===n0&&m.indexOf("downloadBackupFirst")>=0&&m.indexOf("演示")>=0;return guarded;}),"confirm + no mutation + backup button");
+T("backup button on all destructive confirms",safeT(function(){seedDemo();let ok=true;[function(){confirmReset();},function(){startEmpty();},function(){tryDemo();}].forEach(f=>{closeOverlays();f();if(document.querySelector("#modals").innerHTML.indexOf("downloadBackupFirst")<0)ok=false;});closeOverlays();S=emptyState();save();confirmReset();const emptyModal=document.querySelector("#modals").innerHTML;if(emptyModal.indexOf("downloadBackupFirst")>=0)ok=false;return ok;}),"present with data, absent without");
+T("trydemo seeds directly when empty",safeT(function(){S=emptyState();save();closeOverlays();tryDemo();return S.students.length===16&&document.querySelector("#modals").innerHTML==="";}),"no confirm when no data");
+T("export stamps lastBackupAt",safeT(function(){seedDemo();exportJSON();return (S.settings.lastBackupAt||0)>0&&JSON.parse(localStorage.getItem(LS_KEY)).settings.lastBackupAt>0;}),"export = backup");
+T("start empty wipes after confirm",safeT(function(){seedDemo();startEmpty();const stayed=S.students.length===16&&document.querySelector("#modals").innerHTML.indexOf("startEmpty")>=0||S.students.length===16;startEmptyConfirmed();return S.students.length===0&&S.records.length===0&&S.settings.className==="";}),"modal first, then wipe");
+T("demo labels localized",safeT(function(){setLang("zh");seedDemo();const zh=S.settings.className==="三年二班"&&S.settings.schoolName==="枫叶小学"&&/[\u4e00-\u9fff]/.test(S.students[0].name);setLang("en");seedDemo();const en=S.settings.className==="Class 4B"&&S.students[0].name==="Amelia";setLang("zh");seedDemo();return zh&&en;}),"zh and en demo classes");
+T("settings origin + backup note",safeT(function(){seedDemo();delete S.settings.lastBackupAt;save();(location.hash="#/app/settings",route());const h1=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;exportJSON();(location.hash="#/app/settings",route());const h2=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h1.indexOf("两个网址")>=0&&h1.indexOf("上次备份")>=0&&h1.indexOf("还没有备份")>=0&&h2.indexOf("两个网址")>=0&&h2.indexOf("还没有备份")<0;}),"origin note + nudge before export, date after");
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
 '''

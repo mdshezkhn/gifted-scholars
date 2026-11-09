@@ -139,6 +139,7 @@ function renderLanding(){
         <div class="ctas" data-stagger>
           <a class="gsbtn pig rv" href="#/app/classroom">${t("L_btnEnter")}</a>
           <button class="gsbtn rv" type="button" onclick="openLicense()">${t("L_btnLicense")}</button>
+          <button class="gsbtn rv" type="button" onclick="tryDemo();location.hash='#/app/classroom'">${t("tryDemo")}</button>
         </div>
       </div>
       <p class="corner-cap rv rv-raf">${t("L_caption")}</p>
@@ -202,7 +203,7 @@ function renderLanding(){
           <p class="rv">${t("L_pairBody")}</p>
         </div>
         <div class="data" data-stagger>
-          <div class="rv"><span class="k">${t("L_d1")}</span><span class="num">${SEED_STUDENTS.length}</span></div>
+          <div class="rv"><span class="k">${t("L_d1")}</span><span class="num">${t("demoNames").split(/[,，]\s*/).length}</span></div>
           <div class="rv"><span class="k">${t("L_d2")}</span><span class="num">${S.gifts.length}</span></div>
           <div class="rv"><span class="k">${t("L_d3")}</span><span class="num">${LEVELS.length}</span></div>
           <div class="rv"><span class="k">${t("L_d4")}</span><span class="num">${S.rules.length}</span></div>
@@ -345,7 +346,7 @@ function openLicense(){
 }
 
 /* ============ init (must run last) ============ */
-if(!load())seed();
+if(!load())S=emptyState();
 save();
 applyMotion();
 try{matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change",applyMotion);}catch(_){}
