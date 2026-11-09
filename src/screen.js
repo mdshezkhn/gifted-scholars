@@ -36,6 +36,17 @@ function toggleFullscreen(){
   }catch(_){}
 }
 
+function saveGoal(){
+  withState(()=>{
+    S.settings.goal=S.settings.goal||{};
+    S.settings.goal.enabled=!!($("#goalEn")&&$("#goalEn").checked);
+    S.settings.goal.label=(($("#goalLabel")&&$("#goalLabel").value)||"").trim();
+    S.settings.goal.target=Math.max(0,parseInt(($("#goalTarget")&&$("#goalTarget").value)||"0",10)||0);
+  });
+  toast(t("goalSaved"));
+  if(location.hash==="#/app/settings")viewSettings();
+}
+
 /* Task 11 fills this in; stub exists so the button is never a dead link. */
 function openDrawer(){/* quick-award drawer (Task 11) */}
 
