@@ -443,6 +443,7 @@ let ui = {board:"all"};
 
 const $ = (s,el)=> (el||document).querySelector(s);
 const $$ = (s,el)=> Array.from((el||document).querySelectorAll(s));
+function initialOf(n){const a=Array.from(String(n==null?"":n).trim());return a.length?a[0]:"?";}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid = () => "x"+Math.random().toString(36).slice(2,9);
 const HUES = [12,45,95,150,185,210,260,300,330];
@@ -549,7 +550,7 @@ function route(){
   const h=location.hash||"#/";
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
-  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
   if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
@@ -659,7 +660,7 @@ function stuCard(st){
   const g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}" onclick="pick('${st.id}')" role="button" tabindex="0" aria-pressed="${sel.has(st.id)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${st.id}')}">
     <span class="pick" aria-hidden="true">${sel.has(st.id)?"✓":""}</span>
-    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(st.name.slice(0,1))}</div>
+    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</div>
     <div class="nm">${esc(st.name)}</div>
     <div class="lv">${L.badge} Lv${lp.i+1} · ${esc(nm(L))}</div>
     <div class="pts"><span class="net num${g<0?" neg":""}"># ${g}</span><span class="wallet num">★ ${w}</span></div>
@@ -1001,7 +1002,7 @@ function renderRoom(id){
   <div class="room">
     <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className||t("defaultClassName"))}</a></div>
     <div class="roomhead stk">
-      <div class="bigav">${esc(st.name.slice(0,1))}</div>
+      <div class="bigav">${esc(initialOf(st.name))}</div>
       <div>
         <h1>${t("roomOf",{name:esc(st.name)})}</h1>
         <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} ${t("levelN",{n:lp.i+1})} · ${esc(nm(L))}</div>
@@ -1126,6 +1127,18 @@ function saveGoal(){
 /* Task 11 fills this in; stub exists so the button is never a dead link. */
 function openDrawer(){/* quick-award drawer (Task 11) */}
 
+/* Task 9: student tile - binding type scale only (--scr-*), one-line names. */
+function tileHTML(st){
+  const g=growthOf(st),lp=lvlProgress(g),w=walletOf(st);
+  const pct=lp.next?lp.pct:100;
+  return `<div class="scr-tile" id="tile-${esc(st.id)}" style="--h:${st.hue||200}">
+    <div class="scr-row1"><span class="scr-av" aria-hidden="true">${esc(initialOf(st.name))}</span><span class="scr-lv num" id="scrlv-${esc(st.id)}">${esc(LEVELS[lp.i].badge)} Lv ${lp.i+1}</span></div>
+    <span class="scr-name" id="scrname-${esc(st.id)}">${esc(st.name)}</span>
+    <span class="scr-pts num" id="scrpts-${esc(st.id)}">★ ${w}</span>
+    <div class="scr-bar" role="progressbar" aria-label="${t("toNext")}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" id="scrbar-${esc(st.id)}"><i style="width:${pct}%"></i></div>
+  </div>`;
+}
+
 function renderScreen(){
   const G=goalState();
   const soundOn=(S.settings.sound||"off")==="on";
@@ -1147,13 +1160,7 @@ function renderScreen(){
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
-    <main class="scr-grid" id="scrGrid">${S.students.map(st=>`
-      <div class="scr-tile" style="--h:${st.hue||200}">
-        <span class="scr-name">${esc(st.name)}</span>
-        <span class="scr-lv" id="scrlv-${esc(st.id)}"></span>
-        <span class="scr-pts num" id="scrpts-${esc(st.id)}"></span>
-        <div class="scr-bar"><i></i></div>
-      </div>`).join("")}</main>
+    <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
     <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
     <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
   </div>`;
@@ -1520,7 +1527,7 @@ try{matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change",app
 route();
 
 
-let fails=0;const T=(n,c,i)=>{if(typeof c==="function"){try{c=c();}catch(e){c=false;i="THREW "+(e&&e.message||e);}}console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
+let fails=0;const T=(n,c,i)=>{if(typeof c==="function"){try{c=c();}catch(e){c=false;i="THREW "+(e&&e.message||e);}}if(typeof c==="string"){i=c;c=false;}console.log((c?"PASS":"FAIL")+" "+n+(c?"":" | "+i));if(!c)fails++;};
 /* harness self-tests (teacher 2026-11-09): a false and a throwing test must each record FAIL */
 T("selftest harness failing",(()=>{const _l=console.log;console.log=()=>{};const f0=fails;T("__sfx",false,"x");const inc=fails-f0===1;fails=f0;console.log=_l;return inc;})(),"false condition records FAIL");
 T("selftest harness throwing",(()=>{const _l=console.log;console.log=()=>{};const f0=fails;T("__sth",()=>{throw new Error("boom")},"x");const inc=fails-f0===1;fails=f0;console.log=_l;return inc;})(),"throwing test records FAIL, not pass");
@@ -1550,8 +1557,8 @@ T("study model p0",(function(){const m=studyModel(0);return m.day===0&&m.pts===0
 T("study model p1",(function(){const m=studyModel(1);return m.day===5&&m.pts===10&&m.level===2&&m.into===71&&m.stars===10;})(),"10pts -> L3 71%");
 T("study model mid",(function(){const m=studyModel(0.5);return m.day===2&&m.pts===4&&m.level===1&&m.into===80;})(),"4pts -> L1 80%");
 T("arc endpoints",(function(){const a=arcPoint(0),b=arcPoint(1);return a[0]===12&&a[1]===80&&b[0]===88&&b[1]===10;})(),"bezier ends");
-T("figure to scale",(function(){const f=figureSVG();return f.indexOf("polyline")>=0&&f.split("fill=" + String.fromCharCode(34) + "#9B3418" + String.fromCharCode(34)).length-1===10&&f.indexOf("L5 · 35")>=0;})(),"10 pigment dots + L5=35");
-T("zh landing copy",t("L_headB")==="大大的笑容。",t("L_headB"));
+T("figure to scale",(function(){const f=figureSVG();return f.indexOf("polyline")>=0&&f.split("fill=" + String.fromCharCode(34) + "#9B3418" + String.fromCharCode(34)).length-1===10&&f.indexOf("L5 \u00b7 35")>=0;})(),"10 pigment dots + L5=35");
+T("zh landing copy",t("L_headB")==="\u5927\u5927\u7684\u7b11\u5bb9\u3002",t("L_headB"));
 T("setLang en restore",(()=>{setLang("en");return document.querySelector("#view").innerHTML.indexOf("little stars.")>=0;})(),"back to en");
 T("lang persisted",localStorage.getItem("gs-lang")==="en",localStorage.getItem("gs-lang"));
 T("shell en tabs",(location.hash="#/app/classroom",route(),document.querySelector("#view").innerHTML.indexOf("Classroom")>=0&&document.querySelector("#view").innerHTML.indexOf("教室")<0),"tabs en only");
@@ -1659,11 +1666,11 @@ T("backup button on all destructive confirms",safeT(function(){seedDemo();let ok
 T("trydemo seeds directly when empty",safeT(function(){S=emptyState();save();closeOverlays();tryDemo();return S.students.length===16&&document.querySelector("#modals").innerHTML==="";}),"no confirm when no data");
 T("export stamps lastBackupAt",safeT(function(){seedDemo();exportJSON();return (S.settings.lastBackupAt||0)>0&&JSON.parse(localStorage.getItem(LS_KEY)).settings.lastBackupAt>0;}),"export = backup");
 T("start empty wipes after confirm",safeT(function(){seedDemo();startEmpty();const stayed=S.students.length===16&&document.querySelector("#modals").innerHTML.indexOf("startEmpty")>=0||S.students.length===16;startEmptyConfirmed();return S.students.length===0&&S.records.length===0&&S.settings.className==="";}),"modal first, then wipe");
-T("demo labels localized",safeT(function(){setLang("zh");seedDemo();const zh=S.settings.className==="三年二班"&&S.settings.schoolName==="枫叶小学"&&/[一-鿿]/.test(S.students[0].name);setLang("en");seedDemo();const en=S.settings.className==="Class 4B"&&S.students[0].name==="Amelia";setLang("zh");seedDemo();return zh&&en;}),"zh and en demo classes");
+T("demo labels localized",safeT(function(){setLang("zh");seedDemo();const zh=S.settings.className==="三年二班"&&S.settings.schoolName==="枫叶小学"&&/[\u4e00-\u9fff]/.test(S.students[0].name);setLang("en");seedDemo();const en=S.settings.className==="Class 4B"&&S.students[0].name==="Amelia";setLang("zh");seedDemo();return zh&&en;}),"zh and en demo classes");
 T("settings origin + backup note",safeT(function(){seedDemo();delete S.settings.lastBackupAt;save();(location.hash="#/app/settings",route());const h1=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;exportJSON();(location.hash="#/app/settings",route());const h2=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h1.indexOf("两个网址")>=0&&h1.indexOf("上次备份")>=0&&h1.indexOf("还没有备份")>=0&&h2.indexOf("两个网址")>=0&&h2.indexOf("还没有备份")<0;}),"origin note + nudge before export, date after");
 T("baseline fixture upgrades",safeT(function(){
-  localStorage.setItem(LS_KEY,FIXTURE);if(!load())return "load failed";
-  const F=JSON.parse(FIXTURE);
+  localStorage.setItem(LS_KEY,JSON.stringify(FIXTURE));if(!load())return "load failed";
+  const F=(typeof FIXTURE==="string")?JSON.parse(FIXTURE):FIXTURE;
   if(S.students.length!==F.students.length||S.records.length!==F.records.length)return "counts drifted";
   if(JSON.stringify(S.requests)!==JSON.stringify(F.requests))return "requests mutated";
   if(JSON.stringify(S.collection)!==JSON.stringify(F.collection))return "collection mutated";
@@ -1769,6 +1776,45 @@ T("sound default off",safeT(function(){
   setSound(true);
   return S.settings.sound==="on"&&JSON.parse(localStorage.getItem(LS_KEY)).settings.sound==="on"&&typeof saveGoal==="function";
 }),"emptyState defaults off; setSound persists via withState; saveGoal exists");
+/* Task 9: tiles + density + codepoint-safe initials (teacher item 3) */
+T("initial codepoint safe",safeT(function(){
+  if(typeof initialOf!=="function")return false;
+  const e=initialOf("\u{1F680}\u5C0F\u706B\u7BAD\u{1F680}");
+  if(Array.from(e).length!==1||e.codePointAt(0)<0x1F300)return "emoji initial broken";
+  const cjk="\u5F20\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50";
+  if(initialOf(cjk)!=="\u5F20")return "cjk first char wrong";
+  if(initialOf("")!=="?"||initialOf(null)!=="?")return "fallback wrong";
+  S=emptyState();sel=new Set();
+  S.students=[{id:"se",name:"\u{1F680}\u5C0F\u706B\u7BAD\u{1F680}",hue:200},{id:"sc",name:cjk+"&<b>",hue:120}];
+  save();(location.hash="#/app/classroom",route());
+  const ch=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+  if(ch.indexOf("\u{1F680}\u5C0F\u706B\u7BAD\u{1F680}")<0)return "classroom card missing full emoji name";
+  (location.hash="#/room/se",route());
+  const rh=document.querySelector("#view").innerHTML;
+  return rh.indexOf("\u{1F680}")>=0&&rh.indexOf("\uFFFD")<0;
+}),"emoji initial whole; CJK first char; room avatar safe; fallback ?");
+T("screen grid 30/50 + escape",safeT(function(){
+  seedDemo();
+  while(S.students.length<30)S.students.push({id:"sx"+S.students.length,name:"\u5F20\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50\u4E50&x",hue:200+S.students.length});
+  S.students[0].name="\u5F20\u4E50\u4E50&<b>";
+  save();(location.hash="#/screen",route());
+  const h=document.querySelector("#view").innerHTML;
+  if(h.split("scr-tile").length-1<30)return "want 30 tiles";
+  if(h.indexOf("&amp;")<0)return "names not escaped";
+  while(S.students.length<50)S.students.push({id:"sy"+S.students.length,name:"S"+S.students.length,hue:10});
+  save();renderScreen();
+  return document.querySelector("#view").innerHTML.split("scr-tile").length-1>=50;
+}),"30 tiles, & escaped, 50 no crash");
+T("tile content lv wallet aria",safeT(function(){
+  seedDemo();(location.hash="#/screen",route());
+  const h=document.querySelector("#view").innerHTML;
+  const tile=h.slice(h.indexOf("scr-tile"),h.indexOf("scr-tile")+900);
+  const need=["Lv","\u2605",'aria-valuemin="0"','aria-valuemax="100"','aria-valuenow="'];
+  for(const n of need)if(tile.indexOf(n)<0)return "missing "+n;
+  const css=require("fs").readFileSync("screen.css","utf8");
+  return css.indexOf("--scr-tile")>=0&&/overflow(-y)?:\s*auto/.test(css);
+}),"Lv + star + progressbar aria triple + css vars");
+
 /* item 1 (teacher 2026-11-09): every save() call site must be allow-listed below.
    ALLOW maps exact stripped line -> (max occurrences, reason). A new save() anywhere,
    or more occurrences than documented, fails the test. Extend the list CONSCIOUSLY. */

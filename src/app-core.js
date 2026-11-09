@@ -63,6 +63,7 @@ let ui = {board:"all"};
 
 const $ = (s,el)=> (el||document).querySelector(s);
 const $$ = (s,el)=> Array.from((el||document).querySelectorAll(s));
+function initialOf(n){const a=Array.from(String(n==null?"":n).trim());return a.length?a[0]:"?";}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid = () => "x"+Math.random().toString(36).slice(2,9);
 const HUES = [12,45,95,150,185,210,260,300,330];
@@ -169,7 +170,7 @@ function route(){
   const h=location.hash||"#/";
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
-  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
   if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
@@ -279,7 +280,7 @@ function stuCard(st){
   const g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}" onclick="pick('${st.id}')" role="button" tabindex="0" aria-pressed="${sel.has(st.id)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${st.id}')}">
     <span class="pick" aria-hidden="true">${sel.has(st.id)?"✓":""}</span>
-    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(st.name.slice(0,1))}</div>
+    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</div>
     <div class="nm">${esc(st.name)}</div>
     <div class="lv">${L.badge} Lv${lp.i+1} · ${esc(nm(L))}</div>
     <div class="pts"><span class="net num${g<0?" neg":""}"># ${g}</span><span class="wallet num">★ ${w}</span></div>
@@ -621,7 +622,7 @@ function renderRoom(id){
   <div class="room">
     <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className||t("defaultClassName"))}</a></div>
     <div class="roomhead stk">
-      <div class="bigav">${esc(st.name.slice(0,1))}</div>
+      <div class="bigav">${esc(initialOf(st.name))}</div>
       <div>
         <h1>${t("roomOf",{name:esc(st.name)})}</h1>
         <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} ${t("levelN",{n:lp.i+1})} · ${esc(nm(L))}</div>

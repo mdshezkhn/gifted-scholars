@@ -214,6 +214,7 @@ label{font-weight:700;font-size:14px}
   --scr-pts:44px;
   --scr-lv:24px;
   --scr-goal:32px;
+  --scr-tile:300px;
 }
 .screen-root{
   min-height:100vh;
@@ -264,6 +265,43 @@ label{font-weight:700;font-size:14px}
 @media (prefers-reduced-motion: reduce){
   .scr-track i,.scr-rocket{transition:none;}
 }
+
+/* Task 9: tile grid — 6 columns x 5 rows at 1920x1080 => 24-30 tiles, no page scroll;
+   more students scroll INSIDE the grid (header/goal stay pinned). */
+.screen-root{height:100vh;overflow:hidden;}
+.scr-grid{
+  flex:1;min-height:0;
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(var(--scr-tile),1fr));
+  gap:10px;
+  padding:6px 16px 16px;
+  align-content:start;
+}
+.scr-tile{
+  background:var(--white);
+  border:2px solid hsl(var(--h),45%,70%);
+  border-radius:18px;
+  padding:8px 14px 12px;
+  display:flex;flex-direction:column;gap:2px;
+  min-width:0;
+}
+.scr-row1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.scr-av{
+  width:44px;height:44px;border-radius:50%;
+  background:hsl(var(--h),55%,82%);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:24px;font-family:var(--font-round);
+}
+.scr-lv{font-size:var(--scr-lv);color:var(--ink-soft);white-space:nowrap;}
+.scr-name{
+  font-size:var(--scr-name);line-height:1.08;font-family:var(--font-round);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.scr-pts{font-size:var(--scr-pts);line-height:1.05;color:var(--ink);}
+.scr-bar{height:8px;border-radius:4px;background:var(--paper-2);overflow:hidden;}
+.scr-bar i{display:block;height:100%;background:hsl(var(--h),60%,55%);}
+@media (max-width:1100px){:root{--scr-tile:260px;--scr-name:24px;--scr-pts:34px;--scr-lv:18px;--scr-goal:24px;}}
 
 /* ================================================================
    Gifted Scholars — studio landing (warm editorial system)
@@ -894,6 +932,7 @@ let ui = {board:"all"};
 
 const $ = (s,el)=> (el||document).querySelector(s);
 const $$ = (s,el)=> Array.from((el||document).querySelectorAll(s));
+function initialOf(n){const a=Array.from(String(n==null?"":n).trim());return a.length?a[0]:"?";}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid = () => "x"+Math.random().toString(36).slice(2,9);
 const HUES = [12,45,95,150,185,210,260,300,330];
@@ -1000,7 +1039,7 @@ function route(){
   const h=location.hash||"#/";
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
-  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);}
+  if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
   if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
@@ -1110,7 +1149,7 @@ function stuCard(st){
   const g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
   return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}" onclick="pick('${st.id}')" role="button" tabindex="0" aria-pressed="${sel.has(st.id)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${st.id}')}">
     <span class="pick" aria-hidden="true">${sel.has(st.id)?"✓":""}</span>
-    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(st.name.slice(0,1))}</div>
+    <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</div>
     <div class="nm">${esc(st.name)}</div>
     <div class="lv">${L.badge} Lv${lp.i+1} · ${esc(nm(L))}</div>
     <div class="pts"><span class="net num${g<0?" neg":""}"># ${g}</span><span class="wallet num">★ ${w}</span></div>
@@ -1452,7 +1491,7 @@ function renderRoom(id){
   <div class="room">
     <div class="back"><a class="btn sm" href="#/app/classroom">← ${esc(S.settings.className||t("defaultClassName"))}</a></div>
     <div class="roomhead stk">
-      <div class="bigav">${esc(st.name.slice(0,1))}</div>
+      <div class="bigav">${esc(initialOf(st.name))}</div>
       <div>
         <h1>${t("roomOf",{name:esc(st.name)})}</h1>
         <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} ${t("levelN",{n:lp.i+1})} · ${esc(nm(L))}</div>
@@ -1577,6 +1616,18 @@ function saveGoal(){
 /* Task 11 fills this in; stub exists so the button is never a dead link. */
 function openDrawer(){/* quick-award drawer (Task 11) */}
 
+/* Task 9: student tile - binding type scale only (--scr-*), one-line names. */
+function tileHTML(st){
+  const g=growthOf(st),lp=lvlProgress(g),w=walletOf(st);
+  const pct=lp.next?lp.pct:100;
+  return `<div class="scr-tile" id="tile-${esc(st.id)}" style="--h:${st.hue||200}">
+    <div class="scr-row1"><span class="scr-av" aria-hidden="true">${esc(initialOf(st.name))}</span><span class="scr-lv num" id="scrlv-${esc(st.id)}">${esc(LEVELS[lp.i].badge)} Lv ${lp.i+1}</span></div>
+    <span class="scr-name" id="scrname-${esc(st.id)}">${esc(st.name)}</span>
+    <span class="scr-pts num" id="scrpts-${esc(st.id)}">★ ${w}</span>
+    <div class="scr-bar" role="progressbar" aria-label="${t("toNext")}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" id="scrbar-${esc(st.id)}"><i style="width:${pct}%"></i></div>
+  </div>`;
+}
+
 function renderScreen(){
   const G=goalState();
   const soundOn=(S.settings.sound||"off")==="on";
@@ -1598,13 +1649,7 @@ function renderScreen(){
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
-    <main class="scr-grid" id="scrGrid">${S.students.map(st=>`
-      <div class="scr-tile" style="--h:${st.hue||200}">
-        <span class="scr-name">${esc(st.name)}</span>
-        <span class="scr-lv" id="scrlv-${esc(st.id)}"></span>
-        <span class="scr-pts num" id="scrpts-${esc(st.id)}"></span>
-        <div class="scr-bar"><i></i></div>
-      </div>`).join("")}</main>
+    <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
     <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
     <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
   </div>`;

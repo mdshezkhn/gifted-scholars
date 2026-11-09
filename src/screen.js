@@ -50,6 +50,18 @@ function saveGoal(){
 /* Task 11 fills this in; stub exists so the button is never a dead link. */
 function openDrawer(){/* quick-award drawer (Task 11) */}
 
+/* Task 9: student tile - binding type scale only (--scr-*), one-line names. */
+function tileHTML(st){
+  const g=growthOf(st),lp=lvlProgress(g),w=walletOf(st);
+  const pct=lp.next?lp.pct:100;
+  return `<div class="scr-tile" id="tile-${esc(st.id)}" style="--h:${st.hue||200}">
+    <div class="scr-row1"><span class="scr-av" aria-hidden="true">${esc(initialOf(st.name))}</span><span class="scr-lv num" id="scrlv-${esc(st.id)}">${esc(LEVELS[lp.i].badge)} Lv ${lp.i+1}</span></div>
+    <span class="scr-name" id="scrname-${esc(st.id)}">${esc(st.name)}</span>
+    <span class="scr-pts num" id="scrpts-${esc(st.id)}">★ ${w}</span>
+    <div class="scr-bar" role="progressbar" aria-label="${t("toNext")}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" id="scrbar-${esc(st.id)}"><i style="width:${pct}%"></i></div>
+  </div>`;
+}
+
 function renderScreen(){
   const G=goalState();
   const soundOn=(S.settings.sound||"off")==="on";
@@ -71,13 +83,7 @@ function renderScreen(){
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
-    <main class="scr-grid" id="scrGrid">${S.students.map(st=>`
-      <div class="scr-tile" style="--h:${st.hue||200}">
-        <span class="scr-name">${esc(st.name)}</span>
-        <span class="scr-lv" id="scrlv-${esc(st.id)}"></span>
-        <span class="scr-pts num" id="scrpts-${esc(st.id)}"></span>
-        <div class="scr-bar"><i></i></div>
-      </div>`).join("")}</main>
+    <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
     <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
     <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
   </div>`;
