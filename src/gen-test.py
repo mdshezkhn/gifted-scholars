@@ -78,11 +78,13 @@ T("room zh title",(()=>{setLang("zh");(location.hash="#/room/s1",route());const 
 T("i18n parity",(function(){const a=Object.keys(I18N.en).sort(),b=Object.keys(I18N.zh).sort();return a.length===b.length&&a.every((k,i)=>b[i]===k);})(),Object.keys(I18N.en).length+"/"+Object.keys(I18N.zh).length);
 T("zh default lang",(function(){if(typeof detectLang!=="function")return false;localStorage.removeItem("gs-lang");setLang(detectLang());return detectLang()==="zh"&&LANG==="zh";})(),"detectLang="+typeof detectLang);
 (function(){
-  setLang("zh");seedDemo();
+  setLang("zh");seedDemo();globalThis.__gsMissedKeys=[];
+  const RAWKEY=/[a-z]{3,}_[a-z]{3,}/;
   const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard"];
   const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
+    const mk=(RAWKEY.exec(h)||[])[0];if(mk)hits.push(v+" :: rawkey:"+mk);
     for(const s of leaks)if(h.indexOf(s)>=0){hits.push(v+" :: "+s);}}
   const made=[];const _ce=document.createElement;document.createElement=c=>{const e=fakeEl();made.push(e);return e;};
   queueLevelUp(byId("s1"),2);flushLevelUps();
@@ -90,6 +92,7 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
   openGive(S.gifts[0].id);
   document.createElement=_ce;
   const mh=made.map(e=>e.innerHTML||"").join(" || ")+" || "+document.querySelector("#modals").innerHTML;
+  {const mk=(RAWKEY.exec(mh)||[])[0];if(mk)hits.push("modal :: rawkey:"+mk);}
   for(const s of ["Level ","Ask for a gift",">Ask<","Instant grant","Spend ★",">Cancel<"])if(mh.indexOf(s)>=0)hits.push("modal :: "+s);
   closeOverlays();
   const toasts=[];document.createElement=c=>{const e=fakeEl();toasts.push(e);return e;};
@@ -154,6 +157,7 @@ T("export stamps lastBackupAt",safeT(function(){seedDemo();exportJSON();return (
 T("start empty wipes after confirm",safeT(function(){seedDemo();startEmpty();const stayed=S.students.length===16&&document.querySelector("#modals").innerHTML.indexOf("startEmpty")>=0||S.students.length===16;startEmptyConfirmed();return S.students.length===0&&S.records.length===0&&S.settings.className==="";}),"modal first, then wipe");
 T("demo labels localized",safeT(function(){setLang("zh");seedDemo();const zh=S.settings.className==="三年二班"&&S.settings.schoolName==="枫叶小学"&&/[\u4e00-\u9fff]/.test(S.students[0].name);setLang("en");seedDemo();const en=S.settings.className==="Class 4B"&&S.students[0].name==="Amelia";setLang("zh");seedDemo();return zh&&en;}),"zh and en demo classes");
 T("settings origin + backup note",safeT(function(){seedDemo();delete S.settings.lastBackupAt;save();(location.hash="#/app/settings",route());const h1=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;exportJSON();(location.hash="#/app/settings",route());const h2=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;return h1.indexOf("两个网址")>=0&&h1.indexOf("上次备份")>=0&&h1.indexOf("还没有备份")>=0&&h2.indexOf("两个网址")>=0&&h2.indexOf("还没有备份")<0;}),"origin note + nudge before export, date after");
+T("no missing i18n keys (final)",(globalThis.__gsMissedKeys||[]).length===0,(globalThis.__gsMissedKeys||[]).join(",")||"all present");
 console.log(fails===0?"ALL PASS":"FAILURES: "+fails);
 process.exit(fails===0?0:1);
 '''

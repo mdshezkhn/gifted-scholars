@@ -487,7 +487,7 @@ zh:{
 }};
 function detectLang(){try{const s=localStorage.getItem("gs-lang");if(s==="zh"||s==="en")return s;}catch(e){}return "zh";}
 let LANG=detectLang();
-function t(k,vars){let s=Object.prototype.hasOwnProperty.call(I18N[LANG],k)?I18N[LANG][k]:(Object.prototype.hasOwnProperty.call(I18N.en,k)?I18N.en[k]:k);if(vars){for(const v in vars)s=s.split("{"+v+"}").join(String(vars[v]));}return s;}
+function t(k,vars){let s=Object.prototype.hasOwnProperty.call(I18N[LANG],k)?I18N[LANG][k]:(Object.prototype.hasOwnProperty.call(I18N.en,k)?I18N.en[k]:((globalThis.__gsMissedKeys=globalThis.__gsMissedKeys||[]).push(k),k));if(vars){for(const v in vars)s=s.split("{"+v+"}").join(String(vars[v]));}return s;}
 function nm(o){return (LANG==="zh"&&o&&o.zh)?o.zh:((o&&o.name)||"");}
 function LOCALE(){return LANG==="zh"?"zh-CN":"en-US";}
 function applyLangDoc(){document.documentElement.lang=LANG==="zh"?"zh-CN":"en";document.title=t("docTitle");}
