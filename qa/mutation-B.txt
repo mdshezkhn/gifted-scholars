@@ -1,0 +1,3 @@
+FAIL goal math | earned=10 (this week only, undone excluded), pct=25, left=30
+FAIL week boundaries | Monday 00:00 (w0) included; Sunday 23:59 (w0-1h) belongs to last week
+FAILURES: 2
