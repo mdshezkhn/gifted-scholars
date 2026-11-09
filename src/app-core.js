@@ -238,7 +238,7 @@ function renderShell(tab){
   <div class="shell">
     <nav class="rail" aria-label="${t("appSections")}">
       <a class="logo" href="#/">${logoSVG()} Gifted Scholars</a>
-      ${TABS.map(tb=>'<a class="tab" href="#/app/'+t.id+'"'+(t.id===tab?' aria-current="page"':'')+'><span>'+t.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}
+      ${TABS.map(tb=>'<a class="tab" href="#/app/'+tb.id+'"'+(tb.id===tab?' aria-current="page"':'')+'><span>'+tb.icon+'</span>'+t("tab_"+tb.id)+'</a>').join("")}
       <div class="foot">${esc(S.settings.className||t("defaultClassName"))}<br>${esc(S.settings.schoolName||"")}</div>
     </nav>
     <main class="main" id="main"></main>
@@ -492,7 +492,7 @@ function viewSettings(){
       ${S.rules.map(r=>`
       <div class="row stk">
         <input type="text" value="${esc(r.icon)}" style="width:52px;text-align:center" aria-label="${t("iconFor",{r:esc(r.label)})}" onchange="editRule('${r.id}','icon',this.value)">
-        <input type="text" value="${esc(r.label)}" style="flex:2;min-width:130px" aria-label="${t("ruleName")}" onchange="editRule('${r.id}','label',this.value)">
+        <input type="text" value="${esc(nm(r))}" style="flex:2;min-width:130px" aria-label="${t("ruleName")}" onchange="editRule('${r.id}','nmEdit',this.value)">
         <input type="number" value="${r.value}" step="1" style="width:84px" class="num" aria-label="${t("pointsValue")}" onchange="editRule('${r.id}','value',parseInt(this.value)||0)">
         <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" ${r.active!==false?"checked":""} onchange="editRule('${r.id}','active',this.checked)"> ${t("on")}</label>
         <button class="btn sm danger" onclick="delRule('${r.id}')" aria-label="${t("delRuleA11y",{r:esc(r.label)})}">${t("del")}</button>
@@ -540,7 +540,9 @@ function saveCls(){
 }
 function editRule(id,key,val){
   let found=false;
-  withState(()=>{const r=S.rules.find(x=>x.id===id);if(!r)return;found=true;r[key]=val;});
+  withState(()=>{const r=S.rules.find(x=>x.id===id);if(!r)return;found=true;
+    if(key==="nmEdit"){if(LANG==="zh")r.zh=val;else r.label=val;}
+    else r[key]=val;});
   if(found&&key!=="active")toast(t("ruleUpdated"));
 }
 function addRule(){
@@ -615,7 +617,7 @@ function renderRoom(id){
         <h1>${t("roomOf",{name:esc(st.name)})}</h1>
         <div class="lv" style="margin-top:6px;font-weight:700">${L.badge} ${t("levelN",{n:lp.i+1})} · ${esc(nm(L))}</div>
         ${lp.next?`<div class="lvl-bar" role="progressbar" aria-valuenow="${lp.pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${t("toNext")}"><i style="width:${lp.pct}%"></i></div>
-        <div style="font-size:12px;margin-top:5px;color:var(--ink-soft)" class="num">${t("growthLine",{g,need:lp.next.min-g,b:esc(lp.next.badge+" "+lp.next.name)})}</div>`:
+        <div style="font-size:12px;margin-top:5px;color:var(--ink-soft)" class="num">${t("growthLine",{g,need:lp.next.min-g,b:esc(lp.next.badge+" "+nm(lp.next))})}</div>`:
         `<div style="font-size:12px;margin-top:5px;color:var(--ink-soft)">${t("topLevel")}</div>`}
       </div>
       <div class="walletbox stk" style="padding:14px 20px"><div class="v num">★ ${w}</div><div style="font-size:12px;font-weight:700">${t("wallet")}</div></div>
