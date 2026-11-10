@@ -520,7 +520,11 @@ function helpData(){return [
  [t("faq3Q"),t("faq3A"),t("faq3Q")+" "+t("faq3A")+" level等级 wallet钱包"],
  [t("faq4Q"),t("faq4A"),t("faq4Q")+" "+t("faq4A")+" screen大屏 fullscreen F A"],
  [t("faq5Q"),t("faq5A"),t("faq5Q")+" "+t("faq5A")+" backup导出 export json"],
- [t("faq6Q"),t("faq6A"),t("faq6Q")+" "+t("faq6A")+" phone手机 mobile PWA"]
+ [t("faq6Q"),t("faq6A"),t("faq6Q")+" "+t("faq6A")+" phone手机 mobile PWA"],
+ [t("h5Q"),t("h5A"),t("h5Q")+" "+t("h5A")+" start begin 开始 入门"],
+ [t("h6Q"),t("h6A"),t("h6Q")+" "+t("h6A")+" settings rules goal hide 设置 规则 目标"],
+ [t("faq7Q"),t("faq7A"),t("faq7Q")+" "+t("faq7A")+" restore import json 恢复 导入"],
+ [t("faq8Q"),t("faq8A"),t("faq8Q")+" "+t("faq8A")+" deep freeze restore card 还原卡 冰点"]
 ];}
 
 /* ============ init (must run last) ============ */

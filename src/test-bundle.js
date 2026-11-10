@@ -72,7 +72,7 @@ faq2Q:"Is it really free?",faq2A:"Yes. No fees, no ads, nothing for sale \u2014 
 faq3Q:"Can negative points lower a level?",faq3A:"No. Levels ride lifetime positive points, so a level is never lowered by negatives. Only the spendable wallet feels them.",
 faq4Q:"How do I open the Big Screen?",faq4A:"Choose it in Settings, or open the address with #/screen. F toggles fullscreen, A opens the quick-award drawer.",
 faq5Q:"How do backups work?",faq5A:"Settings \u2192 Export backup saves a JSON file with everything. The app reminds you when a backup is more than a week old.",
-faq6Q:"Does it work on phones?",faq6A:"Yes \u2014 every page adapts to phones and tablets. The Big Screen is designed for projectors and large displays.",
+faq6Q:"Does it work on phones?",faq6A:"Yes \u2014 every page adapts to phones and tablets. The Big Screen is designed for projectors and large displays.",h5Q:"Where do I start?",h5A:"Three steps: add students and rules in Settings; tap students then a rule in the Classroom (two taps); press F or open the Big Screen to project it. Try the demo anytime to explore.",h6Q:"What can I change in Settings?",h6A:"Rules (points, icons), class name, the class goal, hiding minus markers on the Big Screen, sound, and export/import. Editing a rule never erases history; hidden minus markers still count.",faq7Q:"How do I restore a backup on a new computer?",faq7A:"Open the site on the new computer, go to Settings, choose Import backup, and select the JSON file you exported. Students, records and gifts all come back. Export weekly to be safe.",faq8Q:"Our school PC has Deep Freeze or a restore card. What should I do?",faq8A:"Restore cards reset the computer and the browser's local data with it. Export a backup before each class ends (Settings, Export backup) and keep the JSON on a USB drive or cloud folder; import it after a reset. This site has no cloud backup.",
 footProd:"Product",footHelp2:"Help",footAbout:"About",footTop:"Back to top",footLicense:"License & credit",
 roomPickTitle:"Open a gift room",
 helpTitle:"Help & how-to",helpSub:"Every common task lives here. Stuck? Export a backup first, then ask Teacher Mo.",
@@ -144,7 +144,7 @@ faq2Q:"真的免费吗？",faq2A:"免费。不收费、无广告、绝不出售�
 faq3Q:"扣分会让等级下降吗？",faq3A:"不会。等级只看终身积极分，永远不会因为扣分下降；只有可花费的钱包会受影响。",
 faq4Q:"教室大屏怎么打开？",faq4A:"在「设置」里选择，或直接打开带 #/screen 的网址。按 F 全屏，按 A 打开快速加分。",
 faq5Q:"备份怎么用？",faq5A:"「设置 → 导出备份」会保存一个包含全部数据的 JSON 文件。超过一周没备份，应用会提醒你。",
-faq6Q:"手机上能用吗？",faq6A:"能——所有页面都适配手机和平板。大屏模式为投影仪和大屏显示而设计。",
+faq6Q:"手机上能用吗？",faq6A:"能——所有页面都适配手机和平板。大屏模式为投影仪和大屏显示而设计。",h5Q:"刚接触，从哪里开始？",h5A:"三步：在「设置」里添加学生和规则；在「教室」里先点学生、再点规则（两次点击）；按 F 或打开「教室大屏」投影给全班。随时可用「试试演示」先体验一遍。",h6Q:"设置里能改什么？",h6A:"规则（分值、图标）、班级名称、课堂目标、大屏隐藏扣分、声音，以及导出/导入。改规则不会丢历史记录；隐藏扣分只是大屏不显示，分数照常计算。",faq7Q:"如何把备份恢复到新电脑？",faq7A:"在新电脑打开网站 → 设置 → 导入备份 → 选择之前导出的 JSON 文件，学生、记录和礼物都会回来。建议每周末导出一次。",faq8Q:"学校电脑装了还原卡或冰点（Deep Freeze）怎么办？",faq8A:"还原卡会把电脑重置，浏览器里的本地数据也会被清空。每次下课前导出备份（设置 → 导出备份），把 JSON 存到 U 盘或网盘；还原后用导入恢复。本站没有云端备份。",
 footProd:"产品",footHelp2:"帮助",footAbout:"关于",footTop:"回到顶部",footLicense:"授权与署名",
 roomPickTitle:"打开礼物小屋",
 helpTitle:"使用帮助",helpSub:"常见操作都在这里。遇到问题？先导出一份备份，再来找 Teacher Mo。",
@@ -2030,7 +2030,11 @@ function helpData(){return [
  [t("faq3Q"),t("faq3A"),t("faq3Q")+" "+t("faq3A")+" level等级 wallet钱包"],
  [t("faq4Q"),t("faq4A"),t("faq4Q")+" "+t("faq4A")+" screen大屏 fullscreen F A"],
  [t("faq5Q"),t("faq5A"),t("faq5Q")+" "+t("faq5A")+" backup导出 export json"],
- [t("faq6Q"),t("faq6A"),t("faq6Q")+" "+t("faq6A")+" phone手机 mobile PWA"]
+ [t("faq6Q"),t("faq6A"),t("faq6Q")+" "+t("faq6A")+" phone手机 mobile PWA"],
+ [t("h5Q"),t("h5A"),t("h5Q")+" "+t("h5A")+" start begin 开始 入门"],
+ [t("h6Q"),t("h6A"),t("h6Q")+" "+t("h6A")+" settings rules goal hide 设置 规则 目标"],
+ [t("faq7Q"),t("faq7A"),t("faq7Q")+" "+t("faq7A")+" restore import json 恢复 导入"],
+ [t("faq8Q"),t("faq8A"),t("faq8Q")+" "+t("faq8A")+" deep freeze restore card 还原卡 冰点"]
 ];}
 
 /* ============ init (must run last) ============ */
