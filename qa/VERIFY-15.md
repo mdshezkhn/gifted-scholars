@@ -17,7 +17,7 @@
 | 8.8a aria-pressed on mute/full + drawer labelled | ✅ |  |
 | G0 modern browser: no old-browser gate | ✅ |  |
 | S1 drawer award by clicks: record+tile+stays open+confetti | ✅ | {'n': 1, 'ptsChanged': True, 'open': True, 'conf': 24} |
-| S2 undo-last: newest non-undone undone, wallet back, no confetti | ✅ | {'was': {'id': 'xhjezegg', 'v': 1, 'w': 21}, 'now': {'undone': True, 'w': 20}} |
+| S2 undo-last: newest non-undone undone, wallet back, no confetti | ✅ | {'was': {'id': 'x8o92dw4', 'v': 1, 'w': 21}, 'now': {'undone': True, 'w': 20}} |
 | S3 keys A/Ctrl+A/Esc | ✅ | {'a': True, 'ctrl': True, 'esc': True} |
 | S3f F fullscreen (headless may deny; feature presence asserted) | ✅ | {'entered': False, 'capable': True} |
 | S4 mute click + reload persistence | ✅ | {'on': 'true', 'after-reload': 'true', 'off': 'false'} |

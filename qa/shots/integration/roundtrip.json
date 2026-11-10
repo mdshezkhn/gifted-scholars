@@ -1,0 +1,1764 @@
+{
+  "version": 1,
+  "settings": {
+    "className": "三年二班",
+    "schoolName": "枫叶小学",
+    "teacher": "李老师",
+    "motion": "auto",
+    "lastBackupAt": 1794351420028
+  },
+  "rules": [
+    {
+      "id": "r1",
+      "label": "Raised hand",
+      "zh": "积极举手",
+      "icon": "✋",
+      "value": 1
+    },
+    {
+      "id": "r2",
+      "label": "Answered well",
+      "zh": "答得好",
+      "icon": "💡",
+      "value": 2
+    },
+    {
+      "id": "r3",
+      "label": "Helped a classmate",
+      "zh": "帮助同学",
+      "icon": "🤝",
+      "value": 2
+    },
+    {
+      "id": "r4",
+      "label": "Great homework",
+      "zh": "作业优秀",
+      "icon": "📓",
+      "value": 3
+    },
+    {
+      "id": "r5",
+      "label": "Clear improvement",
+      "zh": "进步明显",
+      "icon": "📈",
+      "value": 3
+    },
+    {
+      "id": "r6",
+      "label": "Read a book",
+      "zh": "阅读打卡",
+      "icon": "📖",
+      "value": 1
+    },
+    {
+      "id": "r7",
+      "label": "Tidy desk",
+      "zh": "整洁书桌",
+      "icon": "🧹",
+      "value": 1
+    },
+    {
+      "id": "r8",
+      "label": "Tardy",
+      "zh": "迟到",
+      "icon": "⏰",
+      "value": -1
+    },
+    {
+      "id": "r9",
+      "label": "Off task",
+      "zh": "上课走神",
+      "icon": "🌀",
+      "value": -2
+    },
+    {
+      "id": "r10",
+      "label": "Missing homework",
+      "zh": "作业未交",
+      "icon": "❓",
+      "value": -2
+    }
+  ],
+  "gifts": [
+    {
+      "id": "g1",
+      "emoji": "⭐",
+      "name": "Sticker pack",
+      "zh": "贴纸包",
+      "desc": "A sheet of shiny gold stars",
+      "price": 3,
+      "stock": null,
+      "per": 0
+    },
+    {
+      "id": "g2",
+      "emoji": "🪴",
+      "name": "Plant waterer",
+      "zh": "浇水员",
+      "desc": "Water the class plants for a week",
+      "price": 4,
+      "stock": null,
+      "per": 0
+    },
+    {
+      "id": "g3",
+      "emoji": "🚩",
+      "name": "Line leader",
+      "zh": "领队",
+      "desc": "Lead the class line for a day",
+      "price": 5,
+      "stock": null,
+      "per": 2
+    },
+    {
+      "id": "g4",
+      "emoji": "📖",
+      "name": "Pick the story",
+      "zh": "选故事",
+      "desc": "Choose tomorrow's story book",
+      "price": 6,
+      "stock": null,
+      "per": 1
+    },
+    {
+      "id": "g5",
+      "emoji": "🪑",
+      "name": "Sit with a friend",
+      "zh": "和朋友同桌",
+      "desc": "One afternoon, any seat you like",
+      "price": 8,
+      "stock": null,
+      "per": 2
+    },
+    {
+      "id": "g6",
+      "emoji": "🎤",
+      "name": "Show and tell",
+      "zh": "展示分享",
+      "desc": "Reserve a show-and-tell slot",
+      "price": 8,
+      "stock": 4,
+      "per": 1
+    },
+    {
+      "id": "g7",
+      "emoji": "🎵",
+      "name": "Class DJ",
+      "zh": "班级DJ",
+      "desc": "Pick three songs for quiet work time",
+      "price": 10,
+      "stock": null,
+      "per": 1
+    },
+    {
+      "id": "g8",
+      "emoji": "🎖",
+      "name": "Helper badge",
+      "zh": "助手徽章",
+      "desc": "Wear the teacher's helper badge for a day",
+      "price": 10,
+      "stock": 6,
+      "per": 1
+    },
+    {
+      "id": "g9",
+      "emoji": "🎫",
+      "name": "Homework pass",
+      "zh": "作业通行证",
+      "desc": "Skip one homework night, guilt free",
+      "price": 12,
+      "stock": 3,
+      "per": 1
+    },
+    {
+      "id": "g10",
+      "emoji": "🧰",
+      "name": "Treasure box pick",
+      "zh": "百宝箱",
+      "desc": "One pick from the real treasure box",
+      "price": 15,
+      "stock": 5,
+      "per": 1
+    },
+    {
+      "id": "g11",
+      "emoji": "🎲",
+      "name": "Board game Friday",
+      "zh": "桌游周五",
+      "desc": "Bring a board game for Friday choice time",
+      "price": 20,
+      "stock": null,
+      "per": 1
+    }
+  ],
+  "students": [
+    {
+      "id": "s1",
+      "name": "王小雨",
+      "hue": 12
+    },
+    {
+      "id": "s2",
+      "name": "李思远",
+      "hue": 45
+    },
+    {
+      "id": "s3",
+      "name": "张乐乐",
+      "hue": 95
+    },
+    {
+      "id": "s4",
+      "name": "陈静怡",
+      "hue": 150
+    },
+    {
+      "id": "s5",
+      "name": "杨帆",
+      "hue": 185
+    },
+    {
+      "id": "s6",
+      "name": "赵子墨",
+      "hue": 210
+    },
+    {
+      "id": "s7",
+      "name": "孙悦",
+      "hue": 260
+    },
+    {
+      "id": "s8",
+      "name": "周芷萱",
+      "hue": 300
+    },
+    {
+      "id": "s9",
+      "name": "吴一凡",
+      "hue": 330
+    },
+    {
+      "id": "s10",
+      "name": "郑好",
+      "hue": 12
+    },
+    {
+      "id": "s11",
+      "name": "黄晨曦",
+      "hue": 45
+    },
+    {
+      "id": "s12",
+      "name": "林嘉树",
+      "hue": 95
+    },
+    {
+      "id": "s13",
+      "name": "高小满",
+      "hue": 150
+    },
+    {
+      "id": "s14",
+      "name": "徐天佑",
+      "hue": 185
+    },
+    {
+      "id": "s15",
+      "name": "马欣然",
+      "hue": 210
+    },
+    {
+      "id": "s16",
+      "name": "罗云帆",
+      "hue": 260
+    }
+  ],
+  "records": [
+    {
+      "id": "rm2",
+      "ts": 1794351416489,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "x",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "rm1",
+      "ts": 1794351416488,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "x",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "rm0",
+      "ts": 1794351416486,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "x",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst7",
+      "ts": 1794351416070,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst6",
+      "ts": 1794351416068,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst5",
+      "ts": 1794351416067,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst4",
+      "ts": 1794351416065,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst3",
+      "ts": 1794351416063,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst2",
+      "ts": 1794351416061,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst1",
+      "ts": 1794351416058,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "burst0",
+      "ts": 1794351416053,
+      "studentIds": [
+        "s1",
+        "s2"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "test",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xyqybbrz",
+      "ts": 1794347814138,
+      "studentIds": [
+        "s8"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xtg286jv",
+      "ts": 1794347814138,
+      "studentIds": [
+        "s13",
+        "s12",
+        "s1"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xipzxivo",
+      "ts": 1794344214138,
+      "studentIds": [
+        "s14",
+        "s4",
+        "s11"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "xd7axwhv",
+      "ts": 1794340614138,
+      "studentIds": [
+        "s14",
+        "s9",
+        "s8"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "xpjq2dpl",
+      "ts": 1794337014138,
+      "studentIds": [
+        "s13",
+        "s16"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "x8hokmgz",
+      "ts": 1794333414138,
+      "studentIds": [
+        "s13",
+        "s7",
+        "s15"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xl93ij1d",
+      "ts": 1794333414138,
+      "studentIds": [
+        "s15",
+        "s1"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x32gza3k",
+      "ts": 1794265014138,
+      "studentIds": [
+        "s4",
+        "s6"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xb6pvme4",
+      "ts": 1794265014138,
+      "studentIds": [
+        "s4",
+        "s8"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xwieg49h",
+      "ts": 1794261414138,
+      "studentIds": [
+        "s9",
+        "s3"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xy43cv45",
+      "ts": 1794261414138,
+      "studentIds": [
+        "s7"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xbz20c37",
+      "ts": 1794261414138,
+      "studentIds": [
+        "s3",
+        "s6"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xq7gunoa",
+      "ts": 1794257814138,
+      "studentIds": [
+        "s15"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xmljnby7",
+      "ts": 1794254214138,
+      "studentIds": [
+        "s12",
+        "s10",
+        "s7"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x6wq0b9f",
+      "ts": 1794250614138,
+      "studentIds": [
+        "s9",
+        "s11",
+        "s15"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xou5k2pu",
+      "ts": 1794247014138,
+      "studentIds": [
+        "s16",
+        "s7",
+        "s1"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xllf1afp",
+      "ts": 1794247014138,
+      "studentIds": [
+        "s16"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "xt38rq6o",
+      "ts": 1794247014138,
+      "studentIds": [
+        "s4"
+      ],
+      "ruleId": "r3",
+      "ruleLabel": "帮助同学 🤝",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xljhz0i7",
+      "ts": 1794247014138,
+      "studentIds": [
+        "s13",
+        "s5"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xdtu6nfp",
+      "ts": 1794247014138,
+      "studentIds": [
+        "s5",
+        "s3",
+        "s15"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xq3zjpjy",
+      "ts": 1794178614138,
+      "studentIds": [
+        "s8",
+        "s15",
+        "s3"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xm4pp6x5",
+      "ts": 1794178614138,
+      "studentIds": [
+        "s7"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "x3v1mgim",
+      "ts": 1794178614138,
+      "studentIds": [
+        "s8",
+        "s7"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x3b5w3r2",
+      "ts": 1794178614138,
+      "studentIds": [
+        "s16",
+        "s14",
+        "s11"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xrrbqeoa",
+      "ts": 1794175014138,
+      "studentIds": [
+        "s16",
+        "s13"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xzu44bmu",
+      "ts": 1794175014138,
+      "studentIds": [
+        "s10",
+        "s14"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "x7ujxfit",
+      "ts": 1794171414138,
+      "studentIds": [
+        "s6",
+        "s11",
+        "s10"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xq849th9",
+      "ts": 1794167814138,
+      "studentIds": [
+        "s13",
+        "s14"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xrwnixx5",
+      "ts": 1794164214138,
+      "studentIds": [
+        "s3",
+        "s15"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xfqubhoe",
+      "ts": 1794164214138,
+      "studentIds": [
+        "s6",
+        "s4"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xf7t3hxr",
+      "ts": 1794160614138,
+      "studentIds": [
+        "s14",
+        "s13"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "xshx08dv",
+      "ts": 1794160614138,
+      "studentIds": [
+        "s7",
+        "s11",
+        "s13"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x9upzbxv",
+      "ts": 1794160614138,
+      "studentIds": [
+        "s15"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xtel30q8",
+      "ts": 1794092214138,
+      "studentIds": [
+        "s12",
+        "s15",
+        "s16"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xiu594d4",
+      "ts": 1794092214138,
+      "studentIds": [
+        "s16"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x2fulmtz",
+      "ts": 1794092214138,
+      "studentIds": [
+        "s3",
+        "s13",
+        "s10"
+      ],
+      "ruleId": "r3",
+      "ruleLabel": "帮助同学 🤝",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xd7fcmgg",
+      "ts": 1794088614138,
+      "studentIds": [
+        "s5",
+        "s1"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x27wcl56",
+      "ts": 1794088614138,
+      "studentIds": [
+        "s6",
+        "s5",
+        "s7"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xlabjzmf",
+      "ts": 1794088614138,
+      "studentIds": [
+        "s5"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x6fic55v",
+      "ts": 1794088614138,
+      "studentIds": [
+        "s3",
+        "s5",
+        "s16"
+      ],
+      "ruleId": "r3",
+      "ruleLabel": "帮助同学 🤝",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xo59hz91",
+      "ts": 1794077814138,
+      "studentIds": [
+        "s5",
+        "s12"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x5a3efc3",
+      "ts": 1794077814138,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xtcx2khe",
+      "ts": 1794074214138,
+      "studentIds": [
+        "s11",
+        "s6",
+        "s10"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "x0t2f8hw",
+      "ts": 1794005814138,
+      "studentIds": [
+        "s12",
+        "s16"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xum592h8",
+      "ts": 1794005814138,
+      "studentIds": [
+        "s12",
+        "s14"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xor70i6g",
+      "ts": 1794005814138,
+      "studentIds": [
+        "s12",
+        "s11",
+        "s7"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xw635a3p",
+      "ts": 1794002214138,
+      "studentIds": [
+        "s5",
+        "s6"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xmcq50bx",
+      "ts": 1793998614138,
+      "studentIds": [
+        "s8"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "x4jq5lqp",
+      "ts": 1793995014138,
+      "studentIds": [
+        "s5"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xolmopxx",
+      "ts": 1793995014138,
+      "studentIds": [
+        "s16",
+        "s5"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xw6aq3hq",
+      "ts": 1793995014138,
+      "studentIds": [
+        "s14",
+        "s10",
+        "s1"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xkbgnmlt",
+      "ts": 1793995014138,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x3bluanu",
+      "ts": 1793995014138,
+      "studentIds": [
+        "s4"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xrl7pb86",
+      "ts": 1793991414138,
+      "studentIds": [
+        "s5",
+        "s11",
+        "s9"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x259mirc",
+      "ts": 1793919414138,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xagf8sw6",
+      "ts": 1793919414138,
+      "studentIds": [
+        "s2",
+        "s3",
+        "s11"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xoqbrfj2",
+      "ts": 1793919414138,
+      "studentIds": [
+        "s11",
+        "s7",
+        "s1"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xzxpbtr1",
+      "ts": 1793912214138,
+      "studentIds": [
+        "s7"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x68n9wid",
+      "ts": 1793912214138,
+      "studentIds": [
+        "s7",
+        "s11"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "x919sz3z",
+      "ts": 1793912214138,
+      "studentIds": [
+        "s2",
+        "s5"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xx2tb9m4",
+      "ts": 1793908614138,
+      "studentIds": [
+        "s1",
+        "s14"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xly61wm7",
+      "ts": 1793908614138,
+      "studentIds": [
+        "s2",
+        "s12",
+        "s16"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xzfr4e8k",
+      "ts": 1793905014138,
+      "studentIds": [
+        "s9",
+        "s3"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x4mjgs5g",
+      "ts": 1793901414138,
+      "studentIds": [
+        "s11",
+        "s10"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xuz9oam9",
+      "ts": 1793901414138,
+      "studentIds": [
+        "s3"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xb8auflu",
+      "ts": 1793901414138,
+      "studentIds": [
+        "s11"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "x6kx2s8s",
+      "ts": 1793833014138,
+      "studentIds": [
+        "s1",
+        "s14"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xuj8r7zj",
+      "ts": 1793833014138,
+      "studentIds": [
+        "s15",
+        "s7",
+        "s1"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x8t9po7m",
+      "ts": 1793829414138,
+      "studentIds": [
+        "s12"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xznldhr7",
+      "ts": 1793829414138,
+      "studentIds": [
+        "s12",
+        "s11",
+        "s7"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xocb8mfo",
+      "ts": 1793822214138,
+      "studentIds": [
+        "s7"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "x0zkwz8s",
+      "ts": 1793818614138,
+      "studentIds": [
+        "s10",
+        "s15"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "x6adx5w2",
+      "ts": 1793746614138,
+      "studentIds": [
+        "s11",
+        "s14",
+        "s6"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "x9yr92dm",
+      "ts": 1793743014138,
+      "studentIds": [
+        "s2"
+      ],
+      "ruleId": "r3",
+      "ruleLabel": "帮助同学 🤝",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xz0hs1fv",
+      "ts": 1793743014138,
+      "studentIds": [
+        "s4",
+        "s12"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xf74lmzf",
+      "ts": 1793743014138,
+      "studentIds": [
+        "s4"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "x19tzpap",
+      "ts": 1793743014138,
+      "studentIds": [
+        "s13"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xdqw0ndj",
+      "ts": 1793739414138,
+      "studentIds": [
+        "s15"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xgv3l8dk",
+      "ts": 1793739414138,
+      "studentIds": [
+        "s2",
+        "s9"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "x2iu3bgc",
+      "ts": 1793735814138,
+      "studentIds": [
+        "s9",
+        "s8"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xe3uqcut",
+      "ts": 1793732214138,
+      "studentIds": [
+        "s5",
+        "s2",
+        "s9"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "xddo3kus",
+      "ts": 1793728614138,
+      "studentIds": [
+        "s16"
+      ],
+      "ruleId": "r10",
+      "ruleLabel": "作业未交 ❓",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xvd6rv2u",
+      "ts": 1793728614138,
+      "studentIds": [
+        "s13"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xrr9msez",
+      "ts": 1793660214138,
+      "studentIds": [
+        "s1"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xb8wcz2p",
+      "ts": 1793660214138,
+      "studentIds": [
+        "s7",
+        "s4"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xxehhgga",
+      "ts": 1793656614138,
+      "studentIds": [
+        "s10",
+        "s2"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xg8ijoct",
+      "ts": 1793656614138,
+      "studentIds": [
+        "s16",
+        "s4",
+        "s14"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xgfa98zy",
+      "ts": 1793653014138,
+      "studentIds": [
+        "s16",
+        "s7"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xp44d0br",
+      "ts": 1793649414138,
+      "studentIds": [
+        "s16"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xa8hmmwp",
+      "ts": 1793645814138,
+      "studentIds": [
+        "s7",
+        "s1"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xkouoiij",
+      "ts": 1793645814138,
+      "studentIds": [
+        "s3",
+        "s11",
+        "s9"
+      ],
+      "ruleId": "r5",
+      "ruleLabel": "进步明显 📈",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "xedu3deb",
+      "ts": 1793645814138,
+      "studentIds": [
+        "s5",
+        "s16"
+      ],
+      "ruleId": "r4",
+      "ruleLabel": "作业优秀 📓",
+      "value": 3,
+      "undone": false
+    },
+    {
+      "id": "x068pil6",
+      "ts": 1793645814138,
+      "studentIds": [
+        "s2"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x36uxda0",
+      "ts": 1793573814138,
+      "studentIds": [
+        "s12",
+        "s13",
+        "s9"
+      ],
+      "ruleId": "r6",
+      "ruleLabel": "阅读打卡 📖",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xktynzow",
+      "ts": 1793573814138,
+      "studentIds": [
+        "s8",
+        "s5",
+        "s14"
+      ],
+      "ruleId": "r9",
+      "ruleLabel": "上课走神 🌀",
+      "value": -2,
+      "undone": false
+    },
+    {
+      "id": "xw2oq7wx",
+      "ts": 1793573814138,
+      "studentIds": [
+        "s5",
+        "s1",
+        "s8"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "x1dy0ajp",
+      "ts": 1793563014138,
+      "studentIds": [
+        "s13",
+        "s2",
+        "s6"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "x3yafp0i",
+      "ts": 1793563014138,
+      "studentIds": [
+        "s1",
+        "s10"
+      ],
+      "ruleId": "r3",
+      "ruleLabel": "帮助同学 🤝",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "xpoklou2",
+      "ts": 1793559414138,
+      "studentIds": [
+        "s9"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "x5u5zgaf",
+      "ts": 1793559414138,
+      "studentIds": [
+        "s4",
+        "s6",
+        "s10"
+      ],
+      "ruleId": "r2",
+      "ruleLabel": "答得好 💡",
+      "value": 2,
+      "undone": false
+    },
+    {
+      "id": "x00fcu7b",
+      "ts": 1793555814138,
+      "studentIds": [
+        "s5"
+      ],
+      "ruleId": "r1",
+      "ruleLabel": "积极举手 ✋",
+      "value": 1,
+      "undone": false
+    },
+    {
+      "id": "xj4i3srq",
+      "ts": 1793555814138,
+      "studentIds": [
+        "s6",
+        "s5",
+        "s2"
+      ],
+      "ruleId": "r8",
+      "ruleLabel": "迟到 ⏰",
+      "value": -1,
+      "undone": false
+    },
+    {
+      "id": "xh085k5x",
+      "ts": 1793555814138,
+      "studentIds": [
+        "s14",
+        "s4",
+        "s7"
+      ],
+      "ruleId": "r7",
+      "ruleLabel": "整洁书桌 🧹",
+      "value": 1,
+      "undone": false
+    }
+  ],
+  "requests": [
+    {
+      "id": "xwjdh3jg",
+      "studentId": "s3",
+      "itemId": "g1",
+      "itemLabel": "⭐ Sticker pack",
+      "cost": 3,
+      "status": "approved",
+      "note": "",
+      "ts": 1794178614138,
+      "decidedTs": 1794182214138
+    },
+    {
+      "id": "x2nsxssp",
+      "studentId": "s6",
+      "itemId": "g2",
+      "itemLabel": "🪴 Plant waterer",
+      "cost": 4,
+      "status": "approved",
+      "note": "",
+      "ts": 1794092214138,
+      "decidedTs": 1794095814138
+    },
+    {
+      "id": "xqo5f9w7",
+      "studentId": "s9",
+      "itemId": "g3",
+      "itemLabel": "🚩 Line leader",
+      "cost": 5,
+      "status": "approved",
+      "note": "",
+      "ts": 1794005814138,
+      "decidedTs": 1794009414138
+    },
+    {
+      "id": "xd9kkdu7",
+      "studentId": "s12",
+      "itemId": "g1",
+      "itemLabel": "⭐ Sticker pack",
+      "cost": 3,
+      "status": "approved",
+      "note": "",
+      "ts": 1793919414138,
+      "decidedTs": 1793923014138
+    },
+    {
+      "id": "xmvq30wm",
+      "studentId": "s15",
+      "itemId": "g2",
+      "itemLabel": "🪴 Plant waterer",
+      "cost": 4,
+      "status": "approved",
+      "note": "",
+      "ts": 1793833014138,
+      "decidedTs": 1793836614138
+    }
+  ],
+  "collection": {
+    "s3": [
+      {
+        "name": "Sticker pack",
+        "emoji": "⭐",
+        "rar": "common",
+        "source": "shop",
+        "ts": 1794178614138
+      }
+    ],
+    "s6": [
+      {
+        "name": "Plant waterer",
+        "emoji": "🪴",
+        "rar": "common",
+        "source": "shop",
+        "ts": 1794092214138
+      }
+    ],
+    "s9": [
+      {
+        "name": "Line leader",
+        "emoji": "🚩",
+        "rar": "common",
+        "source": "shop",
+        "ts": 1794005814138
+      }
+    ],
+    "s12": [
+      {
+        "name": "Sticker pack",
+        "emoji": "⭐",
+        "rar": "common",
+        "source": "shop",
+        "ts": 1793919414138
+      }
+    ],
+    "s15": [
+      {
+        "name": "Plant waterer",
+        "emoji": "🪴",
+        "rar": "common",
+        "source": "shop",
+        "ts": 1793833014138
+      }
+    ],
+    "s5": [
+      {
+        "name": "Unicorn",
+        "zh": "独角兽",
+        "emoji": "🦄",
+        "rar": "rare",
+        "source": "box",
+        "ts": 1794178614138
+      }
+    ]
+  },
+  "boxSpent": {},
+  "sound": true
+}
