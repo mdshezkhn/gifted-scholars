@@ -88,7 +88,7 @@ T("zh default lang",(function(){if(typeof detectLang!=="function")return false;l
 (function(){
   setLang("zh");seedDemo();globalThis.__gsMissedKeys=[];
   const RAWKEY=/[a-z]{3,}_[a-z]{3,}/;
-  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard","Quick award"];
+  const leaks=["Tap students, then a rule","wallet stars (spendable)","growth score","Select one or more","Undone: ","Every rating is logged","Students request, you approve","This gift no longer exists","Granted: ","Declined: ","Instant grant","Spend ★","<h1>Leaderboards","Progress board fills","Add rule",">Delete<",">Add<","stored in this browser","Rule updated","Rule deleted","Type a name first","reseeds the demo","Back to class","does not exist","gift room</h1>","Open a mystery box","Collected gifts","No requests yet","Ask for a gift",">Ask<","Requested: ","stock ∞","got: ","About this gift",">pending<",">approved<",">decline<",">Decline<","tab_leaderboard","Quick award","Open a gift room",">Cancel<"];
   const views=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/room/s1","#/screen"];
   const hits=[];
   for(const v of views){location.hash=v;route();const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
@@ -536,10 +536,60 @@ T("app-ui theme scoping",safeT(function(){
   if(lh.indexOf("app-ui")>=0)return "landing must not carry app-ui";
   return true;
 }),"theme scoped; landing clean"),
+
+/* ---- professional-remake program: landing IA, help view, picker, tokens ---- */
+T("landing IA sections",safeT(function(){
+  seedDemo();location.hash="#/";route();
+  const h=document.querySelector("#view").innerHTML;
+  const need=["gsnav-burger","skip-link","id=\"features\"","id=\"how\"","id=\"screen-show\"","id=\"privacy\"","id=\"faq\"","feat-card","step-card","faq-item","gsfooter","nightband"];
+  const miss=need.filter(k=>h.indexOf(k)<0);
+  if(miss.length)return "missing: "+miss.join(",");
+  const cards=(h.match(/feat-card/g)||[]).length,steps=(h.match(/step-card/g)||[]).length,faq=(h.match(/faq-item/g)||[]).length;
+  if(cards<6||steps<3||faq<6)return "counts "+cards+"/"+steps+"/"+faq;
+  return true;
+}),"landing has nav/menu/skip + 5 sections + 6 features + 3 steps + 6 FAQ + footer");
+T("room picker localized",safeT(function(){
+  location.hash="#/";route();openRoomPicker();
+  const m=document.querySelector("#modals").innerHTML;
+  closeOverlays();
+  if(m.indexOf("Open a gift room")>=0||m.indexOf(">Cancel<")>=0)return "english leak in modal";
+  return m.indexOf(t("roomPickTitle"))>=0&&m.indexOf(t("cancel"))>=0;
+}),"picker modal fully localized");
+T("help view renders + filters",safeT(function(){
+  seedDemo();location.hash="#/help";route();
+  const v=document.querySelector("#view");
+  const n=(v.innerHTML.match(/faq-item/g)||[]).length;
+  if(n<8)return "items "+n;
+  const inp=v.querySelector("#help-q");
+  if(!inp)return "no search input";
+  inp.value="zzzznope";inp.dispatchEvent({type:"input"});
+  const after=(v.innerHTML.match(/gs-hide/g)||[]).length;
+  inp.value="";inp.dispatchEvent({type:"input"});
+  return after>0;
+}),"help shows 8+ items; search hides non-matching");
+T("random picker on screen",safeT(function(){
+  seedDemo();location.hash="#/screen";route();
+  if(typeof pickOpen!=="function"||typeof pickDraw!=="function")return "missing fns";
+  pickOpen();
+  if(!pickIsOpen())return "not open";
+  const ids=[];
+  for(let i=0;i<S.students.length;i++)ids.push(pickDraw(true));
+  const uniq=new Set(ids);
+  if(uniq.size!==S.students.length)return "repeats before bag empty: "+uniq.size;
+  pickClose();
+  if(pickIsOpen())return "esc/close failed";
+  return true;
+}),"fair bag: every student drawn once before reshuffle; closes");
+T("design tokens in bundle",safeT(function(){
+  const src=require("fs").readFileSync("../index.html","utf8");
+  const need=["--leaf:#2E7D5B","--leaf-tint:#E2F1EA","--night:#16130E","--night-2:#241F17","--r-m:16px","--r-l:24px"];
+  const miss=need.filter(k=>src.indexOf(k)<0);
+  return miss.length?"missing "+miss.join(","):true;
+}),"new tokens present in assembled file");
 /* route coverage: every route renders non-empty without throwing (zh) */
 T("route coverage all views",safeT(function(){
   seedDemo();const bad=[];
-  const routes=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/screen","#/room/"+S.students[0].id,"#/app/nosuch"];
+  const routes=["#/","#/app/classroom","#/app/records","#/app/shop","#/app/leaderboard","#/app/settings","#/screen","#/help","#/room/"+S.students[0].id,"#/app/nosuch"];
   for(const r of routes){
     try{location.hash=r;route();
       const h=document.querySelector("#view").innerHTML+document.querySelector("#main").innerHTML;
