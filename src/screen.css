@@ -65,6 +65,7 @@
   overflow-y:auto;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(var(--scr-tile),1fr));
+  grid-auto-rows:min-content; /* tiles use overflow:hidden (pop fx) -> grid min-size would collapse rows on narrow layouts */
   gap:10px;
   padding:6px 16px 16px;
   align-content:start;

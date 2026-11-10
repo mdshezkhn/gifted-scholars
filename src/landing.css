@@ -238,7 +238,9 @@ html.gs-motion .gs-page .gshero .subject{transition:opacity .8s ease}
 .nightband h2{font-size:clamp(26px,3.6vw,38px);margin:10px 0 14px}
 .nightband .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 28px}
 .nightband .chip{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:7px 12px;
-  border:1px solid rgba(240,237,228,.28);border-radius:999px;color:var(--paper)}
+  border:1px solid rgba(240,237,228,.28);border-radius:999px;color:var(--paper);
+  /* app.css .chip (kid voice) leaks bg/shadow/min-height — neutralise */
+  background:transparent;box-shadow:none;min-height:0;display:inline-block}
 .nbmock{max-width:720px;margin:10px 0 26px}
 .nbmock svg{width:100%;height:auto;display:block;border:1px solid rgba(240,237,228,.16)}
 .nightband .gsbtn.pig{background:#E88654;color:#1A1917}
