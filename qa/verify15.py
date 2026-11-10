@@ -40,23 +40,22 @@ with sync_playwright() as p:
     # cross-tab < 200ms: award from a second page (same context)
     pg2 = ctx.new_page()
     pg2.goto(f"http://localhost:{PORT}/index.html#/app/classroom"); pg2.wait_for_timeout(600)
+    before = pg.evaluate("(function(){const el=document.querySelectorAll('.scr-tile .scr-pts')[0];return el?el.textContent:'';})()")
     t0 = time.time()
     pg2.evaluate("withState(function(){ applyRule(S.rules.find(r=>r.value>0), [S.students[0].id]); })")
-    # wait for storage event -> tile update on pg
-    pg.wait_for_function("document.querySelectorAll('.scr-tile .scr-pts')[0] && document.querySelectorAll('.scr-tile .scr-pts')[0].textContent !== document.querySelectorAll('.scr-tile .scr-pts')[0].getAttribute('data-old')", timeout=3000) if False else None
-    # simpler: record value before, wait until changes
-    before = pg.evaluate("(function(){const el=document.querySelectorAll('.scr-tile .scr-pts')[0];return el?el.textContent:'';})()")
-    pg.wait_for_function(
-        "(function(){const el=document.querySelectorAll('.scr-tile .scr-pts')[0];return el&&el.textContent!==arguments[0];})()" if False else
-        "document.querySelectorAll('.scr-tile .scr-pts')[0] && document.querySelectorAll('.scr-tile .scr-pts')[0].textContent !== %s" % json.dumps(before),
-        timeout=3000)
-    dt = (time.time() - t0) * 1000
-    rec("8.1c cross-tab award < 200ms", dt < 200, f"{dt:.0f}ms")
-    # drawer instant update
-    v0 = pg.evaluate("(function(){const el=document.querySelectorAll('.scr-tile .scr-pts')[0];return el?el.textContent:'';})()")
+    try:
+        pg.wait_for_function(
+            "document.querySelectorAll('.scr-tile .scr-pts')[0] && document.querySelectorAll('.scr-tile .scr-pts')[0].textContent !== %s" % json.dumps(before),
+            timeout=3000)
+        dt = (time.time() - t0) * 1000
+        rec("8.1c cross-tab award < 200ms", dt < 200, f"{dt:.0f}ms")
+    except Exception as e:
+        rec("8.1c cross-tab award < 200ms", False, "tile never updated: "+str(e)[:60])
+    # drawer instant update (same tab)
+    v0 = pg.evaluate("(function(){const el=document.querySelectorAll('.scr-tile .scr-pts')[1];return el?el.textContent:'';})()")
     pg.evaluate("openDrawer(); drawerToggle(S.students[1].id); drawerApply(S.rules.find(r=>r.value>0).id);")
     v1 = pg.evaluate("(function(){const el=document.querySelectorAll('.scr-tile .scr-pts')[1];return el?el.textContent:'';})()")
-    rec("8.1d drawer updates instantly", v1 != "", v1)
+    rec("8.1d drawer updates instantly", v1 != v0, f"{v0!r}->{v1!r}")
     # reload restores
     n = pg.evaluate("JSON.parse(localStorage.getItem(LS_KEY)).records.length")
     pg.reload(); pg.wait_for_timeout(800)
