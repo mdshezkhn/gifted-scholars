@@ -280,7 +280,8 @@ function viewClassroom(){
 }
 function stuCard(st){
   const g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
-  return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}" onclick="pick('${st.id}')" role="button" tabindex="0" aria-pressed="${sel.has(st.id)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${st.id}')}">
+  return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}">
+    <button type="button" class="cardhit" aria-pressed="${sel.has(st.id)}" aria-label="${esc(st.name)}" onclick="pick('${st.id}')"></button>
     <span class="pick" aria-hidden="true">${sel.has(st.id)?"✓":""}</span>
     <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</div>
     <div class="nm">${esc(st.name)}</div>

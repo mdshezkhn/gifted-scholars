@@ -76,6 +76,7 @@ function renderScreen(){
     </div>`:"";
   $("#view").innerHTML=`
   <div class="screen-root">
+    <h1 class="visually-hidden">${t("navScreen")}</h1>
     <header class="scr-top">
       <div class="scr-id"><b class="scr-class">${esc(cls)}</b>${goal}</div>
       <div class="scr-btns">
@@ -86,7 +87,7 @@ function renderScreen(){
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
-    <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
+    <main class="scr-grid" id="scrGrid" tabindex="0" aria-label="${t("scrGridLabel")}">${S.students.map(tileHTML).join("")}</main>
     ${PICK_OPEN?`<div class="drw" id="pickOverlay"><div class="drw-card pickcard" role="dialog" aria-label="${t("pickTitle")}">
       <div class="drw-head"><strong>${t("pickTitle")}</strong><button class="scr-btn" onclick="pickClose()" aria-label="${t("close")}">✕</button></div>
       <div class="pickname num" id="pickName">${(byId(PICK_LAST)||{name:"—"}).name}</div>

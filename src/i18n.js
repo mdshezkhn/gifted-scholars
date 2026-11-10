@@ -381,7 +381,7 @@ Object.assign(I18N.en,{
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
  backupNudge:"It has been over a week — export a fresh backup.",
- screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",soundChip:"Tap anywhere to enable sound",undoLast:"Undo last",undoneToast:"Undone",scrHideNeg:"Hide minus markers on the Big Screen",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
+ screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",soundChip:"Tap anywhere to enable sound",undoLast:"Undo last",undoneToast:"Undone",scrHideNeg:"Hide minus markers on the Big Screen",scrGridLabel:"Student tiles (scrollable)",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
 });
 Object.assign(I18N.zh,{
  errToast:"出了点小问题，但你的数据是安全的。",
@@ -428,5 +428,5 @@ Object.assign(I18N.zh,{
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",
  backupNudge:"已经超过一周了——导出一份新备份吧。",
- screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",soundChip:"轻点任意位置开启声音",undoLast:"撤销上一次",undoneToast:"已撤销",scrHideNeg:"大屏上隐藏扣分标记",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
+ screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",soundChip:"轻点任意位置开启声音",undoLast:"撤销上一次",undoneToast:"已撤销",scrHideNeg:"大屏上隐藏扣分标记",scrGridLabel:"学生卡片（可滚动）",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
 });

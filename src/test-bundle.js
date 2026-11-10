@@ -403,7 +403,7 @@ Object.assign(I18N.en,{
  originNote:"Use ONE address for this class — data does not transfer between my-gifts-with-mo.duckdns.org and mdshekhn.github.io.",
  backupNever:"Last backup: never",backupOn:"Last backup: {date}",
  backupNudge:"It has been over a week — export a fresh backup.",
- screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",soundChip:"Tap anywhere to enable sound",undoLast:"Undo last",undoneToast:"Undone",scrHideNeg:"Hide minus markers on the Big Screen",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
+ screenExit:"Exit",screenDrawer:"Quick award",ariSound:"Toggle sound",ariFull:"Fullscreen",ariDrawer:"Quick award panel",goalDefault:"Friday reward",soundChip:"Tap anywhere to enable sound",undoLast:"Undo last",undoneToast:"Undone",scrHideNeg:"Hide minus markers on the Big Screen",scrGridLabel:"Student tiles (scrollable)",ariGoal:"Class goal progress",goalNums:"{e} / {t2} · {l} to go",goalSection:"Big screen & class goal",goalEnable:"Show class goal on the big screen",goalName:"Goal label",goalTarget:"Target points (weekly positives)",saveGoal:"Save goal",goalSaved:"Goal saved",storageBlocked:"This browser is blocking storage — data will not survive a reload."
 });
 Object.assign(I18N.zh,{
  errToast:"出了点小问题，但你的数据是安全的。",
@@ -450,7 +450,7 @@ Object.assign(I18N.zh,{
  originNote:"请固定使用同一个网址打开本站——两个网址的数据互不相通。",
  backupNever:"上次备份：还没有",backupOn:"上次备份：{date}",
  backupNudge:"已经超过一周了——导出一份新备份吧。",
- screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",soundChip:"轻点任意位置开启声音",undoLast:"撤销上一次",undoneToast:"已撤销",scrHideNeg:"大屏上隐藏扣分标记",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
+ screenExit:"退出",screenDrawer:"快速加分",ariSound:"开关声音",ariFull:"全屏",ariDrawer:"快速加分面板",goalDefault:"周五奖励",soundChip:"轻点任意位置开启声音",undoLast:"撤销上一次",undoneToast:"已撤销",scrHideNeg:"大屏上隐藏扣分标记",scrGridLabel:"学生卡片（可滚动）",ariGoal:"班级目标进度",goalNums:"{e} / {t2} · 还差 {l}",goalSection:"大屏幕与班级目标",goalEnable:"在大屏幕上显示班级目标",goalName:"目标名称",goalTarget:"目标分数（每周成长分）",saveGoal:"保存目标",goalSaved:"目标已保存",storageBlocked:"这台浏览器阻止了本地存储——刷新页面后数据将无法保留。"
 });
 
 "use strict";
@@ -735,7 +735,8 @@ function viewClassroom(){
 }
 function stuCard(st){
   const g=growthOf(st),w=walletOf(st),lp=lvlProgress(g),L=LEVELS[lp.i];
-  return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}" onclick="pick('${st.id}')" role="button" tabindex="0" aria-pressed="${sel.has(st.id)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pick('${st.id}')}">
+  return `<div class="card stk${sel.has(st.id)?" sel":""}" id="card-${st.id}">
+    <button type="button" class="cardhit" aria-pressed="${sel.has(st.id)}" aria-label="${esc(st.name)}" onclick="pick('${st.id}')"></button>
     <span class="pick" aria-hidden="true">${sel.has(st.id)?"✓":""}</span>
     <div class="av" style="background:hsl(${st.hue},55%,82%)">${esc(initialOf(st.name))}</div>
     <div class="nm">${esc(st.name)}</div>
@@ -1234,6 +1235,7 @@ function renderScreen(){
     </div>`:"";
   $("#view").innerHTML=`
   <div class="screen-root">
+    <h1 class="visually-hidden">${t("navScreen")}</h1>
     <header class="scr-top">
       <div class="scr-id"><b class="scr-class">${esc(cls)}</b>${goal}</div>
       <div class="scr-btns">
@@ -1244,7 +1246,7 @@ function renderScreen(){
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
-    <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
+    <main class="scr-grid" id="scrGrid" tabindex="0" aria-label="${t("scrGridLabel")}">${S.students.map(tileHTML).join("")}</main>
     ${PICK_OPEN?`<div class="drw" id="pickOverlay"><div class="drw-card pickcard" role="dialog" aria-label="${t("pickTitle")}">
       <div class="drw-head"><strong>${t("pickTitle")}</strong><button class="scr-btn" onclick="pickClose()" aria-label="${t("close")}">✕</button></div>
       <div class="pickname num" id="pickName">${(byId(PICK_LAST)||{name:"—"}).name}</div>
@@ -1931,9 +1933,9 @@ function openLicense(){
 
 /* ---- remake program: icons, mock, faq data, menu, help ---- */
 const FI={
- plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
- screen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
- gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M4 13h16M12 9c-2.5 0-4-1.2-4-2.7C8 5 9 4.4 10 4.7c1.2.4 2 2 2 4.3 0-2.3.8-3.9 2-4.3 1-.3 2 .3 2 1.6C16 7.8 14.5 9 12 9z"/></svg>',
+ plus:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+ screen:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+ gift:'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M4 13h16M12 9c-2.5 0-4-1.2-4-2.7C8 5 9 4.4 10 4.7c1.2.4 2 2 2 4.3 0-2.3.8-3.9 2-4.3 1-.3 2 .3 2 1.6C16 7.8 14.5 9 12 9z"/></svg>',
  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>',
  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10a8 8 0 1 1 2.3 6.3"/><path d="M4 5v5h5"/></svg>',
  globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18-3-4-3-14.5 0-18z"/></svg>',
