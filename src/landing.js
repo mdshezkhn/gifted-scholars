@@ -114,17 +114,34 @@ function renderLanding(){
   const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
   document.querySelector('#view').innerHTML=`
   <div class="gs-page">
+    <a class="skip-link" href="#gsmain">${t("skipToContent")}</a>
     <nav class="gsnav">
       <a class="brand" href="#/">gifted scholars<i>.</i></a>
       <div class="links">
-        <a href="#/app/classroom">${t("navClass")}</a>
-        <a class="xtra" href="#/app/shop">${t("navShop")}</a>
-        <a class="xtra" href="#/app/leaderboard">${t("navBoard")}</a>
-        <a class="xtra" href="#/app/records">${t("navRec")}</a>
+        <a class="xtra" href="#features">${t("navFeatures")}</a>
+        <a class="xtra" href="#how">${t("navHow")}</a>
+        <a class="xtra" href="#screen-show">${t("navScreen")}</a>
+        <a class="xtra" href="#privacy">${t("navPrivacy")}</a>
+        <a class="xtra" href="#faq">${t("navFaq")}</a>
+        <a class="xtra" href="#/help">${t("navHelp")}</a>
         ${langBtn}
         <button class="sqbtn" type="button" onclick="openRoomPicker()">${t("navRoom")}</button>
+        <a class="gsbtn pig naventer" href="#/app/classroom">${t("L_btnEnter")}</a>
+      </div>
+      <button class="gsnav-burger" type="button" aria-expanded="false" aria-controls="gsmenu" aria-label="${t("menuOpen")}" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+      <div class="gsmenu" id="gsmenu" hidden>
+        <a href="#features" onclick="toggleMenu(true)">${t("navFeatures")}</a>
+        <a href="#how" onclick="toggleMenu(true)">${t("navHow")}</a>
+        <a href="#screen-show" onclick="toggleMenu(true)">${t("navScreen")}</a>
+        <a href="#privacy" onclick="toggleMenu(true)">${t("navPrivacy")}</a>
+        <a href="#faq" onclick="toggleMenu(true)">${t("navFaq")}</a>
+        <a href="#/help" onclick="toggleMenu(true)">${t("navHelp")}</a>
+        <a href="#/app/classroom" onclick="toggleMenu(true)">${t("navClass")}</a>
+        <button class="sqbtn" type="button" onclick="toggleMenu(true);openRoomPicker()">${t("navRoom")}</button>
+        ${langBtn}
       </div>
     </nav>
+    <main id="gsmain">
 
     <header class="gshero">
       <div class="gswm" aria-hidden="true">
@@ -164,6 +181,29 @@ function renderLanding(){
       </div>
     </section>
 
+    <section class="gsec gsfeats" id="features">
+      <span class="eyebrow rv">${t("navFeatures")}</span>
+      <h2 class="rv">${t("featT")}</h2>
+      <div class="feat-grid" data-stagger>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.plus}</span><h3>${t("feat1T")}</h3><p>${t("feat1D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.screen}</span><h3>${t("feat2T")}</h3><p>${t("feat2D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.gift}</span><h3>${t("feat3T")}</h3><p>${t("feat3D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.chart}</span><h3>${t("feat4T")}</h3><p>${t("feat4D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.undo}</span><h3>${t("feat5T")}</h3><p>${t("feat5D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.globe}</span><h3>${t("feat6T")}</h3><p>${t("feat6D")}</p></div>
+      </div>
+    </section>
+
+    <section class="gsec gshow" id="how">
+      <span class="eyebrow rv">${t("navHow")}</span>
+      <h2 class="rv">${t("howT")}</h2>
+      <div class="steps" data-stagger>
+        <div class="step-card rv"><span class="stepn num">1</span><h3>${t("s1T")}</h3><p>${t("s1D")}</p></div>
+        <div class="step-card rv"><span class="stepn num">2</span><h3>${t("s2T")}</h3><p>${t("s2D")}</p></div>
+        <div class="step-card rv"><span class="stepn num">3</span><h3>${t("s3T")}</h3><p>${t("s3D")}</p></div>
+      </div>
+    </section>
+
     <section class="gsstudy" id="fig-study">
       <div class="stage">
         <div>
@@ -183,6 +223,20 @@ function renderLanding(){
           <div><span class="k">${t("L_rdStars")}</span><span class="v num" id="rd-stars">0 ★</span></div>
         </div>
         <p class="modelnote">${t("L_studyFoot")}</p>
+      </div>
+    </section>
+
+    <section class="nightband" id="screen-show">
+      <div class="nb-in">
+        <span class="eyebrow rv">${t("navScreen")}</span>
+        <h2 class="rv">${t("scrShowT")}</h2>
+        <p class="seclede rv">${t("scrShowD")}</p>
+        <div class="chips" data-stagger>
+          <span class="chip rv">${t("scrC1")}</span><span class="chip rv">${t("scrC2")}</span>
+          <span class="chip rv">${t("scrC3")}</span><span class="chip rv">${t("scrC4")}</span>
+        </div>
+        <div class="nbmock rv" aria-hidden="true">${SCREEN_MOCK_SVG}</div>
+        <div class="ctas"><a class="gsbtn pig rv" href="#/screen">${t("navScreen")} \u2192</a></div>
       </div>
     </section>
 
@@ -229,13 +283,40 @@ function renderLanding(){
       </table>
     </section>
 
-    <footer class="gsclose">
+    <section class="gsec gspriv" id="privacy">
+      <span class="eyebrow rv">${t("navPrivacy")}</span>
+      <h2 class="rv">${t("privT")}</h2>
+      <p class="seclede rv">${t("privD")}</p>
+      <div class="priv-grid" data-stagger>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.lock}</span><h3>${t("privC1")}</h3></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.download}</span><h3>${t("privC2")}</h3></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.offline}</span><h3>${t("privC3")}</h3></div>
+      </div>
+      <p class="fine rv">${t("privNote")}</p>
+    </section>
+
+    <section class="gsec gsfaq" id="faq">
+      <span class="eyebrow rv">${t("navFaq")}</span>
+      <h2 class="rv">${t("faqT")}</h2>
+      <div class="faqlist" data-stagger>
+        ${faqData().slice(0,6).map((f,i)=>`<details class="faq-item rv"${i===0?" open":""}><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}
+      </div>
+      <p class="fine rv"><a href="#/help">${t("navHelp")} \u2192</a></p>
+    </section>
+
+    <footer class="gsclose gsfooter">
       <span class="eyebrow rv">${t("L_closeEyebrow")}</span>
       <h2 class="rv">${t("L_closeHeadA")} <em class="it">${t("L_closeHeadB")}</em></h2>
       <p class="fine rv">${t("L_fine")}</p>
       <div class="ctas">
         <button class="gsbtn rv" type="button" onclick="openRoomPicker()">${t("L_closeBtnA")}</button>
         <a class="gsbtn pig rv" href="#/app/classroom">${t("L_closeBtnB")}</a>
+      </div>
+      <div class="footlinks" data-stagger>
+        <div class="rv"><span class="k">${t("footProd")}</span><a href="#features">${t("navFeatures")}</a><a href="#screen-show">${t("navScreen")}</a><a href="#/app/classroom">${t("L_btnEnter")}</a></div>
+        <div class="rv"><span class="k">${t("footHelp2")}</span><a href="#/help">${t("helpTitle")}</a><a href="#faq">${t("navFaq")}</a></div>
+        <div class="rv"><span class="k">${t("footAbout")}</span><button class="flink" type="button" onclick="openLicense()">${t("footLicense")}</button><a href="#privacy">${t("navPrivacy")}</a></div>
+        <div class="rv"><span class="k">\u00a0</span><a href="#gsmain">${t("footTop")} \u2191</a></div>
       </div>
       <div class="strip">
         <span>ZHONGFANGYUAN BILINGUAL SCHOOL</span>
@@ -316,10 +397,10 @@ function initStudio(){
 
 /* ---------- open a gift room by student name ---------- */
 function openRoomPicker(){
-  modal(`<div class="card stk" style="max-width:420px"><h2 style="font-family:var(--font-round)">Open a gift room</h2>
+  modal(`<div class="card stk" style="max-width:420px"><h2 style="font-family:var(--font-round)">${t("roomPickTitle")}</h2>
   <p style="margin:8px 0 14px;color:var(--ink-soft)">${t("nameHint")}</p>
   <input id="rp-name" placeholder="${t("yourName")}" style="width:100%;padding:12px 14px;border:var(--bd);border-radius:12px;font-size:16px" aria-label="${t("yourName")}">
-  <div class="btns" style="margin-top:14px"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn primary" id="rp-go">${t("openMyRoom")}</button></div></div>`);
+  <div class="btns" style="margin-top:14px"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn primary" id="rp-go">${t("openMyRoom")}</button></div></div>`);
   const openIt=()=>{
     const q=($("#rp-name").value||"").trim().toLowerCase();
     if(!q){toast(t("typeFirst"));return;}
@@ -344,6 +425,103 @@ function openLicense(){
   </div>
   <div class="btns" style="margin-top:14px"><button class="btn primary" onclick="closeOverlays()">${t("close")}</button></div></div>`);
 }
+
+/* ---- remake program: icons, mock, faq data, menu, help ---- */
+const FI={
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+ screen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+ gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M4 13h16M12 9c-2.5 0-4-1.2-4-2.7C8 5 9 4.4 10 4.7c1.2.4 2 2 2 4.3 0-2.3.8-3.9 2-4.3 1-.3 2 .3 2 1.6C16 7.8 14.5 9 12 9z"/></svg>',
+ chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>',
+ undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10a8 8 0 1 1 2.3 6.3"/><path d="M4 5v5h5"/></svg>',
+ globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18-3-4-3-14.5 0-18z"/></svg>',
+ lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+ download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v11M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>',
+ offline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12a10 10 0 0 1 14 0"/><path d="M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg>'
+};
+const SCREEN_MOCK_SVG = `<svg viewBox="0 0 520 300" role="img">
+ <rect x="2" y="2" width="516" height="296" rx="10" fill="#241F17"/>
+ <rect x="18" y="16" width="200" height="10" rx="5" fill="#E88654" opacity=".9"/>
+ <rect x="18" y="34" width="120" height="8" rx="4" fill="#4A443A"/>
+ <rect x="360" y="18" width="140" height="34" rx="8" fill="#1A1917"/>
+ <rect x="368" y="26" width="86" height="18" rx="4" fill="#2E7D5B" opacity=".85"/>
+ <text x="380" y="40" font-family="Azeret Mono,monospace" font-size="12" fill="#F0EDE4">36/60</text>
+ ${[0,1,2,3,4,5].map(r=>[0,1,2,3,4,5].map(c=>`<rect x="${18+c*82}" y="${64+r*37}" width="74" height="30" rx="6" fill="#2B261E"/>`).join("")).join("")}
+ <rect x="26" y="72" width="58" height="6" rx="3" fill="#F2B84B"/><rect x="26" y="84" width="40" height="5" rx="2.5" fill="#6E6659"/>
+ <rect x="190" y="146" width="74" height="30" rx="6" fill="#9B3418"/>
+ <circle cx="227" cy="161" r="3" fill="#F0EDE4"/><circle cx="215" cy="155" r="2" fill="#F0EDE4" opacity=".8"/><circle cx="238" cy="167" r="2" fill="#F0EDE4" opacity=".6"/>
+</svg>`;
+function faqData(){return [
+ [t("faq1Q"),t("faq1A")],[t("faq2Q"),t("faq2A")],[t("faq3Q"),t("faq3A")],
+ [t("faq4Q"),t("faq4A")],[t("faq5Q"),t("faq5A")],[t("faq6Q"),t("faq6A")],
+ [t("h1Q"),t("h1A")],[t("h2Q"),t("h2A")],[t("h3Q"),t("h3A")],[t("h4Q"),t("h4A")]
+];}
+function toggleMenu(forceClose){
+  const b=document.querySelector(".gsnav-burger"), m=document.getElementById("gsmenu");
+  if(!b||!m) return;
+  const open=(m.hidden===false)&&!forceClose;
+  m.hidden=open?false:true;
+  b.setAttribute("aria-expanded",open?"true":"false");
+  b.setAttribute("aria-label",open?t("menuClose"):t("menuOpen"));
+}
+if(!window._gsMenuKey){
+  window._gsMenuKey=true;
+  document.addEventListener("keydown",e=>{if(e&&e.key==="Escape")toggleMenu(true);});
+}
+function helpFilterCount(q,items){
+  const n=String(q||"").trim().toLowerCase();
+  let hidden=0;
+  for(const it of items){
+    const hit=!n||it.keys.toLowerCase().indexOf(n)>=0;
+    it.el.style.display=hit?"":"none";
+    if(!hit)hidden++;
+  }
+  return hidden;
+}
+function renderHelp(){
+  applyLangDoc();
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  document.querySelector("#view").innerHTML=`
+  <div class="gs-page gshelp">
+    <nav class="gsnav">
+      <a class="brand" href="#/">gifted scholars<i>.</i></a>
+      <div class="links"><a href="#/">${t("helpBack")}</a>${langBtn}</div>
+    </nav>
+    <main id="gsmain" class="helpwrap">
+      <span class="eyebrow">${t("navHelp")}</span>
+      <h1>${t("helpTitle")}</h1>
+      <p class="seclede">${t("helpSub")}</p>
+      <input id="help-q" class="helpq" type="search" placeholder="${t("helpSearch")}" aria-label="${t("helpSearch")}">
+      <div class="faqlist" id="help-list">
+        ${helpData().map(f=>`<details class="faq-item" data-k="${f[2]}"><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}
+      </div>
+      <p class="none gsnone hide" id="help-none">${t("helpNone")}</p>
+      <p class="fine"><a href="#/">${t("helpBack")}</a> · <button class="flink" type="button" onclick="openLicense()">${t("footLicense")}</button></p>
+    </main>
+  </div>`;
+  const inp=document.getElementById("help-q");
+  const wire=()=>{
+    const items=[...document.querySelectorAll("#help-list .faq-item")].map(el=>({el,keys:el.getAttribute("data-k")||""}));
+    const none=document.getElementById("help-none");
+    return ()=>{const q=inp.value||"";
+      let vis=0;
+      for(const it of items){const hit=!q.trim()||it.keys.toLowerCase().indexOf(q.trim().toLowerCase())>=0;it.el.classList.toggle("gs-hide",!hit);if(hit)vis++;}
+      if(none)none.classList.toggle("hide",vis>0);
+    };
+  };
+  try{inp.addEventListener("input",wire());}catch(_){}
+}
+function helpData(){return [
+ [t("h1Q"),t("h1A"),t("h1Q")+" "+t("h1A")+" students add"],
+ [t("h2Q"),t("h2A"),t("h2Q")+" "+t("h2A")+" undo撤销"],
+ [t("h3Q"),t("h3A"),t("h3Q")+" "+t("h3A")+" box盲盒 mystery"],
+ [t("h4Q"),t("h4A"),t("h4Q")+" "+t("h4A")+" negative负分"],
+ [t("faq1Q"),t("faq1A"),t("faq1Q")+" "+t("faq1A")+" backup备份 storage local"],
+ [t("faq2Q"),t("faq2A"),t("faq2Q")+" "+t("faq2A")+" free免费 price"],
+ [t("faq3Q"),t("faq3A"),t("faq3Q")+" "+t("faq3A")+" level等级 wallet钱包"],
+ [t("faq4Q"),t("faq4A"),t("faq4Q")+" "+t("faq4A")+" screen大屏 fullscreen F A"],
+ [t("faq5Q"),t("faq5A"),t("faq5Q")+" "+t("faq5A")+" backup导出 export json"],
+ [t("faq6Q"),t("faq6A"),t("faq6Q")+" "+t("faq6A")+" phone手机 mobile PWA"]
+];}
 
 /* ============ init (must run last) ============ */
 if(!load())S=emptyState();

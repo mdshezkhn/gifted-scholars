@@ -82,10 +82,16 @@ function renderScreen(){
         <span id="scrSoundChip" class="scr-chip" style="display:none">🔊 ${t("soundChip")}</span><button class="scr-btn" id="scrMute" aria-pressed="${soundOn}" aria-label="${t("ariSound")}" onclick="setSound(${!soundOn})">${soundOn?"🔊":"🔇"}</button>
         <button class="scr-btn" id="scrFull" aria-pressed="${full}" aria-label="${t("ariFull")}" onclick="toggleFullscreen()">⛶</button>
         <button class="scr-btn" id="scrDrawer" aria-label="${t("ariDrawer")}" onclick="openDrawer()">✨ ${t("screenDrawer")}</button>
+        <button class="scr-btn" id="scrPick" onclick="pickOpen()">${t("pickBtn")}</button>
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
     <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
+    ${PICK_OPEN?`<div class="drw" id="pickOverlay"><div class="drw-card pickcard" role="dialog" aria-label="${t("pickTitle")}">
+      <div class="drw-head"><strong>${t("pickTitle")}</strong><button class="scr-btn" onclick="pickClose()" aria-label="${t("close")}">✕</button></div>
+      <div class="pickname num" id="pickName">${(byId(PICK_LAST)||{name:"—"}).name}</div>
+      <div class="btns"><button class="btn primary" onclick="pickDraw()">${t("pickDraw")}</button></div>
+    </div></div>`:""}
     <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
     <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
   </div>`;
@@ -297,6 +303,21 @@ function openDrawer(keepSel){
   try{document.querySelector("#view").appendChild(wrap);}catch(_){}
 }
 
+/* ---- random picker (fair bag) ---- */
+let PICK_OPEN=false, PICK_BAG=null, PICK_LAST=null;
+function pickIsOpen(){return PICK_OPEN===true;}
+function shuffleBag(){const b=S.students.map(x=>x.id);for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function pickOpen(){PICK_OPEN=true;PICK_BAG=shuffleBag();PICK_LAST=null;renderScreen();}
+function pickClose(){PICK_OPEN=false;renderScreen();}
+function pickDraw(silent){
+  if(!PICK_BAG||!PICK_BAG.length){PICK_BAG=shuffleBag();if(!silent)toast(t("pickAll"));}
+  const id=PICK_BAG.pop();const st=byId(id);PICK_LAST=id;
+  const nm=document.getElementById("pickName");
+  if(nm&&st)nm.textContent=st.name;
+  const lv=document.getElementById("scrLive");
+  if(lv&&st)lv.textContent=t("pickPicked")+": "+st.name;
+  return id;
+}
 /* ---- Task 12: keyboard shortcuts A / F / Esc (guarded) ---- */
 function isTyping(el){
   if(!el||!el.tagName)return false;
@@ -318,6 +339,6 @@ function scrKeydown(e){
     if(key==="a"||key==="A"){openDrawer();if(e.preventDefault)e.preventDefault();return;}
     if(key==="f"||key==="F"){toggleFullscreen();if(e.preventDefault)e.preventDefault();return;}
   }
-  if(key==="Escape"&&drawerIsOpen()){closeDrawer();if(e.preventDefault)e.preventDefault();}
+  if(key==="Escape"){if(PICK_OPEN){pickClose();if(e.preventDefault)e.preventDefault();return;}if(drawerIsOpen()){closeDrawer();if(e.preventDefault)e.preventDefault();}}
 }
 try{document.addEventListener("keydown",scrKeydown);}catch(_){}

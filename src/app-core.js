@@ -171,6 +171,7 @@ function route(){
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
+  if(h==="#/help"){renderHelp();return;}
   if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");

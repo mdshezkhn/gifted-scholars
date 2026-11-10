@@ -1,10 +1,11 @@
 # WCAG contrast — new palette (.app-ui + #/screen), measured in DOM
 
-unique fg/bg pairs measured: 26; below threshold: 0
+unique fg/bg pairs measured: 27; below threshold: 0
 
 | text | fg | bg | size | large? | ratio | need | views |
 |---|---|---|---|---|---|---|---|
 | 删除 | rgb(240,237,228) | rgb(155,52,24) | 14px/700 | n | 6.19:1 | 4.5:1 | #/app/settings |
+| -1 | rgb(155,52,24) | rgb(240,237,228) | 18px/800 | n | 6.19:1 | 4.5:1 | #/app/records |
 | 三年二班
 枫叶小学 | rgb(74,71,65) | rgb(220,215,203) | 12px/400 | n | 6.45:1 | 4.5:1 | #/app/classroom |
 | 保存目标 | rgb(26,25,23) | rgb(232,134,84) | 16px/700 | n | 6.67:1 | 4.5:1 | #/app/settings |
@@ -28,8 +29,8 @@ unique fg/bg pairs measured: 26; below threshold: 0
 🔇
 ⛶
 ✨ 快速加分
-✕ 退出
-王 | rgb(26,25,23) | rgb(231,227,218) | 16px/400 | n | 13.72:1 | 4.5:1 | #/screen |
+随机点名
+✕ | rgb(26,25,23) | rgb(231,227,218) | 16px/400 | n | 13.72:1 | 4.5:1 | #/screen |
 | 三年二班 | rgb(26,25,23) | rgb(231,227,218) | 32px/700 | Y | 13.72:1 | 3.0:1 | #/screen |
 | 总榜 | rgb(231,227,218) | rgb(26,25,23) | 14px/700 | n | 13.72:1 | 4.5:1 | #/app/leaderboard |
 | 0 | rgb(26,25,23) | rgb(237,231,218) | 12px/800 | n | 14.26:1 | 4.5:1 | #/app/shop |

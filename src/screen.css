@@ -143,3 +143,22 @@
 .drw-foot{margin-top:14px;display:flex;justify-content:flex-end}
 .drw-undo{min-height:48px;padding:8px 18px;font-size:17px;border-radius:999px;border:2px solid rgba(26,25,23,.22);background:#fff;cursor:pointer}
 @media (prefers-reduced-motion: reduce){.drw-card{transition:none}}
+
+/* remake: random picker overlay */
+.pickcard{max-width:520px;text-align:center}
+.pickname{font-family:var(--font-round);font-size:clamp(40px,6vw,64px);line-height:1.1;padding:18px 6px 6px;word-break:break-word}
+.picksub{font-size:13px;opacity:.75;margin-top:10px}
+
+/* narrow screens: let the screen top bar wrap so every control stays visible */
+@media (max-width:700px){
+  .scr-top,.screen-top,.scrhead{flex-wrap:wrap;row-gap:8px}
+}
+@media (max-width:700px){
+  .scr-btns{flex-wrap:wrap;justify-content:flex-end}
+}
+/* consolidated narrow-screen rule: buttons flow onto their own wrapped rows */
+@media (max-width:700px){
+  .scr-top{flex-wrap:wrap}
+  .scr-btns{flex-wrap:wrap;flex-shrink:1;width:100%;justify-content:flex-start;row-gap:8px}
+  .scr-btn{padding-left:12px;padding-right:12px}
+}

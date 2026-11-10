@@ -61,7 +61,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(700)
     pg.evaluate("localStorage.clear();tryDemo(true);")
     rows = {}
-    for view in ["#/screen", "#/app/classroom", "#/app/settings", "#/app/shop", "#/app/leaderboard"]:
+    for view in ["#/", "#/help", "#/screen", "#/app/classroom", "#/app/settings", "#/app/shop", "#/app/leaderboard", "#/app/records"]:
         pg.evaluate(f"location.hash='{view}';route()"); pg.wait_for_timeout(250)
         for r in pg.evaluate(JS):
             key = (r["fg"], r["bg"], r["large"])

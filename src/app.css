@@ -5,6 +5,8 @@
   --gold:#9B3418; --gold-tint:#EDE7DA;
   --coral:#9B3418; --coral-tint:#EFE0D8;
   --white:#F0EDE4;
+  --leaf:#2E7D5B; --leaf-tint:#E2F1EA; --night:#16130E; --night-2:#241F17;
+  --r-m:16px; --r-l:24px; --shadow-m:0 8px 24px rgba(60,45,20,.10);
   --radius:0px; --bd:1px solid rgba(26,25,23,.22);
   --shadow:none;
   --font-round:"Instrument Serif","Songti SC","STSong","Noto Serif SC",serif,'Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif;

@@ -560,13 +560,15 @@ T("help view renders + filters",safeT(function(){
   const v=document.querySelector("#view");
   const n=(v.innerHTML.match(/faq-item/g)||[]).length;
   if(n<8)return "items "+n;
-  const inp=v.querySelector("#help-q");
-  if(!inp)return "no search input";
-  inp.value="zzzznope";inp.dispatchEvent({type:"input"});
-  const after=(v.innerHTML.match(/gs-hide/g)||[]).length;
-  inp.value="";inp.dispatchEvent({type:"input"});
-  return after>0;
-}),"help shows 8+ items; search hides non-matching");
+  if(v.innerHTML.indexOf('id="help-q"')<0)return "no search input";
+  if(typeof helpFilterCount!=="function")return "no filter fn";
+  const items=[{keys:"backup beifen 导出 export",el:{style:{}}},{keys:"da su 学生 students",el:{style:{}}}];
+  const hid=helpFilterCount("zzzznope",items);
+  if(hid!==2||items[0].el.style.display!=="none")return "all-hide "+hid;
+  const hid2=helpFilterCount("backup",items);
+  if(hid2!==1||items[0].el.style.display!=="")return "match-keep "+hid2;
+  return true;
+}),"help shows 8+ items; pure filter hides non-matches, keeps matches");
 T("random picker on screen",safeT(function(){
   seedDemo();location.hash="#/screen";route();
   if(typeof pickOpen!=="function"||typeof pickDraw!=="function")return "missing fns";

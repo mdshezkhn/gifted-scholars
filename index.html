@@ -36,6 +36,8 @@
   --gold:#9B3418; --gold-tint:#EDE7DA;
   --coral:#9B3418; --coral-tint:#EFE0D8;
   --white:#F0EDE4;
+  --leaf:#2E7D5B; --leaf-tint:#E2F1EA; --night:#16130E; --night-2:#241F17;
+  --r-m:16px; --r-l:24px; --shadow-m:0 8px 24px rgba(60,45,20,.10);
   --radius:0px; --bd:1px solid rgba(26,25,23,.22);
   --shadow:none;
   --font-round:"Instrument Serif","Songti SC","STSong","Noto Serif SC",serif,'Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif;
@@ -374,6 +376,25 @@ label{font-weight:700;font-size:14px}
 .drw-undo{min-height:48px;padding:8px 18px;font-size:17px;border-radius:999px;border:2px solid rgba(26,25,23,.22);background:#fff;cursor:pointer}
 @media (prefers-reduced-motion: reduce){.drw-card{transition:none}}
 
+/* remake: random picker overlay */
+.pickcard{max-width:520px;text-align:center}
+.pickname{font-family:var(--font-round);font-size:clamp(40px,6vw,64px);line-height:1.1;padding:18px 6px 6px;word-break:break-word}
+.picksub{font-size:13px;opacity:.75;margin-top:10px}
+
+/* narrow screens: let the screen top bar wrap so every control stays visible */
+@media (max-width:700px){
+  .scr-top,.screen-top,.scrhead{flex-wrap:wrap;row-gap:8px}
+}
+@media (max-width:700px){
+  .scr-btns{flex-wrap:wrap;justify-content:flex-end}
+}
+/* consolidated narrow-screen rule: buttons flow onto their own wrapped rows */
+@media (max-width:700px){
+  .scr-top{flex-wrap:wrap}
+  .scr-btns{flex-wrap:wrap;flex-shrink:1;width:100%;justify-content:flex-start;row-gap:8px}
+  .scr-btn{padding-left:12px;padding-right:12px}
+}
+
 /* ================================================================
    Gifted Scholars — studio landing (warm editorial system)
    ground #E7E3DA · secondary #DCD7CB · ink #1A1917 · pigment #9B3418
@@ -568,6 +589,88 @@ html.gs-motion .gs-page .gshero .subject{transition:opacity .8s ease}
   .gsclose .ctas .gsbtn{justify-content:center}
 }
 
+/* ================================================================
+   remake program: nav IA + feature/steps/screen/privacy/faq/footer
+   ================================================================ */
+.skip-link{position:absolute;left:-999px;top:8px;z-index:99;background:var(--pigment);color:#F0EDE4;
+  padding:10px 16px;border-radius:0 0 8px 0;font-family:var(--mono);font-size:12px}
+.skip-link:focus{left:0}
+.gsnav .links .naventer{margin-left:6px;padding:8px 14px;min-height:38px}
+.gsnav-burger{display:none;margin-left:auto;background:none;border:var(--hair);border-radius:8px;
+  width:44px;height:40px;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+.gsnav-burger span{display:block;width:18px;height:2px;background:var(--ink)}
+.gsmenu{position:fixed;top:60px;left:0;right:0;z-index:59;background:var(--ground);
+  border-bottom:1px solid var(--hair);padding:12px clamp(16px,3.4vw,48px) 20px;
+  display:flex;flex-direction:column;gap:2px}
+.gsmenu a,.gsmenu button{font-family:var(--mono);font-size:14px;color:var(--ink);text-align:left;
+  padding:12px 8px;min-height:44px;border:0;background:none;cursor:pointer;text-decoration:none;border-bottom:1px solid var(--hair)}
+.gsmenu a:last-child,.gsmenu button:last-child{border-bottom:0}
+@media (max-width:900px){
+  .gsnav .links{display:none}
+  .gsnav-burger{display:flex}
+}
+@media (min-width:901px){ .gsmenu{display:none} }
+.gsec{max-width:1080px;margin:0 auto;padding:clamp(56px,9vw,110px) clamp(16px,3.4vw,48px)}
+.gsec h2{font-size:clamp(26px,3.6vw,38px);margin:10px 0 14px}
+.seclede{max-width:56ch;color:var(--ink-2);font-size:14px;line-height:1.7;margin-bottom:30px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.feat-card{background:var(--white);border:1px solid var(--hair);border-radius:0 0 0 0;padding:20px 18px}
+.feat-card .ficon{display:inline-flex;width:38px;height:38px;color:var(--pigment);margin-bottom:12px}
+.feat-card .ficon svg{width:38px;height:38px}
+.feat-card h3{font-size:21px;margin-bottom:8px}
+.feat-card p{color:var(--ink-2);font-size:13.5px;line-height:1.65}
+@media (max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.feat-grid{grid-template-columns:1fr}}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.step-card{background:var(--white);border:1px solid var(--hair);padding:20px 18px}
+.stepn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+  border-radius:999px;background:var(--pigment);color:#F0EDE4;font-size:15px;margin-bottom:12px}
+.step-card h3{font-size:20px;margin-bottom:8px}
+.step-card p{color:var(--ink-2);font-size:13.5px;line-height:1.65}
+@media (max-width:640px){.steps{grid-template-columns:1fr}}
+.nightband{background:var(--night);color:var(--paper)}
+.nightband .eyebrow{color:#E88654}
+.nightband .seclede{color:#C9C2B4}
+.nb-in{max-width:1080px;margin:0 auto;padding:clamp(56px,9vw,110px) clamp(16px,3.4vw,48px)}
+.nightband h2{font-size:clamp(26px,3.6vw,38px);margin:10px 0 14px}
+.nightband .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 28px}
+.nightband .chip{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:7px 12px;
+  border:1px solid rgba(240,237,228,.28);border-radius:999px;color:var(--paper)}
+.nbmock{max-width:720px;margin:10px 0 26px}
+.nbmock svg{width:100%;height:auto;display:block;border:1px solid rgba(240,237,228,.16)}
+.nightband .gsbtn.pig{background:#E88654;color:#1A1917}
+.priv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0 8px}
+.gspriv .feat-card{text-align:center}
+@media (max-width:640px){.priv-grid{grid-template-columns:1fr}}
+.gspriv .fine{color:var(--ink-2);font-size:12.5px}
+.faqlist{margin-top:24px;display:flex;flex-direction:column;gap:0;max-width:820px}
+.faq-item{border-top:1px solid var(--hair)}
+.faq-item:last-child{border-bottom:1px solid var(--hair)}
+.faq-item summary{cursor:pointer;list-style:none;min-height:48px;display:flex;align-items:center;gap:12px;
+  font-family:var(--serif);font-size:19px;padding:6px 2px}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";margin-left:auto;font-family:var(--mono);color:var(--pigment);font-size:18px}
+.faq-item[open] summary::after{content:"\2212"}
+.faq-item p{padding:2px 2px 16px;color:var(--ink-2);font-size:13.5px;line-height:1.7;max-width:70ch}
+.faq-item.gs-hide,.gs-hide{display:none!important}
+.footlinks{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1080px;margin:26px auto 8px;
+  padding:0 clamp(16px,3.4vw,48px)}
+.footlinks .k{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px}
+.footlinks a,.footlinks .flink{display:block;font-family:var(--mono);font-size:13px;color:var(--ink);
+  padding:6px 0;text-decoration:none;text-align:left;border:0;background:none;cursor:pointer}
+.footlinks a:hover,.footlinks .flink:hover{color:var(--pigment);text-decoration:underline;text-underline-offset:3px}
+@media (max-width:640px){.footlinks{grid-template-columns:repeat(2,1fr)}}
+/* help view */
+.gshelp .helpwrap{max-width:720px;margin:0 auto;padding:110px clamp(16px,3.4vw,48px) 80px}
+.gshelp h1{font-size:clamp(30px,4.4vw,44px);margin:10px 0 10px}
+.helpq{width:100%;padding:13px 16px;margin:18px 0 8px;border:1px solid var(--hair);border-radius:0;
+  background:var(--white);font-family:var(--mono);font-size:14px;color:var(--ink);min-height:48px}
+.helpq:focus{outline:2px solid var(--pigment);outline-offset:1px}
+.gsnone{color:var(--pigment);font-family:var(--mono);font-size:13px;padding:14px 2px}
+.gshelp .fine{color:var(--ink-2);font-size:12.5px;padding-top:18px}
+.gshelp .flink{border:0;background:none;cursor:pointer;font:inherit;color:var(--pigment);text-decoration:underline;text-underline-offset:3px}
+
 </style>
 </head>
 <body>
@@ -603,6 +706,41 @@ en:{
  classSaved:"Class details saved",demoReset:"Demo data reset",exported:"Exported",typeFirst:"Type your name first",
  noStudent:"No student named “",noStudent2:"” on the roster.",
  delRule:"Delete this rule?",resetAsk:"Reset demo data?",yesDo:"Yes, do it",cancel:"Cancel",close:"Close",
+/* ---- professional-remake program keys ---- */
+featT:"Built for a real classroom.",navFeatures:"Features",navHow:"How it works",navScreen:"Big Screen",navPrivacy:"Privacy",navFaq:"FAQ",navHelp:"Help",
+menuOpen:"Open menu",menuClose:"Close menu",skipToContent:"Skip to content",
+feat1T:"Award in a second",feat1D:"Pick students, tap a rule — two taps. Every record can be undone.",
+feat2T:"Visible on the big screen",feat2D:"The classroom screen shows every kid\u2019s progress live, readable from the back row.",
+feat3T:"Gift rooms",feat3D:"Stars buy gifts, mystery boxes hide surprises, and the shelf keeps a whole year of collects.",
+feat4T:"Levels never drop",feat4D:"Levels ride lifetime positives; the spendable wallet is separate and never goes below zero.",
+feat5T:"A full trail",feat5D:"Every award is logged and undoable. Export a complete backup any time.",
+feat6T:"Bilingual",feat6D:"Chinese by default, English one tap away \u2014 including the Big Screen.",
+howT:"How it works",s1T:"Set up your class",s1D:"Add students and award rules in Settings \u2014 or press Try demo and explore first.",
+s2T:"Award in class",s2D:"Two taps per award on the projector\u2019s Big Screen; pops celebrate, undo fixes mistakes.",
+s3T:"Reward on Friday",s3D:"The class goal fills as the week\u2019s positive points add up. When it hits 100%, celebrate.",
+scrShowT:"One screen for the whole class",scrShowD:"Open #/screen on the projector: a goal rocket, one tile per kid, and a burst of confetti on every award.",
+scrC1:"Class goal",scrC2:"Award pops",scrC3:"Quick-award drawer",scrC4:"Readable at 8 metres",
+privT:"Data never leaves the device",privD:"Everything lives in this browser\u2019s local storage: no accounts, no uploads, no tracking. It works offline.",
+privC1:"Local storage only",privC2:"One-tap backup export",privC3:"Works offline",
+privNote:"Tip: always open the same address \u2014 two different addresses keep separate data.",
+faqT:"Questions teachers ask",
+faq1Q:"Where is my data stored?",faq1A:"Only in this browser (local storage). To move computers: export a backup in Settings, then import it there.",
+faq2Q:"Is it really free?",faq2A:"Yes. No fees, no ads, nothing for sale \u2014 just keep the author credit.",
+faq3Q:"Can negative points lower a level?",faq3A:"No. Levels ride lifetime positive points, so a level is never lowered by negatives. Only the spendable wallet feels them.",
+faq4Q:"How do I open the Big Screen?",faq4A:"Choose it in Settings, or open the address with #/screen. F toggles fullscreen, A opens the quick-award drawer.",
+faq5Q:"How do backups work?",faq5A:"Settings \u2192 Export backup saves a JSON file with everything. The app reminds you when a backup is more than a week old.",
+faq6Q:"Does it work on phones?",faq6A:"Yes \u2014 every page adapts to phones and tablets. The Big Screen is designed for projectors and large displays.",
+footProd:"Product",footHelp2:"Help",footAbout:"About",footTop:"Back to top",footLicense:"License & credit",
+roomPickTitle:"Open a gift room",
+helpTitle:"Help & how-to",helpSub:"Every common task lives here. Stuck? Export a backup first, then ask Teacher Mo.",
+helpSearch:"Search help\u2026",helpNone:"No matching help entries.",helpBack:"\u2190 Back home",
+h1Q:"How do I add students?",h1A:"Settings \u2192 Add students. Paste a whole roster, one name per line \u2014 each becomes a tile with its own gift room.",
+h2Q:"How do I undo an award?",h2A:"Classroom \u2192 Undo, or on the Big Screen drawer tap \u201cUndo last\u201d. Records are never deleted, only marked undone.",
+h3Q:"How do mystery boxes work?",h3A:"A student spends stars on a box and receives a random gift for their shelf. Rarer gifts have fancier frames.",
+h4Q:"What about negative points?",h4A:"They count against the wallet but never against levels. On the Big Screen they appear as a quiet marker, which Settings can hide.",
+ariPick:"Open random picker",pickBtn:"Random pick",pickTitle:"Who\u2019s it going to be?",pickDraw:"Draw",pickAgain:"Draw again",
+pickAll:"Everyone has had a turn \u2014 the bag refills.",pickPicked:"Picked student",
+
  addStudent:"Add a student by name",
  shelf:"Gift shelf",askGift:"Ask for a gift",myRequests:"My requests",waiting:"Waiting approvals",
  noReqs:"No requests waiting.",approve:"Approve",decline:"Decline",giveNow:"Give now",backShelf:"Back on shelf",takeOff:"Take off shelf",
@@ -640,6 +778,41 @@ zh:{
  classSaved:"班级信息已保存",demoReset:"演示数据已重置",exported:"已导出",typeFirst:"请先输入你的名字",
  noStudent:"名单上没有叫“",noStudent2:"”的学生。",
  delRule:"删除这条规则？",resetAsk:"重置演示数据？",yesDo:"好的，执行",cancel:"取消",close:"关闭",
+/* ---- professional-remake program keys ---- */
+featT:"为真实课堂而做。",navFeatures:"产品特性",navHow:"三步上手",navScreen:"教室大屏",navPrivacy:"隐私与数据",navFaq:"常见问题",navHelp:"使用帮助",
+menuOpen:"打开菜单",menuClose:"关闭菜单",skipToContent:"跳到正文",
+feat1T:"一秒完成加分",feat1D:"选学生、点规则，两下就好。每条记录都能撤销。",
+feat2T:"大屏实时可见",feat2D:"教室大屏上，每个孩子的进步都看得见，后排也读得清。",
+feat3T:"礼物小屋",feat3D:"星星换礼物，盲盒藏惊喜，礼物架收藏一整年。",
+feat4T:"等级只升不降",feat4D:"等级只看终身积极分；可花费的星星钱包另算，最低到零。",
+feat5T:"全程可追溯",feat5D:"每次评分都有记录、可撤销，随时一键导出完整备份。",
+feat6T:"中英双语",feat6D:"默认中文，一键切换英文——大屏也一样。",
+howT:"三步上手",s1T:"建好班级",s1D:"在「设置」里添加学生和评分规则；也可以先点「试试演示」逛一逛。",
+s2T:"课上加分",s2D:"在投影大屏上两下完成加分：加分有动效，失误可撤销。",
+s3T:"周五兑现",s3D:"本周积极分越攒越多，班级目标进度条到 100%，就是庆祝时刻。",
+scrShowT:"全班共用一块屏",scrShowD:"在投影仪上打开 #/screen：目标火箭、每人一格，每次加分都有彩色迸发。",
+scrC1:"班级目标",scrC2:"加分动效",scrC3:"快速加分抽屉",scrC4:"8 米外可读",
+privT:"数据不出设备",privD:"所有数据只存在这台浏览器的本地存储里：没有账号、没有上传、没有追踪，离线也能用。",
+privC1:"仅本地存储",privC2:"一键导出备份",privC3:"离线可用",
+privNote:"提示：请固定用同一个网址打开——两个不同网址的数据互不相通。",
+faqT:"老师们常问",
+faq1Q:"我的数据存在哪里？",faq1A:"只存在这台浏览器的本地存储里。要换电脑：先在「设置」导出备份，再到新电脑导入。",
+faq2Q:"真的免费吗？",faq2A:"免费。不收费、无广告、绝不出售——只需保留作者署名。",
+faq3Q:"扣分会让等级下降吗？",faq3A:"不会。等级只看终身积极分，永远不会因为扣分下降；只有可花费的钱包会受影响。",
+faq4Q:"教室大屏怎么打开？",faq4A:"在「设置」里选择，或直接打开带 #/screen 的网址。按 F 全屏，按 A 打开快速加分。",
+faq5Q:"备份怎么用？",faq5A:"「设置 → 导出备份」会保存一个包含全部数据的 JSON 文件。超过一周没备份，应用会提醒你。",
+faq6Q:"手机上能用吗？",faq6A:"能——所有页面都适配手机和平板。大屏模式为投影仪和大屏显示而设计。",
+footProd:"产品",footHelp2:"帮助",footAbout:"关于",footTop:"回到顶部",footLicense:"授权与署名",
+roomPickTitle:"打开礼物小屋",
+helpTitle:"使用帮助",helpSub:"常见操作都在这里。遇到问题？先导出一份备份，再来找 Teacher Mo。",
+helpSearch:"搜索帮助…",helpNone:"没有匹配的帮助条目。",helpBack:"\u2190 返回首页",
+h1Q:"怎么添加学生？",h1A:"「设置 → 添加学生」。可以整段粘贴名单，一行一个名字——每个孩子都有自己的格子和小屋。",
+h2Q:"怎么撤销一次评分？",h2A:"评分页点「撤销」，或在大屏抽屉里点「撤销上一条」。记录不会被删除，只会标记为已撤销。",
+h3Q:"盲盒怎么玩？",h3A:"学生用星星开盒，随机得到一份礼物放上架。越稀有的礼物，边框越华丽。",
+h4Q:"负分是怎么处理的？",h4A:"负分只影响钱包，不影响等级。大屏上只显示一个安静的小标记，设置里可以整体隐藏。",
+ariPick:"打开随机点名",pickBtn:"随机点名",pickTitle:"会是谁呢？",pickDraw:"抽一个",pickAgain:"再抽一次",
+pickAll:"全班都点过一轮了——重新装袋。",pickPicked:"抽中的学生",
+
  addStudent:"输入名字添加学生",
  shelf:"礼物架",askGift:"申请礼物",myRequests:"我的申请",waiting:"待审批",
  noReqs:"暂无待批申请。",approve:"批准",decline:"婉拒",giveNow:"立即赠送",backShelf:"放回架子",takeOff:"取下架子",
@@ -1111,6 +1284,7 @@ function route(){
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
+  if(h==="#/help"){renderHelp();return;}
   if(h==="#/screen"){renderScreen();return;}
   else if(h.startsWith("#/app")){
     const tab=(h.split("/")[2]||"classroom");
@@ -1723,10 +1897,16 @@ function renderScreen(){
         <span id="scrSoundChip" class="scr-chip" style="display:none">🔊 ${t("soundChip")}</span><button class="scr-btn" id="scrMute" aria-pressed="${soundOn}" aria-label="${t("ariSound")}" onclick="setSound(${!soundOn})">${soundOn?"🔊":"🔇"}</button>
         <button class="scr-btn" id="scrFull" aria-pressed="${full}" aria-label="${t("ariFull")}" onclick="toggleFullscreen()">⛶</button>
         <button class="scr-btn" id="scrDrawer" aria-label="${t("ariDrawer")}" onclick="openDrawer()">✨ ${t("screenDrawer")}</button>
+        <button class="scr-btn" id="scrPick" onclick="pickOpen()">${t("pickBtn")}</button>
         <a class="scr-btn" href="#/app/classroom" aria-label="${t("screenExit")}">✕ ${t("screenExit")}</a>
       </div>
     </header>
     <main class="scr-grid" id="scrGrid">${S.students.map(tileHTML).join("")}</main>
+    ${PICK_OPEN?`<div class="drw" id="pickOverlay"><div class="drw-card pickcard" role="dialog" aria-label="${t("pickTitle")}">
+      <div class="drw-head"><strong>${t("pickTitle")}</strong><button class="scr-btn" onclick="pickClose()" aria-label="${t("close")}">✕</button></div>
+      <div class="pickname num" id="pickName">${(byId(PICK_LAST)||{name:"—"}).name}</div>
+      <div class="btns"><button class="btn primary" onclick="pickDraw()">${t("pickDraw")}</button></div>
+    </div></div>`:""}
     <div id="scrLive" aria-live="polite" class="visually-hidden"></div>
     <div id="scrChip" hidden><button id="scrChipBtn" class="scr-btn"></button></div>
   </div>`;
@@ -1938,6 +2118,21 @@ function openDrawer(keepSel){
   try{document.querySelector("#view").appendChild(wrap);}catch(_){}
 }
 
+/* ---- random picker (fair bag) ---- */
+let PICK_OPEN=false, PICK_BAG=null, PICK_LAST=null;
+function pickIsOpen(){return PICK_OPEN===true;}
+function shuffleBag(){const b=S.students.map(x=>x.id);for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function pickOpen(){PICK_OPEN=true;PICK_BAG=shuffleBag();PICK_LAST=null;renderScreen();}
+function pickClose(){PICK_OPEN=false;renderScreen();}
+function pickDraw(silent){
+  if(!PICK_BAG||!PICK_BAG.length){PICK_BAG=shuffleBag();if(!silent)toast(t("pickAll"));}
+  const id=PICK_BAG.pop();const st=byId(id);PICK_LAST=id;
+  const nm=document.getElementById("pickName");
+  if(nm&&st)nm.textContent=st.name;
+  const lv=document.getElementById("scrLive");
+  if(lv&&st)lv.textContent=t("pickPicked")+": "+st.name;
+  return id;
+}
 /* ---- Task 12: keyboard shortcuts A / F / Esc (guarded) ---- */
 function isTyping(el){
   if(!el||!el.tagName)return false;
@@ -1959,7 +2154,7 @@ function scrKeydown(e){
     if(key==="a"||key==="A"){openDrawer();if(e.preventDefault)e.preventDefault();return;}
     if(key==="f"||key==="F"){toggleFullscreen();if(e.preventDefault)e.preventDefault();return;}
   }
-  if(key==="Escape"&&drawerIsOpen()){closeDrawer();if(e.preventDefault)e.preventDefault();}
+  if(key==="Escape"){if(PICK_OPEN){pickClose();if(e.preventDefault)e.preventDefault();return;}if(drawerIsOpen()){closeDrawer();if(e.preventDefault)e.preventDefault();}}
 }
 try{document.addEventListener("keydown",scrKeydown);}catch(_){}
 
@@ -2079,17 +2274,34 @@ function renderLanding(){
   const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
   document.querySelector('#view').innerHTML=`
   <div class="gs-page">
+    <a class="skip-link" href="#gsmain">${t("skipToContent")}</a>
     <nav class="gsnav">
       <a class="brand" href="#/">gifted scholars<i>.</i></a>
       <div class="links">
-        <a href="#/app/classroom">${t("navClass")}</a>
-        <a class="xtra" href="#/app/shop">${t("navShop")}</a>
-        <a class="xtra" href="#/app/leaderboard">${t("navBoard")}</a>
-        <a class="xtra" href="#/app/records">${t("navRec")}</a>
+        <a class="xtra" href="#features">${t("navFeatures")}</a>
+        <a class="xtra" href="#how">${t("navHow")}</a>
+        <a class="xtra" href="#screen-show">${t("navScreen")}</a>
+        <a class="xtra" href="#privacy">${t("navPrivacy")}</a>
+        <a class="xtra" href="#faq">${t("navFaq")}</a>
+        <a class="xtra" href="#/help">${t("navHelp")}</a>
         ${langBtn}
         <button class="sqbtn" type="button" onclick="openRoomPicker()">${t("navRoom")}</button>
+        <a class="gsbtn pig naventer" href="#/app/classroom">${t("L_btnEnter")}</a>
+      </div>
+      <button class="gsnav-burger" type="button" aria-expanded="false" aria-controls="gsmenu" aria-label="${t("menuOpen")}" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+      <div class="gsmenu" id="gsmenu" hidden>
+        <a href="#features" onclick="toggleMenu(true)">${t("navFeatures")}</a>
+        <a href="#how" onclick="toggleMenu(true)">${t("navHow")}</a>
+        <a href="#screen-show" onclick="toggleMenu(true)">${t("navScreen")}</a>
+        <a href="#privacy" onclick="toggleMenu(true)">${t("navPrivacy")}</a>
+        <a href="#faq" onclick="toggleMenu(true)">${t("navFaq")}</a>
+        <a href="#/help" onclick="toggleMenu(true)">${t("navHelp")}</a>
+        <a href="#/app/classroom" onclick="toggleMenu(true)">${t("navClass")}</a>
+        <button class="sqbtn" type="button" onclick="toggleMenu(true);openRoomPicker()">${t("navRoom")}</button>
+        ${langBtn}
       </div>
     </nav>
+    <main id="gsmain">
 
     <header class="gshero">
       <div class="gswm" aria-hidden="true">
@@ -2129,6 +2341,29 @@ function renderLanding(){
       </div>
     </section>
 
+    <section class="gsec gsfeats" id="features">
+      <span class="eyebrow rv">${t("navFeatures")}</span>
+      <h2 class="rv">${t("featT")}</h2>
+      <div class="feat-grid" data-stagger>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.plus}</span><h3>${t("feat1T")}</h3><p>${t("feat1D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.screen}</span><h3>${t("feat2T")}</h3><p>${t("feat2D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.gift}</span><h3>${t("feat3T")}</h3><p>${t("feat3D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.chart}</span><h3>${t("feat4T")}</h3><p>${t("feat4D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.undo}</span><h3>${t("feat5T")}</h3><p>${t("feat5D")}</p></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.globe}</span><h3>${t("feat6T")}</h3><p>${t("feat6D")}</p></div>
+      </div>
+    </section>
+
+    <section class="gsec gshow" id="how">
+      <span class="eyebrow rv">${t("navHow")}</span>
+      <h2 class="rv">${t("howT")}</h2>
+      <div class="steps" data-stagger>
+        <div class="step-card rv"><span class="stepn num">1</span><h3>${t("s1T")}</h3><p>${t("s1D")}</p></div>
+        <div class="step-card rv"><span class="stepn num">2</span><h3>${t("s2T")}</h3><p>${t("s2D")}</p></div>
+        <div class="step-card rv"><span class="stepn num">3</span><h3>${t("s3T")}</h3><p>${t("s3D")}</p></div>
+      </div>
+    </section>
+
     <section class="gsstudy" id="fig-study">
       <div class="stage">
         <div>
@@ -2148,6 +2383,20 @@ function renderLanding(){
           <div><span class="k">${t("L_rdStars")}</span><span class="v num" id="rd-stars">0 ★</span></div>
         </div>
         <p class="modelnote">${t("L_studyFoot")}</p>
+      </div>
+    </section>
+
+    <section class="nightband" id="screen-show">
+      <div class="nb-in">
+        <span class="eyebrow rv">${t("navScreen")}</span>
+        <h2 class="rv">${t("scrShowT")}</h2>
+        <p class="seclede rv">${t("scrShowD")}</p>
+        <div class="chips" data-stagger>
+          <span class="chip rv">${t("scrC1")}</span><span class="chip rv">${t("scrC2")}</span>
+          <span class="chip rv">${t("scrC3")}</span><span class="chip rv">${t("scrC4")}</span>
+        </div>
+        <div class="nbmock rv" aria-hidden="true">${SCREEN_MOCK_SVG}</div>
+        <div class="ctas"><a class="gsbtn pig rv" href="#/screen">${t("navScreen")} \u2192</a></div>
       </div>
     </section>
 
@@ -2194,13 +2443,40 @@ function renderLanding(){
       </table>
     </section>
 
-    <footer class="gsclose">
+    <section class="gsec gspriv" id="privacy">
+      <span class="eyebrow rv">${t("navPrivacy")}</span>
+      <h2 class="rv">${t("privT")}</h2>
+      <p class="seclede rv">${t("privD")}</p>
+      <div class="priv-grid" data-stagger>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.lock}</span><h3>${t("privC1")}</h3></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.download}</span><h3>${t("privC2")}</h3></div>
+        <div class="feat-card rv"><span class="ficon" aria-hidden="true">${FI.offline}</span><h3>${t("privC3")}</h3></div>
+      </div>
+      <p class="fine rv">${t("privNote")}</p>
+    </section>
+
+    <section class="gsec gsfaq" id="faq">
+      <span class="eyebrow rv">${t("navFaq")}</span>
+      <h2 class="rv">${t("faqT")}</h2>
+      <div class="faqlist" data-stagger>
+        ${faqData().slice(0,6).map((f,i)=>`<details class="faq-item rv"${i===0?" open":""}><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}
+      </div>
+      <p class="fine rv"><a href="#/help">${t("navHelp")} \u2192</a></p>
+    </section>
+
+    <footer class="gsclose gsfooter">
       <span class="eyebrow rv">${t("L_closeEyebrow")}</span>
       <h2 class="rv">${t("L_closeHeadA")} <em class="it">${t("L_closeHeadB")}</em></h2>
       <p class="fine rv">${t("L_fine")}</p>
       <div class="ctas">
         <button class="gsbtn rv" type="button" onclick="openRoomPicker()">${t("L_closeBtnA")}</button>
         <a class="gsbtn pig rv" href="#/app/classroom">${t("L_closeBtnB")}</a>
+      </div>
+      <div class="footlinks" data-stagger>
+        <div class="rv"><span class="k">${t("footProd")}</span><a href="#features">${t("navFeatures")}</a><a href="#screen-show">${t("navScreen")}</a><a href="#/app/classroom">${t("L_btnEnter")}</a></div>
+        <div class="rv"><span class="k">${t("footHelp2")}</span><a href="#/help">${t("helpTitle")}</a><a href="#faq">${t("navFaq")}</a></div>
+        <div class="rv"><span class="k">${t("footAbout")}</span><button class="flink" type="button" onclick="openLicense()">${t("footLicense")}</button><a href="#privacy">${t("navPrivacy")}</a></div>
+        <div class="rv"><span class="k">\u00a0</span><a href="#gsmain">${t("footTop")} \u2191</a></div>
       </div>
       <div class="strip">
         <span>ZHONGFANGYUAN BILINGUAL SCHOOL</span>
@@ -2281,10 +2557,10 @@ function initStudio(){
 
 /* ---------- open a gift room by student name ---------- */
 function openRoomPicker(){
-  modal(`<div class="card stk" style="max-width:420px"><h2 style="font-family:var(--font-round)">Open a gift room</h2>
+  modal(`<div class="card stk" style="max-width:420px"><h2 style="font-family:var(--font-round)">${t("roomPickTitle")}</h2>
   <p style="margin:8px 0 14px;color:var(--ink-soft)">${t("nameHint")}</p>
   <input id="rp-name" placeholder="${t("yourName")}" style="width:100%;padding:12px 14px;border:var(--bd);border-radius:12px;font-size:16px" aria-label="${t("yourName")}">
-  <div class="btns" style="margin-top:14px"><button class="btn ghost" onclick="closeOverlays()">Cancel</button><button class="btn primary" id="rp-go">${t("openMyRoom")}</button></div></div>`);
+  <div class="btns" style="margin-top:14px"><button class="btn ghost" onclick="closeOverlays()">${t("cancel")}</button><button class="btn primary" id="rp-go">${t("openMyRoom")}</button></div></div>`);
   const openIt=()=>{
     const q=($("#rp-name").value||"").trim().toLowerCase();
     if(!q){toast(t("typeFirst"));return;}
@@ -2309,6 +2585,103 @@ function openLicense(){
   </div>
   <div class="btns" style="margin-top:14px"><button class="btn primary" onclick="closeOverlays()">${t("close")}</button></div></div>`);
 }
+
+/* ---- remake program: icons, mock, faq data, menu, help ---- */
+const FI={
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+ screen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+ gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M4 13h16M12 9c-2.5 0-4-1.2-4-2.7C8 5 9 4.4 10 4.7c1.2.4 2 2 2 4.3 0-2.3.8-3.9 2-4.3 1-.3 2 .3 2 1.6C16 7.8 14.5 9 12 9z"/></svg>',
+ chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>',
+ undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10a8 8 0 1 1 2.3 6.3"/><path d="M4 5v5h5"/></svg>',
+ globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18-3-4-3-14.5 0-18z"/></svg>',
+ lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+ download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v11M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>',
+ offline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12a10 10 0 0 1 14 0"/><path d="M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg>'
+};
+const SCREEN_MOCK_SVG = `<svg viewBox="0 0 520 300" role="img">
+ <rect x="2" y="2" width="516" height="296" rx="10" fill="#241F17"/>
+ <rect x="18" y="16" width="200" height="10" rx="5" fill="#E88654" opacity=".9"/>
+ <rect x="18" y="34" width="120" height="8" rx="4" fill="#4A443A"/>
+ <rect x="360" y="18" width="140" height="34" rx="8" fill="#1A1917"/>
+ <rect x="368" y="26" width="86" height="18" rx="4" fill="#2E7D5B" opacity=".85"/>
+ <text x="380" y="40" font-family="Azeret Mono,monospace" font-size="12" fill="#F0EDE4">36/60</text>
+ ${[0,1,2,3,4,5].map(r=>[0,1,2,3,4,5].map(c=>`<rect x="${18+c*82}" y="${64+r*37}" width="74" height="30" rx="6" fill="#2B261E"/>`).join("")).join("")}
+ <rect x="26" y="72" width="58" height="6" rx="3" fill="#F2B84B"/><rect x="26" y="84" width="40" height="5" rx="2.5" fill="#6E6659"/>
+ <rect x="190" y="146" width="74" height="30" rx="6" fill="#9B3418"/>
+ <circle cx="227" cy="161" r="3" fill="#F0EDE4"/><circle cx="215" cy="155" r="2" fill="#F0EDE4" opacity=".8"/><circle cx="238" cy="167" r="2" fill="#F0EDE4" opacity=".6"/>
+</svg>`;
+function faqData(){return [
+ [t("faq1Q"),t("faq1A")],[t("faq2Q"),t("faq2A")],[t("faq3Q"),t("faq3A")],
+ [t("faq4Q"),t("faq4A")],[t("faq5Q"),t("faq5A")],[t("faq6Q"),t("faq6A")],
+ [t("h1Q"),t("h1A")],[t("h2Q"),t("h2A")],[t("h3Q"),t("h3A")],[t("h4Q"),t("h4A")]
+];}
+function toggleMenu(forceClose){
+  const b=document.querySelector(".gsnav-burger"), m=document.getElementById("gsmenu");
+  if(!b||!m) return;
+  const open=(m.hidden===false)&&!forceClose;
+  m.hidden=open?false:true;
+  b.setAttribute("aria-expanded",open?"true":"false");
+  b.setAttribute("aria-label",open?t("menuClose"):t("menuOpen"));
+}
+if(!window._gsMenuKey){
+  window._gsMenuKey=true;
+  document.addEventListener("keydown",e=>{if(e&&e.key==="Escape")toggleMenu(true);});
+}
+function helpFilterCount(q,items){
+  const n=String(q||"").trim().toLowerCase();
+  let hidden=0;
+  for(const it of items){
+    const hit=!n||it.keys.toLowerCase().indexOf(n)>=0;
+    it.el.style.display=hit?"":"none";
+    if(!hit)hidden++;
+  }
+  return hidden;
+}
+function renderHelp(){
+  applyLangDoc();
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  document.querySelector("#view").innerHTML=`
+  <div class="gs-page gshelp">
+    <nav class="gsnav">
+      <a class="brand" href="#/">gifted scholars<i>.</i></a>
+      <div class="links"><a href="#/">${t("helpBack")}</a>${langBtn}</div>
+    </nav>
+    <main id="gsmain" class="helpwrap">
+      <span class="eyebrow">${t("navHelp")}</span>
+      <h1>${t("helpTitle")}</h1>
+      <p class="seclede">${t("helpSub")}</p>
+      <input id="help-q" class="helpq" type="search" placeholder="${t("helpSearch")}" aria-label="${t("helpSearch")}">
+      <div class="faqlist" id="help-list">
+        ${helpData().map(f=>`<details class="faq-item" data-k="${f[2]}"><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}
+      </div>
+      <p class="none gsnone hide" id="help-none">${t("helpNone")}</p>
+      <p class="fine"><a href="#/">${t("helpBack")}</a> · <button class="flink" type="button" onclick="openLicense()">${t("footLicense")}</button></p>
+    </main>
+  </div>`;
+  const inp=document.getElementById("help-q");
+  const wire=()=>{
+    const items=[...document.querySelectorAll("#help-list .faq-item")].map(el=>({el,keys:el.getAttribute("data-k")||""}));
+    const none=document.getElementById("help-none");
+    return ()=>{const q=inp.value||"";
+      let vis=0;
+      for(const it of items){const hit=!q.trim()||it.keys.toLowerCase().indexOf(q.trim().toLowerCase())>=0;it.el.classList.toggle("gs-hide",!hit);if(hit)vis++;}
+      if(none)none.classList.toggle("hide",vis>0);
+    };
+  };
+  try{inp.addEventListener("input",wire());}catch(_){}
+}
+function helpData(){return [
+ [t("h1Q"),t("h1A"),t("h1Q")+" "+t("h1A")+" students add"],
+ [t("h2Q"),t("h2A"),t("h2Q")+" "+t("h2A")+" undo撤销"],
+ [t("h3Q"),t("h3A"),t("h3Q")+" "+t("h3A")+" box盲盒 mystery"],
+ [t("h4Q"),t("h4A"),t("h4Q")+" "+t("h4A")+" negative负分"],
+ [t("faq1Q"),t("faq1A"),t("faq1Q")+" "+t("faq1A")+" backup备份 storage local"],
+ [t("faq2Q"),t("faq2A"),t("faq2Q")+" "+t("faq2A")+" free免费 price"],
+ [t("faq3Q"),t("faq3A"),t("faq3Q")+" "+t("faq3A")+" level等级 wallet钱包"],
+ [t("faq4Q"),t("faq4A"),t("faq4Q")+" "+t("faq4A")+" screen大屏 fullscreen F A"],
+ [t("faq5Q"),t("faq5A"),t("faq5Q")+" "+t("faq5A")+" backup导出 export json"],
+ [t("faq6Q"),t("faq6A"),t("faq6Q")+" "+t("faq6A")+" phone手机 mobile PWA"]
+];}
 
 /* ============ init (must run last) ============ */
 if(!load())S=emptyState();
