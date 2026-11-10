@@ -539,6 +539,7 @@ function viewSettings(){
     <p style="font-size:13px;color:var(--ink-soft);margin-top:10px;max-width:560px">${t("dataBlurb")}</p>
     <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">${S.settings.lastBackupAt?esc(t("backupOn",{date:fmtDT(S.settings.lastBackupAt)})):t("backupNever")}${backupNote()}</p>
     <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">⚠️ ${t("oneOrigin")}</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:6px">💾 ${t("dataLocalNote")}</p>
   </section>`;
 }
 function backupNote(){
