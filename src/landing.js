@@ -458,8 +458,8 @@ function faqData(){return [
 function toggleMenu(forceClose){
   const b=document.querySelector(".gsnav-burger"), m=document.getElementById("gsmenu");
   if(!b||!m) return;
-  const open=(m.hidden===false)&&!forceClose;
-  m.hidden=open?false:true;
+  const open=(forceClose===true)?false:!!m.hidden;
+  m.hidden=!open;
   b.setAttribute("aria-expanded",open?"true":"false");
   b.setAttribute("aria-label",open?t("menuClose"):t("menuOpen"));
 }

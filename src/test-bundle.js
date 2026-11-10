@@ -623,6 +623,7 @@ function openBox(stId){
 /* ============ router ============ */
 function route(){
   const h=location.hash||"#/";
+  if(!h.startsWith("#/")&&document.querySelector("#gsmain")){return;} /* in-page anchor on landing: let native scroll work */
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
@@ -1960,8 +1961,8 @@ function faqData(){return [
 function toggleMenu(forceClose){
   const b=document.querySelector(".gsnav-burger"), m=document.getElementById("gsmenu");
   if(!b||!m) return;
-  const open=(m.hidden===false)&&!forceClose;
-  m.hidden=open?false:true;
+  const open=(forceClose===true)?false:!!m.hidden;
+  m.hidden=!open;
   b.setAttribute("aria-expanded",open?"true":"false");
   b.setAttribute("aria-label",open?t("menuClose"):t("menuOpen"));
 }

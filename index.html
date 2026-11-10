@@ -610,6 +610,7 @@ html.gs-motion .gs-page .gshero .subject{transition:opacity .8s ease}
   .gsnav .links{display:none}
   .gsnav-burger{display:flex}
 }
+.gsmenu[hidden]{display:none}
 @media (min-width:901px){ .gsmenu{display:none} }
 .gsec{max-width:1080px;margin:0 auto;padding:clamp(56px,9vw,110px) clamp(16px,3.4vw,48px)}
 .gsec h2{font-size:clamp(26px,3.6vw,38px);margin:10px 0 14px}
@@ -1284,6 +1285,7 @@ function openBox(stId){
 /* ============ router ============ */
 function route(){
   const h=location.hash||"#/";
+  if(!h.startsWith("#/")&&document.querySelector("#gsmain")){return;} /* in-page anchor on landing: let native scroll work */
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
@@ -2621,8 +2623,8 @@ function faqData(){return [
 function toggleMenu(forceClose){
   const b=document.querySelector(".gsnav-burger"), m=document.getElementById("gsmenu");
   if(!b||!m) return;
-  const open=(m.hidden===false)&&!forceClose;
-  m.hidden=open?false:true;
+  const open=(forceClose===true)?false:!!m.hidden;
+  m.hidden=!open;
   b.setAttribute("aria-expanded",open?"true":"false");
   b.setAttribute("aria-label",open?t("menuClose"):t("menuOpen"));
 }

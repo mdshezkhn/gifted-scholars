@@ -168,6 +168,7 @@ function openBox(stId){
 /* ============ router ============ */
 function route(){
   const h=location.hash||"#/";
+  if(!h.startsWith("#/")&&document.querySelector("#gsmain")){return;} /* in-page anchor on landing: let native scroll work */
   closeOverlays();
   if(window._gsLandCleanup)window._gsLandCleanup();
   if(h.startsWith("#/room/")){const id=decodeURIComponent(h.slice(7));renderRoom(byId(id)?id:null);return;}
