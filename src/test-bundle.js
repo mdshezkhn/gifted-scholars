@@ -1614,7 +1614,7 @@ function setReadouts(m){
 /* ---------- render ---------- */
 function renderLanding(){
   applyLangDoc();
-  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="'+(LANG==='en'?'中文':'EN')+' - switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
   document.querySelector('#view').innerHTML=`
   <div class="gs-page">
     <a class="skip-link" href="#gsmain">${t("skipToContent")}</a>
@@ -1672,9 +1672,9 @@ function renderLanding(){
           <h2 class="rv">${t("L_drawHead")}</h2>
           <p class="seclede rv">${t("L_drawLede")}</p>
           <dl class="dl" data-stagger>
-            <div class="rv"><dt>${t("L_dlGrowth")}</dt><dd>${t("L_dlGrowthD")}</dd><span class="val num">0 – 160 pts</span></div>
-            <div class="rv"><dt>${t("L_dlStars")}</dt><dd>${t("L_dlStarsD")}</dd><span class="val num">1 ★ = 1 pt</span></div>
-            <div class="rv"><dt>${t("L_dlApproval")}</dt><dd>${t("L_dlApprovalD")}</dd><span class="val">${t("L_valAlways")}</span></div>
+            <div class="rv"><dt>${t("L_dlGrowth")}</dt><dd>${t("L_dlGrowthD")}</dd><dd class="valdd"><span class="val num">0 – 160 pts</span></dd></div>
+            <div class="rv"><dt>${t("L_dlStars")}</dt><dd>${t("L_dlStarsD")}</dd><dd class="valdd"><span class="val num">1 ★ = 1 pt</span></dd></div>
+            <div class="rv"><dt>${t("L_dlApproval")}</dt><dd>${t("L_dlApprovalD")}</dd><dd class="valdd"><span class="val">${t("L_valAlways")}</span></div>
           </dl>
         </div>
         <figure class="figwrap rv">
@@ -1982,7 +1982,7 @@ function helpFilterCount(q,items){
 }
 function renderHelp(){
   applyLangDoc();
-  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="'+(LANG==='en'?'中文':'EN')+' - switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
   document.querySelector("#view").innerHTML=`
   <div class="gs-page gshelp">
     <nav class="gsnav">

@@ -481,6 +481,7 @@ html.gs-motion .gs-page .gshero .subject{transform:translate3d(0,calc(var(--wp,0
 .gsdraw .dl>div{display:grid;grid-template-columns:92px 1fr auto;gap:14px;padding:13px 0;border-bottom:1px solid var(--hair);align-items:baseline}
 .gsdraw .dl dt{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--pigment)}
 .gsdraw .dl dd{color:var(--ink-2)}
+.gsdraw .dl dd.valdd{text-align:right;white-space:nowrap}
 .gsdraw .dl .val{font-size:11.5px;letter-spacing:.06em;color:var(--ink);white-space:nowrap}
 .figwrap{border:1px solid var(--hair);background:var(--ground);padding:clamp(10px,1.6vw,22px)}
 .figwrap svg{display:block;width:100%;height:auto}
@@ -506,7 +507,7 @@ html.gs-motion .gs-page .gshero .subject{transform:translate3d(0,calc(var(--wp,0
 .gsstudy .readouts .k{display:block;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
 .gsstudy .readouts .v{display:block;font-size:clamp(19px,2vw,30px);letter-spacing:-.01em;color:var(--ink);
   font-family:var(--serif);font-variant-numeric:tabular-nums;line-height:1.15}
-.gsstudy .modelnote{margin-top:10px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.gsstudy .modelnote{margin-top:10px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
 
 /* ---------- practice rows ---------- */
 .gsmat .rows{margin-top:clamp(18px,3vh,30px);border-top:1px solid var(--hair)}
@@ -524,7 +525,7 @@ html.gs-motion .gs-page .gshero .subject{transform:translate3d(0,calc(var(--wp,0
 /* ---------- work table ---------- */
 .gstable .tbl{width:100%;border-collapse:collapse;margin-top:clamp(18px,3vh,30px)}
 .gstable th{font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--muted);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--ink)}
+  color:var(--ink-soft);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--ink)}
 .gstable td{padding:15px 12px 15px 0;border-bottom:1px solid var(--hair);vertical-align:baseline}
 .gstable td.name{font-family:var(--serif);font-size:clamp(15px,1.5vw,21px);letter-spacing:-.01em}
 .gstable td,.gstable td a{font-size:11.5px;color:var(--ink-2)}
@@ -538,7 +539,7 @@ html.gs-motion .gs-page .gshero .subject{transform:translate3d(0,calc(var(--wp,0
 .gsclose .fine{margin-top:16px;font-size:11px;letter-spacing:.06em;color:var(--muted);max-width:72ch}
 .gsclose .ctas{display:flex;justify-content:space-between;gap:12px;margin-top:clamp(22px,4vh,40px);flex-wrap:wrap}
 .gsclose .strip{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--hair);
-  margin-top:clamp(26px,5vh,52px);padding:14px 0;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);flex-wrap:wrap}
+  margin-top:clamp(26px,5vh,52px);padding:14px 0;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-soft);flex-wrap:wrap}
 .gsclose .endwm{font-family:var(--serif);font-weight:400;font-size:clamp(80px,20vw,300px);line-height:.82;
   letter-spacing:-.015em;white-space:nowrap;text-align:center;transform:translateY(.17em);margin-top:clamp(8px,2vh,20px);color:var(--ink)}
 
@@ -674,6 +675,10 @@ html.gs-motion .gs-page .gshero .subject{transition:opacity .8s ease}
 .gsnone{color:var(--pigment);font-family:var(--mono);font-size:13px;padding:14px 2px}
 .gshelp .fine{color:var(--ink-2);font-size:12.5px;padding-top:18px}
 .gshelp .flink{border:0;background:none;cursor:pointer;font:inherit;color:var(--pigment);text-decoration:underline;text-underline-offset:3px}
+
+/* audit fixes: WCAG contrast on small landing text + nav pigment button + lang label */
+.gsnav .gsbtn.pig{color:#F4EFE6}
+.gshero .corner-cap,.gsstudy .readouts span.k{color:var(--ink-soft)}
 
 </style>
 </head>
@@ -2276,7 +2281,7 @@ function setReadouts(m){
 /* ---------- render ---------- */
 function renderLanding(){
   applyLangDoc();
-  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="'+(LANG==='en'?'中文':'EN')+' - switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
   document.querySelector('#view').innerHTML=`
   <div class="gs-page">
     <a class="skip-link" href="#gsmain">${t("skipToContent")}</a>
@@ -2334,9 +2339,9 @@ function renderLanding(){
           <h2 class="rv">${t("L_drawHead")}</h2>
           <p class="seclede rv">${t("L_drawLede")}</p>
           <dl class="dl" data-stagger>
-            <div class="rv"><dt>${t("L_dlGrowth")}</dt><dd>${t("L_dlGrowthD")}</dd><span class="val num">0 – 160 pts</span></div>
-            <div class="rv"><dt>${t("L_dlStars")}</dt><dd>${t("L_dlStarsD")}</dd><span class="val num">1 ★ = 1 pt</span></div>
-            <div class="rv"><dt>${t("L_dlApproval")}</dt><dd>${t("L_dlApprovalD")}</dd><span class="val">${t("L_valAlways")}</span></div>
+            <div class="rv"><dt>${t("L_dlGrowth")}</dt><dd>${t("L_dlGrowthD")}</dd><dd class="valdd"><span class="val num">0 – 160 pts</span></dd></div>
+            <div class="rv"><dt>${t("L_dlStars")}</dt><dd>${t("L_dlStarsD")}</dd><dd class="valdd"><span class="val num">1 ★ = 1 pt</span></dd></div>
+            <div class="rv"><dt>${t("L_dlApproval")}</dt><dd>${t("L_dlApprovalD")}</dd><dd class="valdd"><span class="val">${t("L_valAlways")}</span></div>
           </dl>
         </div>
         <figure class="figwrap rv">
@@ -2644,7 +2649,7 @@ function helpFilterCount(q,items){
 }
 function renderHelp(){
   applyLangDoc();
-  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="Switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
+  const langBtn='<button class="sqbtn" type="button" onclick="setLang(\''+(LANG==='en'?'zh':'en')+'\')" aria-label="'+(LANG==='en'?'中文':'EN')+' - switch language">'+(LANG==='en'?'中文':'EN')+'</button>';
   document.querySelector("#view").innerHTML=`
   <div class="gs-page gshelp">
     <nav class="gsnav">
